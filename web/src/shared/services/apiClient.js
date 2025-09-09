@@ -38,6 +38,6 @@ export async function getTestData() {
   return apiCall('/test');
 }
 
-export const api = {
+export const apiClient = {
   getTestData,
 }; 
