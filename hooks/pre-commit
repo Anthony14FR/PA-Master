@@ -1,0 +1,32 @@
+#!/bin/sh
+
+echo "Running API checks..."
+
+if [ ! -d "api" ]; then
+    echo "API directory not found!"
+    exit 1
+fi
+
+cd api
+
+if [ ! -d "vendor" ]; then
+    echo "Run 'composer install' in api/ first"
+    exit 1
+fi
+
+echo "Running Pint..."
+if ! vendor/bin/pint -v; then
+    echo "❌ Code style issues found"
+    exit 1
+fi
+
+echo "Running PHPStan..."
+if ! vendor/bin/phpstan analyse --memory-limit=2G; then
+    echo "❌ PHPStan failed"
+    exit 1
+fi
+
+cd ..
+
+echo "Checks passed"
+exit 0
