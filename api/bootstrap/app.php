@@ -10,8 +10,25 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+
+        $middleware->alias([
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+        ]);
+
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                if ($e instanceof \Illuminate\Validation\ValidationException) {
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => $e->errors(),
+                    ], 422);
+                }
+            }
+        });
     })->create();
