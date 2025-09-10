@@ -15,8 +15,31 @@ if [ ! -d "vendor" ]; then
 fi
 
 echo "Running Pint..."
-if ! vendor/bin/pint -v; then
-    echo "❌ Code style issues found"
+
+cd ..
+git diff --name-only > /tmp/before_pint
+cd api
+
+vendor/bin/pint -v
+PINT_EXIT_CODE=$?
+
+cd ..
+git diff --name-only > /tmp/after_pint
+
+PINT_MODIFIED=$(comm -13 /tmp/before_pint /tmp/after_pint)
+
+if [ -n "$PINT_MODIFIED" ]; then
+    echo "Pint has modified files, adding them to commit:"
+    echo "$PINT_MODIFIED"
+    echo "$PINT_MODIFIED" | xargs git add
+fi
+
+rm -f /tmp/before_pint /tmp/after_pint
+
+cd api
+
+if [ $PINT_EXIT_CODE -ne 0 ]; then
+    echo "❌ Pint failed"
     exit 1
 fi
 
