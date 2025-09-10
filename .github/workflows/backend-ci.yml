@@ -1,0 +1,125 @@
+name: Laravel API - Tests & Quality
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'api/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'api/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  pint:
+    name: Pint (Linter)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        coverage: none
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: api/vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('api/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      working-directory: api
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Pint
+      working-directory: api
+      run: vendor/bin/pint -v
+
+  larastan:
+    name: Larastan (PHPStan)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        coverage: none
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: api/vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('api/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      working-directory: api
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan
+      working-directory: api
+      run: vendor/bin/phpstan analyse --memory-limit=2G
+
+  tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        coverage: none
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: api/vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('api/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      working-directory: api
+      run: composer install --prefer-dist --no-progress
+
+    - name: Create environment file
+      working-directory: api
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+
+    - name: Create database
+      working-directory: api
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Run migrations
+      working-directory: api
+      run: php artisan migrate --force
+
+    - name: Run tests
+      working-directory: api
+      run: php artisan test
