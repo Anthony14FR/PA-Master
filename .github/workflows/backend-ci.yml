@@ -1,4 +1,4 @@
-name: Laravel API - Tests & Quality
+name: Laravel API - CI
 
 on:
   push:
