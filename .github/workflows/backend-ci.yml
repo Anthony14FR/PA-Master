@@ -78,6 +78,7 @@ jobs:
       run: vendor/bin/phpstan analyse --memory-limit=2G
 
   tests:
+    name: Tests Pest (Laravel)
     runs-on: ubuntu-latest
     
     steps:
