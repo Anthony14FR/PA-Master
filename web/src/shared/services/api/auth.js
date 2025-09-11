@@ -1,4 +1,5 @@
 import { apiClient } from './client.js';
+import { cookieUtils } from '../../utils/cookies.js';
 
 export const authService = {
   async login(credentials) {
@@ -6,9 +7,7 @@ export const authService = {
     
     if (response.token) {
       apiClient.setAuthToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', response.token);
-      }
+      cookieUtils.set('auth_token', response.token, 7);
     }
     
     return response;
@@ -26,9 +25,7 @@ export const authService = {
     
     if (response.token) {
       apiClient.setAuthToken(response.token);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', response.token);
-      }
+      cookieUtils.set('auth_token', response.token, 7);
     }
     
     return response;
@@ -41,9 +38,7 @@ export const authService = {
       console.warn('Erreur lors de la déconnexion:', error);
     } finally {
       apiClient.clearAuthToken();
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-      }
+      cookieUtils.remove('auth_token');
     }
   },
 
@@ -60,18 +55,13 @@ export const authService = {
   },
 
   initializeAuth() {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        apiClient.setAuthToken(token);
-      }
+    const token = cookieUtils.get('auth_token');
+    if (token) {
+      apiClient.setAuthToken(token);
     }
   },
 
   isAuthenticated() {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('auth_token');
-    }
-    return false;
+    return !!cookieUtils.get('auth_token');
   },
 }; 
