@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { useAuth } from "@/shared/hooks/useAuth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -14,6 +16,11 @@ export function RegisterPage() {
         password: "",
         confirmPassword: ""
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [validationError, setValidationError] = useState("");
+
+    const { register, error, clearError } = useAuth();
+    const router = useRouter();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -21,15 +28,29 @@ export function RegisterPage() {
             ...prev,
             [name]: value
         }));
+        setValidationError("");
+        clearError();
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        
         if (formData.password !== formData.confirmPassword) {
-            alert("Les mots de passe ne correspondent pas");
+            setValidationError("Les mots de passe ne correspondent pas");
             return;
         }
-        console.log("Inscription:", formData);
+
+        setIsSubmitting(true);
+        clearError();
+
+        try {
+            await register(formData);
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Erreur d\'inscription:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -53,6 +74,12 @@ export function RegisterPage() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {(error || validationError) && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                                    {validationError || error}
+                                </div>
+                            )}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="name">Nom complet</Label>
                                 <Input
@@ -62,6 +89,7 @@ export function RegisterPage() {
                                     placeholder="Votre nom complet"
                                     value={formData.name}
                                     onChange={handleInputChange}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
@@ -74,6 +102,7 @@ export function RegisterPage() {
                                     placeholder="votre@email.com"
                                     value={formData.email}
                                     onChange={handleInputChange}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
@@ -86,6 +115,7 @@ export function RegisterPage() {
                                     placeholder="Créez un mot de passe"
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
@@ -98,11 +128,12 @@ export function RegisterPage() {
                                     placeholder="Confirmez votre mot de passe"
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
-                            <Button type="submit" className="w-full">
-                                S'inscrire
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
                             </Button>
                         </form>
                         
