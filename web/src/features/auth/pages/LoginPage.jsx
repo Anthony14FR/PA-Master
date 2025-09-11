@@ -1,19 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { useAuth } from "@/shared/hooks/useAuth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const { login, error, clearError } = useAuth();
+    const router = useRouter();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Connexion:", { email, password });
+        setIsSubmitting(true);
+        clearError();
+
+        try {
+            await login({ email, password });
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('Erreur de connexion:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -37,6 +53,12 @@ export function LoginPage() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
@@ -45,6 +67,7 @@ export function LoginPage() {
                                     placeholder="votre@email.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
@@ -56,11 +79,12 @@ export function LoginPage() {
                                     placeholder="Votre mot de passe"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    disabled={isSubmitting}
                                     required
                                 />
                             </div>
-                            <Button type="submit" className="w-full">
-                                Se connecter
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
                             </Button>
                         </form>
                         
