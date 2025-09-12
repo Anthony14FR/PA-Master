@@ -17,9 +17,11 @@ class UsersSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'user@orus.com'],
             [
-                'name' => 'User',
+                'first_name' => 'User',
+                'last_name' => 'Account',
                 'password' => Hash::make('user'),
                 'email_verified_at' => now(),
+                'is_id_verified' => false,
             ]
         )->assignRole('user');
 
@@ -27,9 +29,11 @@ class UsersSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'manager@orus.com'],
             [
-                'name' => 'Manager',
+                'first_name' => 'Manager',
+                'last_name' => 'Account',
                 'password' => Hash::make('manager'),
                 'email_verified_at' => now(),
+                'is_id_verified' => false,
             ]
         )->assignRole('manager');
 
@@ -37,9 +41,11 @@ class UsersSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@orus.com'],
             [
-                'name' => 'Admin',
+                'first_name' => 'Admin',
+                'last_name' => 'Account',
                 'password' => Hash::make('admin'),
                 'email_verified_at' => now(),
+                'is_id_verified' => false,
             ]
         )->assignRole('admin');
     }
