@@ -2,7 +2,6 @@
 
 namespace App\Services\Establishment\Data;
 
-use App\Models\Establishment;
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 
@@ -28,46 +27,4 @@ class EstablishmentData extends Data
         public readonly ?UserData $manager = null,
         public readonly ?Collection $collaborators = null,
     ) {}
-
-    public static function fromModel(Establishment $establishment): self
-    {
-        $address = null;
-        if (! blank($establishment->address)) {
-            $address = AddressData::from($establishment->address);
-        }
-
-        $manager = null;
-        if (! blank($establishment->manager)) {
-            $manager = UserData::from($establishment->manager);
-        }
-
-        $collaborators = null;
-        if (! blank($establishment->collaborators)) {
-            $collaborators = collect();
-            foreach ($establishment->collaborators as $user) {
-                $collaborators->push(UserData::from($user));
-            }
-        }
-
-        return new self(
-            id: (string) $establishment->id,
-            name: $establishment->name,
-            siret: $establishment->siret,
-            description: $establishment->description,
-            phone: $establishment->phone,
-            email: $establishment->email,
-            website: $establishment->website,
-            address_id: (string) $establishment->address_id,
-            timezone: $establishment->timezone,
-            is_active: (bool) $establishment->is_active,
-            number_places_available: $establishment->number_places_available,
-            price_places_available: $establishment->price_places_available,
-            manager_id: (int) $establishment->manager_id,
-            created_at: human_date($establishment->created_at),
-            updated_at: human_date($establishment->updated_at),
-            address: $address,
-            manager: $manager,
-            collaborators: $collaborators,
-        );
-    }
 }
