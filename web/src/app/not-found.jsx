@@ -1,5 +1,5 @@
 export default function NotFound() {
-    return (
-        <h1>Page 404 custom (web/src/app/not-found.jsx)</h1>
-    );
+  return (
+    <p>404 - Page not found</p>
+  )
 }

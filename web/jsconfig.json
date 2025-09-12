@@ -2,7 +2,8 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@/ui" : ["./src/shared/components/ui/*"]
+      "@/ui/*" : ["./src/shared/components/ui/*"],
+      "@/hooks/*" : ["./src/shared/hooks/*"]
     }
   }
 }
