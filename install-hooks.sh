@@ -26,4 +26,13 @@ else
     exit 1
 fi
 
+if [ -f "hooks/commit-msg" ]; then
+    cp hooks/commit-msg .git/hooks/commit-msg
+    chmod +x .git/hooks/commit-msg
+    echo "Commit-msg hook installed"
+else
+    echo "hooks/commit-msg not found"
+    exit 1
+fi
+
 echo "Installation complete"

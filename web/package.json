@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "cd .. && bash install-hooks.sh",
+    "postupdate": "cd .. && bash install-hooks.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
