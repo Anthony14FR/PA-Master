@@ -74,6 +74,10 @@ const items = [
     url: "/dashboard/home",
   },
   {
+    title: "Explore",
+    url: "/dashboard/explore",
+  },
+  {
     title: "Calendar",
     url: "#",
   },
