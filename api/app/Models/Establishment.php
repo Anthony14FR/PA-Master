@@ -32,6 +32,7 @@ class Establishment extends Model
         return [
             'is_active' => 'boolean',
             'number_places_available' => 'integer',
+            'price_places_available' => 'decimal:2',
         ];
     }
 
