@@ -52,7 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'is_id_verified' => 'boolean',
-            'password' => 'hashed',
+            'password' => self::PASSWORD_CAST,
         ];
     }
 
