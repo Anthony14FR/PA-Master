@@ -20,8 +20,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
+        'phone',
+        'is_id_verified',
         'password',
     ];
 
@@ -44,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_id_verified' => 'boolean',
             'password' => 'hashed',
         ];
     }

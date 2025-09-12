@@ -13,7 +13,7 @@ test('users can authenticate using the login screen', function () {
     $response->assertStatus(200)
         ->assertJsonStructure([
             'token',
-            'user' => ['id', 'name', 'email'],
+            'user' => ['id', 'first_name', 'last_name', 'email'],
         ]);
 });
 

@@ -2,7 +2,8 @@
 
 test('new users can register', function () {
     $response = $this->post('/api/register', [
-        'name' => 'Test User',
+        'first_name' => 'Test',
+        'last_name' => 'User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
@@ -11,6 +12,6 @@ test('new users can register', function () {
     $response->assertStatus(201)
         ->assertJsonStructure([
             'token',
-            'user' => ['id', 'name', 'email'],
+            'user' => ['id', 'first_name', 'last_name', 'email'],
         ]);
 });
