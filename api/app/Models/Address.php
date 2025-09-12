@@ -25,8 +25,8 @@ class Address extends Model
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:10,8',
-            'longitude' => 'decimal:11,8',
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 
