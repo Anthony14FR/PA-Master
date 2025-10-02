@@ -20,4 +20,20 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::middleware(['auth:sanctum'])->put('/user/locale', function (Request $request) {
+    $availableLocales = explode(',', config('app.available_locales', 'en'));
+
+    $request->validate([
+        'locale' => ['required', 'string', 'in:'.implode(',', $availableLocales)],
+    ]);
+
+    $user = $request->user();
+    $user->update(['locale' => $request->locale]);
+
+    return response()->json([
+        'success' => true,
+        'locale' => $user->locale,
+    ]);
+});
+
 require __DIR__.'/auth.php';

@@ -14,12 +14,28 @@ class ApiClient {
     this.token = null;
   }
 
+  getLocaleFromDomain() {
+    if (typeof window === 'undefined') return 'en';
+
+    const hostname = window.location.hostname.replace('www.', '').toLowerCase();
+    const domainLocales = {
+      'kennelo.fr': 'fr',
+      'kennelo.com': 'en',
+      'kennelo.it': 'it',
+      'kennelo.be': 'fr',
+      'kennelo.de': 'de'
+    };
+
+    return domainLocales[hostname] || 'en';
+  }
+
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}/api${endpoint}`;
-    
+
     const defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Accept-Language': this.getLocaleFromDomain(),
     };
 
     if (this.token) {
@@ -40,12 +56,12 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
       }
-      
+
       return await response.json();
     } catch (error) {
       if (error instanceof ApiError) {
@@ -60,18 +76,18 @@ class ApiClient {
   }
 
   async post(endpoint, data, options = {}) {
-    return this.request(endpoint, { 
-      ...options, 
-      method: 'POST', 
-      body: data 
+    return this.request(endpoint, {
+      ...options,
+      method: 'POST',
+      body: data
     });
   }
 
   async put(endpoint, data, options = {}) {
-    return this.request(endpoint, { 
-      ...options, 
-      method: 'PUT', 
-      body: data 
+    return this.request(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: data
     });
   }
 

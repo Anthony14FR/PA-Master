@@ -7,7 +7,7 @@ import { ApiError } from '../services/api/client.js';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children, locale = 'en' }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
     const initAuth = async () => {
       try {
         authService.initializeAuth();
-        
+
         if (authService.isAuthenticated()) {
           const userData = await authService.getCurrentUser();
           setUser(userData);
@@ -38,14 +38,14 @@ export function AuthProvider({ children }) {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await authService.login(credentials);
       setUser(response.user || response);
-      
+
       return response;
     } catch (error) {
-      const errorMessage = error instanceof ApiError 
-        ? error.message 
+      const errorMessage = error instanceof ApiError
+        ? error.message
         : 'Erreur de connexion';
       setError(errorMessage);
       throw error;
@@ -58,14 +58,14 @@ export function AuthProvider({ children }) {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await authService.register(userData);
       setUser(response.user || response);
-      
+
       return response;
     } catch (error) {
-      const errorMessage = error instanceof ApiError 
-        ? error.message 
+      const errorMessage = error instanceof ApiError
+        ? error.message
         : 'Erreur lors de l\'inscription';
       setError(errorMessage);
       throw error;
