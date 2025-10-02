@@ -1,17 +1,22 @@
-const DOMAIN_LOCALES = {
-    'kennelo.fr': 'fr',
-    'kennelo.com': 'en',
-    'kennelo.it': 'it',
-    'kennelo.be': 'fr',
-    'kennelo.de': 'de'
-};
+function parseEnvDomainLocales() {
+    const envValue = process.env.NEXT_PUBLIC_DOMAIN_LOCALES || 'kennelo.fr:fr,kennelo.com:en,kennelo.it:it,kennelo.be:fr,kennelo.de:de';
+    const domainLocales = {};
+    const localeDomains = {};
 
-const LOCALE_DOMAINS = {
-    'fr': 'kennelo.fr',
-    'en': 'kennelo.com',
-    'it': 'kennelo.it',
-    'de': 'kennelo.de'
-};
+    envValue.split(',').forEach(pair => {
+        const [domain, locale] = pair.trim().split(':');
+        if (domain && locale) {
+            domainLocales[domain] = locale;
+            if (!localeDomains[locale]) {
+                localeDomains[locale] = domain;
+            }
+        }
+    });
+
+    return { domainLocales, localeDomains };
+}
+
+const { domainLocales: DOMAIN_LOCALES, localeDomains: LOCALE_DOMAINS } = parseEnvDomainLocales();
 
 const COUNTRY_LOCALES = {
     'FR': 'fr',
@@ -27,8 +32,8 @@ const COUNTRY_LOCALES = {
     'LU': 'fr'
 };
 
-const AVAILABLE_LOCALES = ['fr', 'en', 'it', 'de'];
-const DEFAULT_LOCALE = 'en';
+const AVAILABLE_LOCALES = (process.env.NEXT_PUBLIC_AVAILABLE_LOCALES || 'fr,en,it,de').split(',').map(l => l.trim());
+const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'en';
 
 export function getLocaleFromDomain(hostname) {
     if (!hostname) return DEFAULT_LOCALE;
@@ -177,17 +182,13 @@ async function discoverAndLoadFiles(locale) {
 
         if (content) {
             if (filePath.includes('/')) {
-                // Nested file: auth/login.json -> messages.auth.login = content
                 const nested = buildNestedObject(filePath, content);
                 mergeDeep(messages, nested);
             } else {
-                // Root file
                 const fileName = filePath.replace('.json', '');
                 if (fileName === 'common') {
-                    // Merge common.json content at root level
                     mergeDeep(messages, content);
                 } else {
-                    // Other root files like auth.json -> messages.auth = content
                     messages[fileName] = content;
                 }
             }
