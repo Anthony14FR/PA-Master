@@ -1,0 +1,18 @@
+{
+  "title": "Login",
+  "subtitle": "Sign in to your account",
+  "description": "Enter your credentials to access your account",
+  "form": {
+    "email": "Email address",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Your password",
+    "submit": "Sign in",
+    "loading": "Signing in..."
+  },
+  "links": {
+    "noAccount": "Don't have an account?",
+    "register": "Sign up",
+    "goBack": "Go back home"
+  }
+}

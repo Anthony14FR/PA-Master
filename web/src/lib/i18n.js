@@ -1,0 +1,255 @@
+const DOMAIN_LOCALES = {
+    'kennelo.fr': 'fr',
+    'kennelo.com': 'en',
+    'kennelo.it': 'it',
+    'kennelo.be': 'fr',
+    'kennelo.de': 'de'
+};
+
+const LOCALE_DOMAINS = {
+    'fr': 'kennelo.fr',
+    'en': 'kennelo.com',
+    'it': 'kennelo.it',
+    'de': 'kennelo.de'
+};
+
+const COUNTRY_LOCALES = {
+    'FR': 'fr',
+    'GB': 'en',
+    'US': 'en',
+    'CA': 'en',
+    'AU': 'en',
+    'IT': 'it',
+    'DE': 'de',
+    'AT': 'de',
+    'CH': 'de',
+    'BE': 'fr',
+    'LU': 'fr'
+};
+
+const AVAILABLE_LOCALES = ['fr', 'en', 'it', 'de'];
+const DEFAULT_LOCALE = 'en';
+
+export function getLocaleFromDomain(hostname) {
+    if (!hostname) return DEFAULT_LOCALE;
+
+    const domain = hostname.replace('www.', '').toLowerCase();
+    return DOMAIN_LOCALES[domain] || DEFAULT_LOCALE;
+}
+
+export function getDomainForLocale(locale) {
+    return LOCALE_DOMAINS[locale] || LOCALE_DOMAINS[DEFAULT_LOCALE];
+}
+
+export function getLocaleFromCountry(countryCode) {
+    return COUNTRY_LOCALES[countryCode?.toUpperCase()] || DEFAULT_LOCALE;
+}
+
+export function isValidLocale(locale) {
+    return AVAILABLE_LOCALES.includes(locale);
+}
+
+export function getHreflangUrls(pathname = '/') {
+    const urls = {};
+
+    for (const locale of AVAILABLE_LOCALES) {
+        const domain = getDomainForLocale(locale);
+        urls[locale] = `https://${domain}${pathname}`;
+    }
+
+    urls['x-default'] = `https://kennelo.com${pathname}`;
+    return urls;
+}
+
+export function getHreflangCode(locale) {
+    const codes = {
+        'fr': 'fr-FR',
+        'en': 'en-US',
+        'it': 'it-IT',
+        'de': 'de-DE'
+    };
+    return codes[locale] || codes[DEFAULT_LOCALE];
+}
+
+export async function getCountryFromIP(ip) {
+    if (!ip || ip === '127.0.0.1' || ip === '::1') {
+        return 'US';
+    }
+
+    try {
+        const response = await fetch(`https://ipapi.co/${ip}/country/`, {
+            headers: { 'User-Agent': 'Kennelo/1.0' },
+            next: { revalidate: 3600 }
+        });
+
+        if (response.ok) {
+            const countryCode = await response.text();
+            return countryCode.trim().toUpperCase();
+        }
+    } catch (error) {
+        console.warn('IP geolocation failed:', error.message);
+    }
+
+    return 'US';
+}
+
+export function shouldRedirectFromCom(hostname, userCountry, preferredLocale) {
+    if (!hostname?.includes('kennelo.com')) {
+        return null;
+    }
+
+    if (preferredLocale && isValidLocale(preferredLocale)) {
+        const targetDomain = getDomainForLocale(preferredLocale);
+        return targetDomain !== 'kennelo.com' ? targetDomain : null;
+    }
+
+    const localeFromCountry = getLocaleFromCountry(userCountry);
+    const targetDomain = getDomainForLocale(localeFromCountry);
+
+    return targetDomain !== 'kennelo.com' ? targetDomain : null;
+}
+
+let messagesCache = new Map();
+let translationManifest = null;
+
+async function loadTranslationManifest() {
+    if (translationManifest) {
+        return translationManifest;
+    }
+
+    try {
+        const manifestModule = await import('./translation-manifest.json');
+        translationManifest = manifestModule.default || manifestModule;
+        return translationManifest;
+    } catch (error) {
+        console.warn('Translation manifest not found, falling back to empty manifest');
+        translationManifest = {};
+        return translationManifest;
+    }
+}
+
+function buildNestedObject(path, content) {
+    const parts = path.replace('.json', '').split('/');
+    const result = {};
+
+    let current = result;
+    for (let i = 0; i < parts.length - 1; i++) {
+        current[parts[i]] = current[parts[i]] || {};
+        current = current[parts[i]];
+    }
+
+    const lastKey = parts[parts.length - 1];
+    current[lastKey] = content;
+
+    return result;
+}
+
+function mergeDeep(target, source) {
+    for (const key in source) {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            target[key] = target[key] || {};
+            mergeDeep(target[key], source[key]);
+        } else {
+            target[key] = source[key];
+        }
+    }
+    return target;
+}
+
+async function tryLoadFile(locale, filePath) {
+    try {
+        const module = await import(`../../messages/${locale}/${filePath}`);
+        return module.default || module;
+    } catch (error) {
+        return null;
+    }
+}
+
+async function discoverAndLoadFiles(locale) {
+    const messages = {};
+    const manifest = await loadTranslationManifest();
+    const availablePaths = manifest[locale] || [];
+
+    console.debug(`Loading ${availablePaths.length} translation files for locale: ${locale}`);
+
+    for (const filePath of availablePaths) {
+        const content = await tryLoadFile(locale, filePath);
+
+        if (content) {
+            if (filePath.includes('/')) {
+                // Nested file: auth/login.json -> messages.auth.login = content
+                const nested = buildNestedObject(filePath, content);
+                mergeDeep(messages, nested);
+            } else {
+                // Root file
+                const fileName = filePath.replace('.json', '');
+                if (fileName === 'common') {
+                    // Merge common.json content at root level
+                    mergeDeep(messages, content);
+                } else {
+                    // Other root files like auth.json -> messages.auth = content
+                    messages[fileName] = content;
+                }
+            }
+        }
+    }
+
+    return messages;
+}
+
+export async function getMessages(locale) {
+    if (!isValidLocale(locale)) {
+        locale = DEFAULT_LOCALE;
+    }
+
+    if (messagesCache.has(locale)) {
+        return messagesCache.get(locale);
+    }
+
+    try {
+        const messages = await discoverAndLoadFiles(locale);
+        messagesCache.set(locale, messages);
+        return messages;
+    } catch (error) {
+        console.warn(`Failed to load messages for locale ${locale}:`, error);
+
+        if (locale !== DEFAULT_LOCALE) {
+            return getMessages(DEFAULT_LOCALE);
+        }
+
+        return {};
+    }
+}
+
+export async function getMessagesForNamespace(locale, namespace, subNamespace = null) {
+    const messages = await getMessages(locale);
+
+    if (subNamespace) {
+        return messages[namespace]?.[subNamespace] || {};
+    }
+
+    return messages[namespace] || {};
+}
+
+export function t(messages, key, params = {}) {
+    const keys = key.split('.');
+    let value = messages;
+
+    for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+            value = value[k];
+        } else {
+            return key;
+        }
+    }
+
+    if (typeof value !== 'string') {
+        return key;
+    }
+
+    return Object.keys(params).reduce((str, param) => {
+        return str.replace(new RegExp(`{{${param}}}`, 'g'), params[param]);
+    }, value);
+}
+
+export { AVAILABLE_LOCALES, DEFAULT_LOCALE, DOMAIN_LOCALES, LOCALE_DOMAINS };
