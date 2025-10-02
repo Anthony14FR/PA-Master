@@ -15,7 +15,6 @@ function scanTranslationFiles(dir, basePath = '') {
         const relativePath = path.join(basePath, item).replace(/\\/g, '/');
 
         if (fs.statSync(itemPath).isDirectory()) {
-            // Recursively scan subdirectories
             files.push(...scanTranslationFiles(itemPath, relativePath));
         } else if (item.endsWith('.json')) {
             files.push(relativePath);
@@ -46,7 +45,6 @@ function generateI18nManifest() {
         manifest[locale] = scanTranslationFiles(localeDir);
     }
 
-    // Write manifest to file
     fs.writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 
     console.log('📄 Generated translation manifest:', outputPath);
