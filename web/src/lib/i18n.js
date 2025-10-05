@@ -35,6 +35,22 @@ const COUNTRY_LOCALES = {
 const AVAILABLE_LOCALES = (process.env.NEXT_PUBLIC_AVAILABLE_LOCALES || 'fr,en,it,de').split(',').map(l => l.trim());
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'en';
 
+function parseLocalesCodes() {
+    const envValue = process.env.NEXT_PUBLIC_LOCALES_CODES || 'fr:fr-FR,en:en-US,it:it-IT,de:de-DE';
+    const localesCodes = {};
+
+    envValue.split(',').forEach(pair => {
+        const [locale, code] = pair.trim().split(':');
+        if (locale && code) {
+            localesCodes[locale] = code;
+        }
+    });
+
+    return localesCodes;
+}
+
+const LOCALES_CODES = parseLocalesCodes();
+
 export function getLocaleFromDomain(hostname) {
     if (!hostname) return DEFAULT_LOCALE;
 
@@ -67,13 +83,7 @@ export function getHreflangUrls(pathname = '/') {
 }
 
 export function getHreflangCode(locale) {
-    const codes = {
-        'fr': 'fr-FR',
-        'en': 'en-US',
-        'it': 'it-IT',
-        'de': 'de-DE'
-    };
-    return codes[locale] || codes[DEFAULT_LOCALE];
+    return LOCALES_CODES[locale] || LOCALES_CODES[DEFAULT_LOCALE];
 }
 
 export async function getCountryFromIP(ip) {
@@ -253,4 +263,4 @@ export function t(messages, key, params = {}) {
     }, value);
 }
 
-export { AVAILABLE_LOCALES, DEFAULT_LOCALE, DOMAIN_LOCALES, LOCALE_DOMAINS };
+export { AVAILABLE_LOCALES, DEFAULT_LOCALE, DOMAIN_LOCALES, LOCALE_DOMAINS, LOCALES_CODES };

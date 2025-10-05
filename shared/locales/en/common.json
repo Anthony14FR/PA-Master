@@ -64,5 +64,18 @@
   "meta": {
     "title": "Kennelo - Establishment Management",
     "description": "Complete platform to manage your establishments, bookings and teams with ease."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "redirecting": "Redirecting...",
+    "authSuccess": "Authentication successful!",
+    "userInfo": {
+      "name": "Name",
+      "email": "Email",
+      "id": "ID"
+    },
+    "welcome": "Welcome to your dashboard! Authentication between Next.js and Laravel works perfectly."
   }
 }

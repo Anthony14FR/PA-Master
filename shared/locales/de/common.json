@@ -64,5 +64,18 @@
   "meta": {
     "title": "Kennelo - Betriebsverwaltung",
     "description": "Vollständige Plattform zur einfachen Verwaltung Ihrer Betriebe, Buchungen und Teams."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Abmelden",
+    "loading": "Laden...",
+    "redirecting": "Weiterleitung läuft...",
+    "authSuccess": "Authentifizierung erfolgreich!",
+    "userInfo": {
+      "name": "Name",
+      "email": "E-Mail",
+      "id": "ID"
+    },
+    "welcome": "Willkommen zu Ihrem Dashboard! Die Authentifizierung zwischen Next.js und Laravel funktioniert einwandfrei."
   }
 }

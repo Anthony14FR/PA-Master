@@ -1,4 +1,4 @@
-import { getLocaleFromDomain, getDomainForLocale, getHreflangUrls, AVAILABLE_LOCALES } from '@/lib/i18n';
+import { getLocaleFromDomain, getDomainForLocale, getHreflangUrls, getHreflangCode, AVAILABLE_LOCALES } from '@/lib/i18n';
 
 export default function sitemap() {
     const hostname = process.env.VERCEL_URL
@@ -30,12 +30,7 @@ export default function sitemap() {
                     if (key === 'x-default') {
                         acc['x-default'] = url;
                     } else {
-                        const hreflangCode = key === 'fr' ? 'fr-FR'
-                            : key === 'en' ? 'en-US'
-                                : key === 'it' ? 'it-IT'
-                                    : key === 'de' ? 'de-DE'
-                                        : key;
-                        acc[hreflangCode] = url;
+                        acc[getHreflangCode(key)] = url;
                     }
                     return acc;
                 }, {}),

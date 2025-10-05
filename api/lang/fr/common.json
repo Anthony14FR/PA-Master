@@ -64,5 +64,18 @@
   "meta": {
     "title": "Kennelo",
     "description": "Plateforme complète pour gérer vos établissements, réservations et équipes en toute simplicité."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Se déconnecter",
+    "loading": "Chargement...",
+    "redirecting": "Redirection en cours...",
+    "authSuccess": "Authentification réussie !",
+    "userInfo": {
+      "name": "Nom",
+      "email": "Email",
+      "id": "ID"
+    },
+    "welcome": "Bienvenue sur votre dashboard ! L'authentification entre Next.js et Laravel fonctionne parfaitement."
   }
 }

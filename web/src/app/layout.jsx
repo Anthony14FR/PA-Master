@@ -2,7 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from 'next/headers';
 import { AuthProvider } from "@/shared/contexts/AuthContext";
 import { HreflangTags } from "@/components/HreflangTags";
-import { getLocaleFromDomain, getDomainForLocale, getMessages, t } from "@/lib/i18n";
+import { OrganizationStructuredData, WebSiteStructuredData } from "@/components/StructuredData";
+import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, t } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,6 +31,19 @@ export async function generateMetadata() {
     alternates: {
       canonical: `https://${currentDomain}${pathname}`,
     },
+    openGraph: {
+      title: t(messages, 'meta.title'),
+      description: t(messages, 'meta.description'),
+      url: `https://${currentDomain}${pathname}`,
+      siteName: t(messages, 'site.name'),
+      locale: getHreflangCode(locale).replace('-', '_'),
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t(messages, 'meta.title'),
+      description: t(messages, 'meta.description'),
+    },
     other: {
       'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION || '',
     },
@@ -42,11 +56,14 @@ export default async function RootLayout({ children }) {
   const pathname = headersList.get('x-pathname') || '/';
   
   const locale = getLocaleFromDomain(hostname);
+  const messages = await getMessages(locale);
 
   return (
     <html lang={locale}>
       <head>
         <HreflangTags pathname={pathname} />
+        <OrganizationStructuredData locale={locale} messages={messages} t={t} />
+        <WebSiteStructuredData locale={locale} messages={messages} t={t} />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>

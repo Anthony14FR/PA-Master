@@ -64,5 +64,18 @@
   "meta": {
     "title": "Kennelo - Gestione Strutture",
     "description": "Piattaforma completa per gestire le tue strutture, prenotazioni e team con facilità."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "logout": "Disconnetti",
+    "loading": "Caricamento...",
+    "redirecting": "Reindirizzamento in corso...",
+    "authSuccess": "Autenticazione riuscita!",
+    "userInfo": {
+      "name": "Nome",
+      "email": "Email",
+      "id": "ID"
+    },
+    "welcome": "Benvenuto nella tua dashboard! L'autenticazione tra Next.js e Laravel funziona perfettamente."
   }
 }
