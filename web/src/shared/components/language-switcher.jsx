@@ -14,7 +14,7 @@ import {
   getLocaleFromDomain,
   AVAILABLE_LOCALES
 } from '@/lib/i18n';
-import { useAuth } from '@/shared/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/shared/services/api/auth';
 
 const LOCALE_LABELS = {

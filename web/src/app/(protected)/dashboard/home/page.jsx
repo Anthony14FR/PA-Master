@@ -1,7 +1,7 @@
-import HomePage from "@/features/dashboard/pages/HomePage"
+import Home from "@/features/dashboard/pages/home"
 
 export default function Home() {
     return (
-        <HomePage />
+        <Home />
     )
   }

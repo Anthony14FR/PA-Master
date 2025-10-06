@@ -3,63 +3,75 @@
 import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { useCommonTranslation } from "@/shared/hooks/useTranslation";
 
 export default function Home() {
-  const { t } = useCommonTranslation();
+  const { T } = useCommonTranslation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
-            {t("site.name")}
+            <T tKey="site.name" skeletonWidth={200} />
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 mb-8">
-            {t("site.tagline")}
+            <T tKey="site.tagline" skeletonWidth={400} />
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>{t("home.cards.api.title")}</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.api.title" skeletonWidth={120} />
+              </CardTitle>
               <CardDescription>
-                {t("home.cards.api.description")}
+                <T tKey="home.cards.api.description" skeletonWidth={200} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/test">{t("home.cards.api.button")}</Link>
+                <Link href="/test">
+                  <T tKey="home.cards.api.button" skeletonWidth={100} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>{t("home.cards.login.title")}</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.login.title" skeletonWidth={100} />
+              </CardTitle>
               <CardDescription>
-                {t("home.cards.login.description")}
+                <T tKey="home.cards.login.description" skeletonWidth={180} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/login">{t("home.cards.login.button")}</Link>
+                <Link href="/auth/login">
+                  <T tKey="home.cards.login.button" skeletonWidth={100} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>{t("home.cards.register.title")}</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.register.title" skeletonWidth={110} />
+              </CardTitle>
               <CardDescription>
-                {t("home.cards.register.description")}
+                <T tKey="home.cards.register.description" skeletonWidth={170} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/register">{t("home.cards.register.button")}</Link>
+                <Link href="/auth/register">
+                  <T tKey="home.cards.register.button" skeletonWidth={90} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -67,7 +79,7 @@ export default function Home() {
 
         <div className="flex flex-col items-center gap-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {t("home.cta")}
+            <T tKey="home.cta" skeletonWidth={350} />
           </p>
 
           <LanguageSwitcher />

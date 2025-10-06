@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from 'next/headers';
-import { AuthProvider } from "@/shared/contexts/AuthContext";
-import { HreflangTags } from "@/components/HreflangTags";
-import { OrganizationStructuredData, WebSiteStructuredData } from "@/components/StructuredData";
+import { AuthProvider } from "@/shared/contexts/auth-context";
+import { TranslationProvider } from "@/shared/contexts/translation-context";
+import { HreflangTags } from "@/shared/components/hreflang-tags";
+import { OrganizationStructuredData, WebSiteStructuredData } from "@/shared/components/structured-data";
 import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, t } from "@/lib/i18n";
 import "./globals.css";
 
@@ -70,9 +71,11 @@ export default async function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider locale={locale}>
-          {children}
-        </AuthProvider>
+        <TranslationProvider initialMessages={messages} initialLocale={locale}>
+          <AuthProvider locale={locale}>
+            {children}
+          </AuthProvider>
+        </TranslationProvider>
       </body>
     </html>
   );

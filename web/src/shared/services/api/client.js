@@ -1,9 +1,14 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+import { getLocaleFromDomain } from '@/lib/i18n';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class ApiClient {
   constructor(baseURL = API_BASE_URL) {
     this.baseURL = baseURL;
     this.token = null;
+
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`[ApiClient] API Base URL: ${this.baseURL}`);
+    }
   }
 
   setAuthToken(token) {
@@ -14,28 +19,32 @@ class ApiClient {
     this.token = null;
   }
 
-  getLocaleFromDomain() {
-    if (typeof window === 'undefined') return 'en';
+  /**
+   * Récupère la locale depuis le domaine ou les variables d'environnement
+   * @returns {string} Code de locale (fr, en, it, de)
+   */
+  getLocaleFromRequest() {
+    if (typeof window === 'undefined') {
+      return process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'en';
+    }
 
-    const hostname = window.location.hostname.replace('www.', '').toLowerCase();
-    const domainLocales = {
-      'kennelo.fr': 'fr',
-      'kennelo.com': 'en',
-      'kennelo.it': 'it',
-      'kennelo.be': 'fr',
-      'kennelo.de': 'de'
-    };
-
-    return domainLocales[hostname] || 'en';
+    const hostname = window.location.hostname;
+    return getLocaleFromDomain(hostname);
   }
 
+  /**
+   * Effectue une requête HTTP vers l'API
+   * @param {string} endpoint - Endpoint de l'API (ex: "/login")
+   * @param {Object} options - Options fetch
+   * @returns {Promise<Object>} Réponse JSON
+   */
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}/api${endpoint}`;
 
     const defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Accept-Language': this.getLocaleFromDomain(),
+      'Accept-Language': this.getLocaleFromRequest(),
     };
 
     if (this.token) {
@@ -55,11 +64,19 @@ class ApiClient {
     }
 
     try {
+      if (process.env.NODE_ENV === 'development') {
+        console.debug(`[ApiClient] ${config.method || 'GET'} ${url}`);
+      }
+
       const response = await fetch(url, config);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+        throw new ApiError(
+          response.status,
+          errorData.message || `HTTP error! status: ${response.status}`,
+          errorData
+        );
       }
 
       return await response.json();
@@ -67,7 +84,11 @@ class ApiClient {
       if (error instanceof ApiError) {
         throw error;
       }
-      throw new ApiError(0, 'Network error or server unavailable', { originalError: error.message });
+
+      console.error('[ApiClient] Network error:', error);
+      throw new ApiError(0, 'Network error or server unavailable', {
+        originalError: error.message
+      });
     }
   }
 

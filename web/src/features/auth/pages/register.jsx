@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useCommonTranslation, useTranslation } from "@/shared/hooks/useTranslation";
 import { getLocaleFromDomain } from "@/lib/i18n";
 
-export function RegisterPage() {
+export function Register() {
     const [formData, setFormData] = useState({
         name: "",
         email: "",

@@ -23,7 +23,6 @@ export function AuthProvider({ children, locale = 'en' }) {
           const userData = await authService.getCurrentUser();
           setUser(userData);
 
-          // Synchroniser le cookie NEXT_LOCALE avec user.locale
           if (userData?.locale) {
             const cookieLocale = document.cookie
               .split('; ')
@@ -56,13 +55,10 @@ export function AuthProvider({ children, locale = 'en' }) {
       const userData = response.user || response;
       setUser(userData);
 
-      // Mettre à jour le cookie NEXT_LOCALE avec la locale de l'utilisateur
       if (userData?.locale) {
         document.cookie = `NEXT_LOCALE=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       }
 
-      // Rediriger vers le domaine de la locale de l'utilisateur si différent
-      // Skip en mode développement (localhost)
       if (typeof window !== 'undefined' && userData?.locale) {
         const currentHostname = window.location.hostname;
         const isDevelopment = currentHostname === 'localhost' || currentHostname.startsWith('127.0.0.1');
@@ -100,13 +96,10 @@ export function AuthProvider({ children, locale = 'en' }) {
       const newUser = response.user || response;
       setUser(newUser);
 
-      // Mettre à jour le cookie NEXT_LOCALE avec la locale de l'utilisateur
       if (newUser?.locale) {
         document.cookie = `NEXT_LOCALE=${newUser.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       }
 
-      // Rediriger vers le domaine de la locale de l'utilisateur si différent
-      // Skip en mode développement (localhost)
       if (typeof window !== 'undefined' && newUser?.locale) {
         const currentHostname = window.location.hostname;
         const isDevelopment = currentHostname === 'localhost' || currentHostname.startsWith('127.0.0.1');

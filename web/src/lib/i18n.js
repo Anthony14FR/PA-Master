@@ -126,6 +126,7 @@ export function shouldRedirectFromCom(hostname, userCountry, preferredLocale) {
 
 let messagesCache = new Map();
 let translationManifest = null;
+let preloadPromise = null; // Pour le préchargement
 
 async function loadTranslationManifest() {
     if (translationManifest) {
@@ -261,6 +262,17 @@ export function t(messages, key, params = {}) {
     return Object.keys(params).reduce((str, param) => {
         return str.replace(new RegExp(`{{${param}}}`, 'g'), params[param]);
     }, value);
+}
+
+export function preloadMessages(locale) {
+    if (!preloadPromise || messagesCache.has(locale)) {
+        preloadPromise = getMessages(locale);
+    }
+    return preloadPromise;
+}
+
+export function getMessagesSync(locale) {
+    return messagesCache.get(locale) || {};
 }
 
 export { AVAILABLE_LOCALES, DEFAULT_LOCALE, DOMAIN_LOCALES, LOCALE_DOMAINS, LOCALES_CODES };

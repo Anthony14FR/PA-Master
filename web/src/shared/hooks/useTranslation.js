@@ -1,78 +1,36 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { getMessages, getMessagesForNamespace, t, getLocaleFromDomain } from '@/lib/i18n';
-
-// Fonction utilitaire pour lire le cookie NEXT_LOCALE
-function getCookieLocale() {
-    if (typeof document === 'undefined') return null;
-
-    const cookieLocale = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('NEXT_LOCALE='))
-        ?.split('=')[1];
-
-    return cookieLocale || null;
-}
+import { useCallback, useMemo } from 'react';
+import { t } from '@/lib/i18n';
+import { useTranslationContext } from '../contexts/translation-context';
+import { TranslatedText } from '../components/translated-text';
 
 export function useTranslation(namespace = null, subNamespace = null) {
-    const [messages, setMessages] = useState({});
-    const [loading, setLoading] = useState(true);
+    const { allMessages, locale, loading } = useTranslationContext();
 
-    // Fonction pour détecter la locale
-    const detectLocale = useCallback(() => {
-        if (typeof window !== 'undefined') {
-            // Priorité 1: Cookie NEXT_LOCALE (synchronisé avec user.locale)
-            const cookieLocale = getCookieLocale();
-            if (cookieLocale) {
-                return cookieLocale;
-            }
-
-            // Priorité 2: domaine
-            const hostname = window.location.hostname;
-            return getLocaleFromDomain(hostname);
-        }
-        return 'en';
-    }, []);
-
-    // Initialiser avec la détection immédiate
-    const [locale, setLocale] = useState(() => detectLocale());
-
-    useEffect(() => {
-        const currentLocale = detectLocale();
-
-        // Forcer la mise à jour si le cookie a changé
-        if (currentLocale !== locale) {
-            setLocale(currentLocale);
+    const messages = useMemo(() => {
+        if (!namespace) {
+            return allMessages;
         }
 
-        const loadMessages = async () => {
-            try {
-                let loadedMessages;
+        if (subNamespace) {
+            return allMessages[namespace]?.[subNamespace] || {};
+        }
 
-                if (namespace) {
-                    loadedMessages = await getMessagesForNamespace(currentLocale, namespace, subNamespace);
-                } else {
-                    loadedMessages = await getMessages(currentLocale);
-                }
-
-                setMessages(loadedMessages);
-            } catch (error) {
-                console.error('Failed to load translations:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadMessages();
-    }, [namespace, subNamespace, detectLocale, locale]);
+        return allMessages[namespace] || {};
+    }, [allMessages, namespace, subNamespace]);
 
     const translate = useCallback((key, params = {}) => {
         return t(messages, key, params);
     }, [messages]);
 
+    const T = useCallback((props) => {
+        return <TranslatedText {...props} t={translate} />;
+    }, [translate]);
+
     return {
         t: translate,
+        T,
         messages,
         locale,
         loading
