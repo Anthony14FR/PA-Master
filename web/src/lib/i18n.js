@@ -113,10 +113,19 @@ export function shouldRedirectFromCom(hostname, userCountry) {
         return null;
     }
 
+    // Détecter la locale du pays de l'IP
     const localeFromCountry = getLocaleFromCountry(userCountry);
-    const targetDomain = getDomainForLocale(localeFromCountry);
 
-    return targetDomain !== 'kennelo.com' ? targetDomain : null;
+    // Vérifier si un domaine dédié existe pour cette locale
+    const targetDomain = LOCALE_DOMAINS[localeFromCountry];
+
+    // Rediriger uniquement si un domaine dédié existe ET différent de .com
+    if (targetDomain && targetDomain !== 'kennelo.com') {
+        return targetDomain;
+    }
+
+    // Sinon rester sur .com (sera affiché dans la langue du pays si disponible)
+    return null;
 }
 
 let messagesCache = new Map();
