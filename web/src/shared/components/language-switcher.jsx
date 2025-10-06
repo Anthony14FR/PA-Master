@@ -16,6 +16,7 @@ import {
 } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/shared/services/api/auth';
+import { useTranslationContext } from '@/shared/contexts/translation-context';
 
 const LOCALE_LABELS = {
   fr: '🇫🇷 Français',
@@ -36,45 +37,23 @@ export function LanguageSwitcher() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
+  const { locale: contextLocale } = useTranslationContext();
 
-  // Fonction pour lire le cookie NEXT_LOCALE
-  const getCookieLocale = () => {
-    if (typeof document === 'undefined') return null;
-    const cookieLocale = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1];
-    return cookieLocale || null;
-  };
-
-  // Détecter le montage côté client
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fallback pour SSR : toujours 'en' côté serveur
-  const getFallbackLocale = () => {
-    if (typeof window === 'undefined') return 'en';
-    return getLocaleFromDomain(window.location.hostname);
-  };
-
-  // Priorité : user.locale > cookie NEXT_LOCALE > domaine
-  // Utiliser fallback pendant SSR pour éviter hydration mismatch
-  const currentLocale = mounted
-    ? (user?.locale || getCookieLocale() || getFallbackLocale())
-    : 'en';
+  const currentLocale = mounted ? contextLocale : 'en';
 
   const handleLocaleChange = async (newLocale) => {
     if (newLocale === currentLocale || isChanging) return;
 
-    setIsChanging(true);
+    //setIsChanging(true);
 
     try {
-      // Mettre à jour les cookies (NEXT_LOCALE + locale_preference)
       document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       document.cookie = `locale_preference=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 
-      // Si utilisateur connecté, mettre à jour la BDD via authService
       if (user) {
         try {
           await authService.updateLocale(newLocale);
@@ -83,22 +62,7 @@ export function LanguageSwitcher() {
         }
       }
 
-      // Redirection uniquement en production (pas localhost)
-      if (typeof window !== 'undefined') {
-        const currentHostname = window.location.hostname;
-        const isDevelopment = currentHostname === 'localhost' || currentHostname.startsWith('127.0.0.1');
-
-        if (isDevelopment) {
-          // En dev : recharger la page pour appliquer la nouvelle locale
-          window.location.reload();
-        } else {
-          // En prod : rediriger vers le domaine approprié
-          const targetDomain = getDomainForLocale(newLocale);
-          const targetUrl = `https://${targetDomain}${pathname}`;
-          window.location.href = targetUrl;
-        }
-      }
-
+      setIsChanging(false);
     } catch (error) {
       console.error('Error changing locale:', error);
       setIsChanging(false);
