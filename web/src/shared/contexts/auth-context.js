@@ -59,22 +59,6 @@ export function AuthProvider({ children, locale = 'en' }) {
         document.cookie = `NEXT_LOCALE=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       }
 
-      if (typeof window !== 'undefined' && userData?.locale) {
-        const currentHostname = window.location.hostname;
-        const isDevelopment = currentHostname === 'localhost' || currentHostname.startsWith('127.0.0.1');
-
-        if (!isDevelopment) {
-          const currentLocale = getLocaleFromDomain(currentHostname);
-
-          if (userData.locale !== currentLocale) {
-            const targetDomain = getDomainForLocale(userData.locale);
-            const targetUrl = `https://${targetDomain}${window.location.pathname}`;
-            window.location.href = targetUrl;
-            return response;
-          }
-        }
-      }
-
       return response;
     } catch (error) {
       const errorMessage = error instanceof ApiError
@@ -98,22 +82,6 @@ export function AuthProvider({ children, locale = 'en' }) {
 
       if (newUser?.locale) {
         document.cookie = `NEXT_LOCALE=${newUser.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
-      }
-
-      if (typeof window !== 'undefined' && newUser?.locale) {
-        const currentHostname = window.location.hostname;
-        const isDevelopment = currentHostname === 'localhost' || currentHostname.startsWith('127.0.0.1');
-
-        if (!isDevelopment) {
-          const currentLocale = getLocaleFromDomain(currentHostname);
-
-          if (newUser.locale !== currentLocale) {
-            const targetDomain = getDomainForLocale(newUser.locale);
-            const targetUrl = `https://${targetDomain}${window.location.pathname}`;
-            window.location.href = targetUrl;
-            return response;
-          }
-        }
       }
 
       return response;
