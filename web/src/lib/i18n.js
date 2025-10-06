@@ -108,14 +108,9 @@ export async function getCountryFromIP(ip) {
     return 'US';
 }
 
-export function shouldRedirectFromCom(hostname, userCountry, preferredLocale) {
+export function shouldRedirectFromCom(hostname, userCountry) {
     if (!hostname?.includes('kennelo.com')) {
         return null;
-    }
-
-    if (preferredLocale && isValidLocale(preferredLocale)) {
-        const targetDomain = getDomainForLocale(preferredLocale);
-        return targetDomain !== 'kennelo.com' ? targetDomain : null;
     }
 
     const localeFromCountry = getLocaleFromCountry(userCountry);
