@@ -21,16 +21,25 @@ export async function middleware(request) {
         }
     }
 
-    const locale = getLocaleFromDomain(hostname);
     const response = NextResponse.next();
 
-    response.cookies.set('NEXT_LOCALE', locale, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'lax'
-    });
+    // Ne pas écraser le cookie NEXT_LOCALE s'il existe déjà
+    // (il est géré par AuthContext pour les utilisateurs connectés)
+    const existingLocale = request.cookies.get('NEXT_LOCALE')?.value;
 
-    response.headers.set('x-next-locale', locale);
+    if (!existingLocale) {
+        // Seulement pour les nouveaux visiteurs sans cookie
+        const locale = getLocaleFromDomain(hostname);
+        response.cookies.set('NEXT_LOCALE', locale, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 30,
+            sameSite: 'lax'
+        });
+        response.headers.set('x-next-locale', locale);
+    } else {
+        // Utiliser le cookie existant
+        response.headers.set('x-next-locale', existingLocale);
+    }
 
     if (pathname.match(/^\/(auth)/)) {
         const token = request.cookies.get('auth_token');

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCommonTranslation, useTranslation } from "@/shared/hooks/useTranslation";
+import { getLocaleFromDomain } from "@/lib/i18n";
 
 export function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -48,7 +49,16 @@ export function RegisterPage() {
         clearError();
 
         try {
-            await register(formData);
+            // Détecter la locale courante depuis le domaine
+            const currentLocale = typeof window !== 'undefined'
+                ? getLocaleFromDomain(window.location.hostname)
+                : 'en';
+
+            // Envoyer la locale avec les données d'inscription
+            await register({
+                ...formData,
+                locale: currentLocale
+            });
             router.push('/dashboard');
         } catch (error) {
             console.error('Registration error:', error);

@@ -3,22 +3,48 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getMessages, getMessagesForNamespace, t, getLocaleFromDomain } from '@/lib/i18n';
 
+// Fonction utilitaire pour lire le cookie NEXT_LOCALE
+function getCookieLocale() {
+    if (typeof document === 'undefined') return null;
+
+    const cookieLocale = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('NEXT_LOCALE='))
+        ?.split('=')[1];
+
+    return cookieLocale || null;
+}
+
 export function useTranslation(namespace = null, subNamespace = null) {
     const [messages, setMessages] = useState({});
-    const [locale, setLocale] = useState('en');
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const detectLocale = () => {
-            if (typeof window !== 'undefined') {
-                const hostname = window.location.hostname;
-                return getLocaleFromDomain(hostname);
+    // Fonction pour détecter la locale
+    const detectLocale = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            // Priorité 1: Cookie NEXT_LOCALE (synchronisé avec user.locale)
+            const cookieLocale = getCookieLocale();
+            if (cookieLocale) {
+                return cookieLocale;
             }
-            return 'en';
-        };
 
+            // Priorité 2: domaine
+            const hostname = window.location.hostname;
+            return getLocaleFromDomain(hostname);
+        }
+        return 'en';
+    }, []);
+
+    // Initialiser avec la détection immédiate
+    const [locale, setLocale] = useState(() => detectLocale());
+
+    useEffect(() => {
         const currentLocale = detectLocale();
-        setLocale(currentLocale);
+
+        // Forcer la mise à jour si le cookie a changé
+        if (currentLocale !== locale) {
+            setLocale(currentLocale);
+        }
 
         const loadMessages = async () => {
             try {
@@ -39,7 +65,7 @@ export function useTranslation(namespace = null, subNamespace = null) {
         };
 
         loadMessages();
-    }, [namespace, subNamespace]);
+    }, [namespace, subNamespace, detectLocale, locale]);
 
     const translate = useCallback((key, params = {}) => {
         return t(messages, key, params);

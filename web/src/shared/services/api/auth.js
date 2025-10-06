@@ -19,6 +19,7 @@ export const authService = {
       email: userData.email,
       password: userData.password,
       password_confirmation: userData.confirmPassword || userData.password_confirmation,
+      locale: userData.locale,
     };
 
     const response = await apiClient.post('/register', payload);
@@ -63,5 +64,9 @@ export const authService = {
 
   isAuthenticated() {
     return !!cookieUtils.get('auth_token');
+  },
+
+  async updateLocale(locale) {
+    return apiClient.put('/user/locale', { locale });
   },
 }; 
