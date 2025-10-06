@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import {
     getLocaleFromDomain,
     shouldRedirectFromCom,
-    getCountryFromIP
+    getCountryFromIP,
+    getLocaleFromCountry,
+    isValidLocale
 } from './lib/i18n';
 
 export async function middleware(request) {
@@ -29,6 +31,52 @@ export async function middleware(request) {
 
             return response;
         }
+
+        // Pas de redirection = rester sur .com
+        // Utiliser la locale du pays si disponible et aucun cookie existant
+        const response = NextResponse.next();
+        const existingLocale = request.cookies.get('NEXT_LOCALE')?.value;
+
+        if (!existingLocale) {
+            const localeFromIP = getLocaleFromCountry(userCountry);
+
+            if (isValidLocale(localeFromIP)) {
+                response.cookies.set('NEXT_LOCALE', localeFromIP, {
+                    path: '/',
+                    maxAge: 60 * 60 * 24 * 30,
+                    sameSite: 'lax'
+                });
+                response.headers.set('x-next-locale', localeFromIP);
+            } else {
+                // Fallback vers locale du domaine
+                const locale = getLocaleFromDomain(hostname);
+                response.cookies.set('NEXT_LOCALE', locale, {
+                    path: '/',
+                    maxAge: 60 * 60 * 24 * 30,
+                    sameSite: 'lax'
+                });
+                response.headers.set('x-next-locale', locale);
+            }
+        } else {
+            response.headers.set('x-next-locale', existingLocale);
+        }
+
+        // Gérer les redirections auth
+        if (pathname.match(/^\/(auth)/)) {
+            const token = request.cookies.get('auth_token');
+            if (token) {
+                return NextResponse.redirect(new URL('/dashboard', request.url));
+            }
+        }
+
+        if (pathname.match(/^\/(dashboard)/)) {
+            const token = request.cookies.get('auth_token');
+            if (!token) {
+                return NextResponse.redirect(new URL('/auth/login', request.url));
+            }
+        }
+
+        return response;
     }
 
     const response = NextResponse.next();
