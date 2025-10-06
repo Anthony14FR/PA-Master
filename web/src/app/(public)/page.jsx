@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { useCommonTranslation } from "@/shared/hooks/useTranslation";
 
-export default function Home() {
+export default function Page() {
   const { T } = useCommonTranslation();
 
   return (

@@ -1,6 +1,6 @@
 import Home from "@/features/dashboard/pages/home"
 
-export default function Home() {
+export default function Page() {
     return (
         <Home />
     )

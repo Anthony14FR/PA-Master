@@ -3,7 +3,7 @@
 import { useAuth } from '@/shared/hooks/useAuth';
 import { useCommonTranslation } from '@/hooks/useTranslation';
 
-export default function DashboardPage() {
+export default function Page() {
   const { user, logout, loading } = useAuth();
   const { t } = useCommonTranslation();
 

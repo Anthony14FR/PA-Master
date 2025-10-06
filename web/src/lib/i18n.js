@@ -174,8 +174,8 @@ function mergeDeep(target, source) {
 
 async function tryLoadFile(locale, filePath) {
     try {
-        const module = await import(`../../messages/${locale}/${filePath}`);
-        return module.default || module;
+        const importedModule = await import(`../../messages/${locale}/${filePath}`);
+        return importedModule.default || importedModule;
     } catch (error) {
         return null;
     }
