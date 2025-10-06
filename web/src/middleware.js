@@ -11,24 +11,30 @@ export async function middleware(request) {
     const ip = request.ip || request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
 
     if (hostname?.includes('kennelo.com')) {
-        const preferredLocale = request.cookies.get('locale_preference')?.value;
         const userCountry = await getCountryFromIP(ip);
-        const targetDomain = shouldRedirectFromCom(hostname, userCountry, preferredLocale);
+        const targetDomain = shouldRedirectFromCom(hostname, userCountry);
 
         if (targetDomain) {
             const redirectUrl = new URL(pathname + request.nextUrl.search, `https://${targetDomain}`);
-            return NextResponse.redirect(redirectUrl, { status: 302 });
+
+            const response = NextResponse.redirect(redirectUrl, { status: 302 });
+            const existingLocale = request.cookies.get('NEXT_LOCALE')?.value;
+            if (existingLocale) {
+                response.cookies.set('NEXT_LOCALE', existingLocale, {
+                    path: '/',
+                    maxAge: 60 * 60 * 24 * 30,
+                    sameSite: 'lax'
+                });
+            }
+
+            return response;
         }
     }
 
     const response = NextResponse.next();
-
-    // Ne pas écraser le cookie NEXT_LOCALE s'il existe déjà
-    // (il est géré par AuthContext pour les utilisateurs connectés)
     const existingLocale = request.cookies.get('NEXT_LOCALE')?.value;
 
     if (!existingLocale) {
-        // Seulement pour les nouveaux visiteurs sans cookie
         const locale = getLocaleFromDomain(hostname);
         response.cookies.set('NEXT_LOCALE', locale, {
             path: '/',
@@ -37,7 +43,6 @@ export async function middleware(request) {
         });
         response.headers.set('x-next-locale', locale);
     } else {
-        // Utiliser le cookie existant
         response.headers.set('x-next-locale', existingLocale);
     }
 
