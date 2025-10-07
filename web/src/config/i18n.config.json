@@ -4,48 +4,57 @@
     {
       "code": "fr",
       "name": "Français",
+      "flag": "🇫🇷",
       "hreflang": "fr-FR",
       "domains": [
         {
           "domain": "kennelo.fr",
-          "countries": ["FR"]
+          "countries": ["FR"],
+          "googleSiteVerification": "XIsQ0OXdiFURmqqekqNXKlUvlFYxu-Vh29K50NrWB6c"
         },
         {
           "domain": "kennelo.be",
-          "countries": ["BE", "LU"]
+          "countries": ["BE", "LU"],
+          "googleSiteVerification": ""
         }
       ]
     },
     {
       "code": "en",
       "name": "English",
+      "flag": "🇺🇸",
       "hreflang": "en-US",
       "domains": [
         {
           "domain": "kennelo.com",
-          "countries": ["US", "GB", "CA", "AU"]
+          "countries": ["US", "GB", "CA", "AU"],
+          "googleSiteVerification": "WtbWc7N6rkYQ6bBFmGBfxo6srmUjAXGNr8Caco9S9Ag"
         }
       ]
     },
     {
       "code": "it",
       "name": "Italiano",
+      "flag": "🇮🇹",
       "hreflang": "it-IT",
       "domains": [
         {
           "domain": "kennelo.it",
-          "countries": ["IT"]
+          "countries": ["IT"],
+          "googleSiteVerification": ""
         }
       ]
     },
     {
       "code": "de",
       "name": "Deutsch",
+      "flag": "🇩🇪",
       "hreflang": "de-DE",
       "domains": [
         {
           "domain": "kennelo.de",
-          "countries": ["DE", "AT", "CH"]
+          "countries": ["DE", "AT", "CH"],
+          "googleSiteVerification": ""
         }
       ]
     }

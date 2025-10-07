@@ -9,33 +9,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/ui/dropdown-menu';
-import {
-  getDomainForLocale,
-  getLocaleFromDomain,
-  AVAILABLE_LOCALES
-} from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/shared/services/api/auth';
 import { useTranslationContext } from '@/shared/contexts/translation-context';
-
-const LOCALE_LABELS = {
-  fr: '🇫🇷 Français',
-  en: '🇺🇸 English', 
-  it: '🇮🇹 Italiano',
-  de: '🇩🇪 Deutsch'
-};
-
-const LOCALE_FLAGS = {
-  fr: '🇫🇷',
-  en: '🇺🇸',
-  it: '🇮🇹', 
-  de: '🇩🇪'
-};
+import { cookieUtils } from '@/shared/utils/cookies';
+import i18nConfig from '@/config/i18n.config.json';
 
 export function LanguageSwitcher() {
   const [isChanging, setIsChanging] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
   const { user } = useAuth();
   const { locale: contextLocale } = useTranslationContext();
 
@@ -43,16 +25,20 @@ export function LanguageSwitcher() {
     setMounted(true);
   }, []);
 
-  const currentLocale = mounted ? contextLocale : 'en';
+  const currentLocale = mounted ? contextLocale : i18nConfig.defaultLocale;
+
+  const getCurrentLocaleInfo = () => {
+    return i18nConfig.locales.find(l => l.code === currentLocale);
+  };
+
+  const currentLocaleInfo = getCurrentLocaleInfo();
 
   const handleLocaleChange = async (newLocale) => {
     if (newLocale === currentLocale || isChanging) return;
 
-    //setIsChanging(true);
-
     try {
-      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
-      document.cookie = `locale_preference=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      cookieUtils.set('NEXT_LOCALE', newLocale, 30, { sameSite: 'lax' });
+      cookieUtils.set('locale_preference', newLocale, 365, { sameSite: 'lax' });
 
       if (user) {
         try {
@@ -77,24 +63,24 @@ export function LanguageSwitcher() {
           disabled={isChanging}
           className="flex items-center gap-2"
         >
-          <span>{LOCALE_FLAGS[currentLocale]}</span>
+          <span>{currentLocaleInfo?.flag || '🌐'}</span>
           <span className="hidden sm:inline">
-            {LOCALE_LABELS[currentLocale]?.split(' ')[1]}
+            {currentLocaleInfo?.name || currentLocale.toUpperCase()}
           </span>
         </Button>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent align="end" className="min-w-[140px]">
-        {AVAILABLE_LOCALES.map(locale => (
+        {i18nConfig.locales.map(localeConfig => (
           <DropdownMenuItem
-            key={locale}
-            onClick={() => handleLocaleChange(locale)}
-            disabled={locale === currentLocale || isChanging}
+            key={localeConfig.code}
+            onClick={() => handleLocaleChange(localeConfig.code)}
+            disabled={localeConfig.code === currentLocale || isChanging}
             className="flex items-center gap-2 cursor-pointer"
           >
-            <span>{LOCALE_FLAGS[locale]}</span>
-            <span>{LOCALE_LABELS[locale]?.split(' ')[1]}</span>
-            {locale === currentLocale && (
+            <span>{localeConfig.flag || '🌐'}</span>
+            <span>{localeConfig.name}</span>
+            {localeConfig.code === currentLocale && (
               <span className="ml-auto text-xs text-muted-foreground">✓</span>
             )}
           </DropdownMenuItem>
