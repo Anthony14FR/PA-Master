@@ -10,12 +10,17 @@ function parseI18nConfig() {
     const googleVerifications = {};
 
     i18nConfig.locales.forEach(localeConfig => {
-        const { code, hreflang, domains } = localeConfig;
+        const { code, hreflang, domains = [] } = localeConfig;
 
         availableLocales.push(code);
         localesCodes[code] = hreflang;
 
-        domains.forEach(({ domain, countries, googleSiteVerification }) => {
+        if (domains.length === 0) {
+            console.warn(`[i18n] Locale "${code}" has no domains configured. It will be available on the default domain.`);
+            return;
+        }
+
+        domains.forEach(({ domain, countries = [], googleSiteVerification }) => {
             domainLocales[domain] = code;
 
             if (!localeDomains[code]) {

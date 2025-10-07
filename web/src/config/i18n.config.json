@@ -4,6 +4,7 @@
     {
       "code": "fr",
       "name": "Français",
+      "flag": "🇫🇷",
       "hreflang": "fr-FR",
       "domains": [
         {
@@ -21,6 +22,7 @@
     {
       "code": "en",
       "name": "English",
+      "flag": "🇺🇸",
       "hreflang": "en-US",
       "domains": [
         {
@@ -33,6 +35,7 @@
     {
       "code": "it",
       "name": "Italiano",
+      "flag": "🇮🇹",
       "hreflang": "it-IT",
       "domains": [
         {
@@ -45,6 +48,7 @@
     {
       "code": "de",
       "name": "Deutsch",
+      "flag": "🇩🇪",
       "hreflang": "de-DE",
       "domains": [
         {
