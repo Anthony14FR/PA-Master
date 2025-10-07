@@ -59,7 +59,7 @@ function determineLocale(request, hostname, userCountry) {
  * Ce cookie reflète la langue affichée sur le site
  */
 function setLocaleOnResponse(response, locale) {
-    response.cookies.set('NEXT_LOCALE', locale, {
+    response.cookies.set('locale_preference', locale, {
         path: '/',
         maxAge: COOKIE_MAX_AGE,
         sameSite: 'lax'

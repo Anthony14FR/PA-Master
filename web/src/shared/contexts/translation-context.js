@@ -10,7 +10,7 @@ function getCookieLocale() {
 
     const cookieLocale = document.cookie
         .split('; ')
-        .find(row => row.startsWith('NEXT_LOCALE='))
+        .find(row => row.startsWith('locale_preference='))
         ?.split('=')[1];
 
     return cookieLocale || null;
