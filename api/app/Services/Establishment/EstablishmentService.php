@@ -33,8 +33,6 @@ class EstablishmentService
             address_id: (string) $establishment->address_id,
             timezone: $establishment->timezone,
             is_active: (bool) $establishment->is_active,
-            number_places_available: $establishment->number_places_available,
-            price_places_available: $establishment->price_places_available,
             manager_id: (int) $establishment->manager_id,
             created_at: human_date($establishment->created_at),
             updated_at: human_date($establishment->updated_at),
