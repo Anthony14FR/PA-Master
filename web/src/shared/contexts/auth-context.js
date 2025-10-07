@@ -26,11 +26,11 @@ export function AuthProvider({ children, locale = 'en' }) {
           if (userData?.locale) {
             const cookieLocale = document.cookie
               .split('; ')
-              .find(row => row.startsWith('NEXT_LOCALE='))
+              .find(row => row.startsWith('locale_preference='))
               ?.split('=')[1];
 
             if (cookieLocale !== userData.locale) {
-              document.cookie = `NEXT_LOCALE=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+              document.cookie = `locale_preference=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
             }
           }
         }
@@ -56,7 +56,7 @@ export function AuthProvider({ children, locale = 'en' }) {
       setUser(userData);
 
       if (userData?.locale) {
-        document.cookie = `NEXT_LOCALE=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+        document.cookie = `locale_preference=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       }
 
       return response;
@@ -81,7 +81,7 @@ export function AuthProvider({ children, locale = 'en' }) {
       setUser(newUser);
 
       if (newUser?.locale) {
-        document.cookie = `NEXT_LOCALE=${newUser.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+        document.cookie = `locale_preference=${newUser.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
       }
 
       return response;
