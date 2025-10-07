@@ -1,55 +1,54 @@
-function parseEnvDomainLocales() {
-    const envValue = process.env.NEXT_PUBLIC_DOMAIN_LOCALES || 'kennelo.fr:fr,kennelo.com:en,kennelo.it:it,kennelo.be:fr,kennelo.de:de';
+import i18nConfig from '@/config/i18n.config.json';
+
+function parseI18nConfig() {
     const domainLocales = {};
     const localeDomains = {};
-
-    envValue.split(',').forEach(pair => {
-        const [domain, locale] = pair.trim().split(':');
-        if (domain && locale) {
-            domainLocales[domain] = locale;
-            if (!localeDomains[locale]) {
-                localeDomains[locale] = domain;
-            }
-        }
-    });
-
-    return { domainLocales, localeDomains };
-}
-
-const { domainLocales: DOMAIN_LOCALES, localeDomains: LOCALE_DOMAINS } = parseEnvDomainLocales();
-
-const COUNTRY_LOCALES = {
-    'FR': 'fr',
-    'GB': 'en',
-    'US': 'en',
-    'CA': 'en',
-    'AU': 'en',
-    'IT': 'it',
-    'DE': 'de',
-    'AT': 'de',
-    'CH': 'de',
-    'BE': 'fr',
-    'LU': 'fr'
-};
-
-const AVAILABLE_LOCALES = (process.env.NEXT_PUBLIC_AVAILABLE_LOCALES || 'fr,en,it,de').split(',').map(l => l.trim());
-const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'en';
-
-function parseLocalesCodes() {
-    const envValue = process.env.NEXT_PUBLIC_LOCALES_CODES || 'fr:fr-FR,en:en-US,it:it-IT,de:de-DE';
+    const countryDomains = {};
+    const countryLocales = {};
     const localesCodes = {};
+    const availableLocales = [];
 
-    envValue.split(',').forEach(pair => {
-        const [locale, code] = pair.trim().split(':');
-        if (locale && code) {
-            localesCodes[locale] = code;
-        }
+    i18nConfig.locales.forEach(localeConfig => {
+        const { code, hreflang, domains } = localeConfig;
+
+        availableLocales.push(code);
+        localesCodes[code] = hreflang;
+
+        domains.forEach(({ domain, countries }) => {
+            domainLocales[domain] = code;
+
+            if (!localeDomains[code]) {
+                localeDomains[code] = domain;
+            }
+
+            countries.forEach(country => {
+                countryDomains[country] = domain;
+                countryLocales[country] = code;
+            });
+        });
     });
 
-    return localesCodes;
+    return {
+        domainLocales,
+        localeDomains,
+        countryDomains,
+        countryLocales,
+        localesCodes,
+        availableLocales,
+        defaultLocale: i18nConfig.defaultLocale
+    };
 }
 
-const LOCALES_CODES = parseLocalesCodes();
+const {
+    domainLocales: DOMAIN_LOCALES,
+    localeDomains: LOCALE_DOMAINS,
+    countryDomains: COUNTRY_DOMAINS,
+    countryLocales: COUNTRY_LOCALES,
+    localesCodes: LOCALES_CODES,
+    availableLocales: AVAILABLE_LOCALES,
+    defaultLocale: DEFAULT_LOCALE
+} = parseI18nConfig();
+
 
 export function getLocaleFromDomain(hostname) {
     if (!hostname) return DEFAULT_LOCALE;
@@ -113,24 +112,18 @@ export function shouldRedirectFromCom(hostname, userCountry) {
         return null;
     }
 
-    // Détecter la locale du pays de l'IP
-    const localeFromCountry = getLocaleFromCountry(userCountry);
+    const targetDomain = COUNTRY_DOMAINS[userCountry?.toUpperCase()];
 
-    // Vérifier si un domaine dédié existe pour cette locale
-    const targetDomain = LOCALE_DOMAINS[localeFromCountry];
-
-    // Rediriger uniquement si un domaine dédié existe ET différent de .com
     if (targetDomain && targetDomain !== 'kennelo.com') {
         return targetDomain;
     }
 
-    // Sinon rester sur .com (sera affiché dans la langue du pays si disponible)
     return null;
 }
 
 let messagesCache = new Map();
 let translationManifest = null;
-let preloadPromise = null; // Pour le préchargement
+let preloadPromise = null;
 
 async function loadTranslationManifest() {
     if (translationManifest) {
