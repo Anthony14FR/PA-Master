@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
     getTargetDomainFromCountry,
-    getCountryFromIP,
-    getLocaleFromCountry,
-    isValidLocale
+    getCountryFromIP
 } from './lib/i18n';
 
 export async function middleware(request) {
@@ -22,7 +20,6 @@ export async function middleware(request) {
     }
 
     const userCountry = await getCountryFromIP(ip);
-    const countryLocale = getLocaleFromCountry(userCountry);
 
     if (hostname?.includes('kennelo.com')) {
         const targetDomain = getTargetDomainFromCountry(hostname, userCountry);
@@ -31,36 +28,20 @@ export async function middleware(request) {
             const redirectUrl = new URL(pathname + request.nextUrl.search, `https://${targetDomain}`);
             const response = NextResponse.redirect(redirectUrl, { status: 302 });
 
-            response.cookies.set('NEXT_LOCALE', countryLocale, {
-                path: '/',
-                maxAge: 60 * 60 * 24 * 30, // 30 jours
-                sameSite: 'lax'
-            });
-
             const localePreference = request.cookies.get('locale_preference')?.value;
-            if (localePreference && isValidLocale(localePreference)) {
+            if (localePreference) {
                 response.cookies.set('locale_preference', localePreference, {
                     path: '/',
-                    maxAge: 60 * 60 * 24 * 365, // 365 jours
+                    maxAge: 60 * 60 * 24 * 365, // 365 days
                     sameSite: 'lax'
                 });
             }
 
-            response.headers.set('x-next-locale', countryLocale);
             return response;
         }
     }
 
-    const response = NextResponse.next();
-
-    response.cookies.set('NEXT_LOCALE', countryLocale, {
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30, // 30 jours
-        sameSite: 'lax'
-    });
-    
-    response.headers.set('x-next-locale', countryLocale);
-    return response;
+    return NextResponse.next();
 }
 
 export const config = {

@@ -8,17 +8,13 @@ const TranslationContext = createContext(null);
 function getCookieLocale() {
     if (typeof document === 'undefined') return null;
 
+    // Lire uniquement locale_preference (choix utilisateur)
     const cookieLocale = document.cookie
         .split('; ')
         .find(row => row.startsWith('locale_preference='))
         ?.split('=')[1];
 
-    const cookieNextLocale = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('NEXT_LOCALE='))
-        ?.split('=')[1];
-
-    return cookieLocale ?? cookieNextLocale;
+    return cookieLocale || null;
 }
 
 export function TranslationProvider({ children, initialMessages = null, initialLocale: ssrLocale = null }) {
