@@ -13,7 +13,12 @@ function getCookieLocale() {
         .find(row => row.startsWith('locale_preference='))
         ?.split('=')[1];
 
-    return cookieLocale || null;
+    const cookieNextLocale = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('NEXT_LOCALE='))
+        ?.split('=')[1];
+
+    return cookieLocale ?? cookieNextLocale;
 }
 
 export function TranslationProvider({ children, initialMessages = null, initialLocale: ssrLocale = null }) {
