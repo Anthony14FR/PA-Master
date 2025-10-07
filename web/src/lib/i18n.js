@@ -123,13 +123,6 @@ export async function getCountryFromIP(ip) {
     return 'US';
 }
 
-/**
- * Détermine le domaine cible basé sur le pays de l'utilisateur
- * Utilisé pour la redirection géographique depuis kennelo.com
- * @param {string} hostname - Le nom de domaine actuel
- * @param {string} userCountry - Le code pays de l'utilisateur (ISO 3166-1 alpha-2)
- * @returns {string|null} Le domaine cible ou null si pas de redirection nécessaire
- */
 export function getTargetDomainFromCountry(hostname, userCountry) {
     if (!hostname?.includes('kennelo.com')) {
         return null;
@@ -137,7 +130,6 @@ export function getTargetDomainFromCountry(hostname, userCountry) {
 
     const targetDomain = getDomainFromCountry(userCountry);
 
-    // Ne pas rediriger si le domaine cible est kennelo.com (déjà dessus)
     if (targetDomain && targetDomain !== 'kennelo.com') {
         return targetDomain;
     }
@@ -145,10 +137,6 @@ export function getTargetDomainFromCountry(hostname, userCountry) {
     return null;
 }
 
-/**
- * Alias pour compatibilité ascendante
- * @deprecated Utiliser getTargetDomainFromCountry à la place
- */
 export function shouldRedirectFromCom(hostname, userCountry) {
     return getTargetDomainFromCountry(hostname, userCountry);
 }

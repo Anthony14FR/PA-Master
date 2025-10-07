@@ -8,6 +8,7 @@ const TranslationContext = createContext(null);
 function getCookieLocale() {
     if (typeof document === 'undefined') return null;
 
+    // Lire uniquement locale_preference (choix utilisateur)
     const cookieLocale = document.cookie
         .split('; ')
         .find(row => row.startsWith('locale_preference='))
