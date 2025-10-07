@@ -1,0 +1,53 @@
+{
+  "defaultLocale": "en",
+  "locales": [
+    {
+      "code": "fr",
+      "name": "Français",
+      "hreflang": "fr-FR",
+      "domains": [
+        {
+          "domain": "kennelo.fr",
+          "countries": ["FR"]
+        },
+        {
+          "domain": "kennelo.be",
+          "countries": ["BE", "LU"]
+        }
+      ]
+    },
+    {
+      "code": "en",
+      "name": "English",
+      "hreflang": "en-US",
+      "domains": [
+        {
+          "domain": "kennelo.com",
+          "countries": ["US", "GB", "CA", "AU"]
+        }
+      ]
+    },
+    {
+      "code": "it",
+      "name": "Italiano",
+      "hreflang": "it-IT",
+      "domains": [
+        {
+          "domain": "kennelo.it",
+          "countries": ["IT"]
+        }
+      ]
+    },
+    {
+      "code": "de",
+      "name": "Deutsch",
+      "hreflang": "de-DE",
+      "domains": [
+        {
+          "domain": "kennelo.de",
+          "countries": ["DE", "AT", "CH"]
+        }
+      ]
+    }
+  ]
+}
