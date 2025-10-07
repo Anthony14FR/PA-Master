@@ -36,10 +36,13 @@ export function LanguageSwitcher() {
   const handleLocaleChange = async (newLocale) => {
     if (newLocale === currentLocale || isChanging) return;
 
+    setIsChanging(true);
+
     try {
-      cookieUtils.set('NEXT_LOCALE', newLocale, 30, { sameSite: 'lax' });
+      // Définir la préférence utilisateur
       cookieUtils.set('locale_preference', newLocale, 365, { sameSite: 'lax' });
 
+      // Sauvegarder en DB si connecté
       if (user) {
         try {
           await authService.updateLocale(newLocale);
@@ -48,7 +51,8 @@ export function LanguageSwitcher() {
         }
       }
 
-      setIsChanging(false);
+      // Recharger la page pour appliquer le changement via le middleware
+      window.location.reload();
     } catch (error) {
       console.error('Error changing locale:', error);
       setIsChanging(false);

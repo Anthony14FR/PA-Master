@@ -9,13 +9,8 @@
       "domains": [
         {
           "domain": "kennelo.fr",
-          "countries": ["FR"],
+          "countries": ["FR", "BE"],
           "googleSiteVerification": "XIsQ0OXdiFURmqqekqNXKlUvlFYxu-Vh29K50NrWB6c"
-        },
-        {
-          "domain": "kennelo.be",
-          "countries": ["BE", "LU"],
-          "googleSiteVerification": ""
         }
       ]
     },
@@ -52,7 +47,7 @@
       "hreflang": "de-DE",
       "domains": [
         {
-          "domain": "kennelo.de",
+          "domain": "kennelo.com",
           "countries": ["DE", "AT", "CH"],
           "googleSiteVerification": ""
         }
