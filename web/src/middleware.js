@@ -11,26 +11,40 @@ import {
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
 
 /**
- * Détermine la locale à utiliser selon la priorité :
- * 1. Cookie NEXT_LOCALE (préférence utilisateur explicite)
+ * Récupère la préférence de langue de l'utilisateur depuis le cookie locale_preference
+ * Ce cookie n'affecte QUE la langue affichée, pas les redirections géographiques
+ */
+function getUserPreferredLocale(request) {
+    const preferredLocale = request.cookies.get('locale_preference')?.value;
+    if (preferredLocale && isValidLocale(preferredLocale)) {
+        return preferredLocale;
+    }
+    return null;
+}
+
+/**
+ * Détermine la locale (langue) à utiliser selon la priorité :
+ * 1. Cookie locale_preference (choix explicite de l'utilisateur)
  * 2. Géolocalisation IP (pays de l'utilisateur)
  * 3. Domaine actuel (locale par défaut du domaine)
  * 4. Locale par défaut (en)
+ *
+ * IMPORTANT: Cette fonction détermine la LANGUE, pas le domaine
  */
 function determineLocale(request, hostname, userCountry) {
-    // Priorité 1 : Cookie existant (préférence utilisateur)
-    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
-    if (cookieLocale && isValidLocale(cookieLocale)) {
-        return cookieLocale;
+    // Priorité 1 : Préférence explicite de l'utilisateur (langue choisie)
+    const userPreference = getUserPreferredLocale(request);
+    if (userPreference) {
+        return userPreference;
     }
 
-    // Priorité 2 : Géolocalisation IP
+    // Priorité 2 : Géolocalisation IP (langue du pays)
     const localeFromIP = getLocaleFromCountry(userCountry);
     if (isValidLocale(localeFromIP)) {
         return localeFromIP;
     }
 
-    // Priorité 3 : Domaine actuel
+    // Priorité 3 : Domaine actuel (langue par défaut du domaine)
     const localeFromDomain = getLocaleFromDomain(hostname);
     if (localeFromDomain !== DEFAULT_LOCALE) {
         return localeFromDomain;
@@ -41,7 +55,8 @@ function determineLocale(request, hostname, userCountry) {
 }
 
 /**
- * Configure les cookies et headers de locale pour la réponse
+ * Configure le cookie NEXT_LOCALE (locale/langue actuellement utilisée)
+ * Ce cookie reflète la langue affichée sur le site
  */
 function setLocaleOnResponse(response, locale) {
     response.cookies.set('NEXT_LOCALE', locale, {
@@ -50,6 +65,21 @@ function setLocaleOnResponse(response, locale) {
         sameSite: 'lax'
     });
     response.headers.set('x-next-locale', locale);
+}
+
+/**
+ * Préserve le cookie locale_preference lors d'une redirection
+ * Cela permet de conserver le choix de langue de l'utilisateur
+ */
+function preserveLocalePreference(response, request) {
+    const preferredLocale = getUserPreferredLocale(request);
+    if (preferredLocale) {
+        response.cookies.set('locale_preference', preferredLocale, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 365, // 1 an
+            sameSite: 'lax'
+        });
+    }
 }
 
 /**
@@ -73,6 +103,15 @@ function handleAuthRedirects(request, pathname) {
 
 /**
  * Middleware principal pour gérer la localisation et l'authentification
+ *
+ * LOGIQUE:
+ * 1. Redirection géographique TOUJOURS basée sur le pays (IP)
+ * 2. Langue affichée basée sur locale_preference OU pays
+ *
+ * EXEMPLE:
+ * - Utilisateur en France avec locale_preference=de
+ * - kennelo.com → Redirigé vers kennelo.fr (pays FR)
+ * - Sur kennelo.fr → Langue allemande affichée (préférence)
  */
 export async function middleware(request) {
     const { pathname } = request.nextUrl;
@@ -85,6 +124,7 @@ export async function middleware(request) {
     // === Gestion spécifique pour kennelo.com (domaine principal) ===
     if (hostname?.includes('kennelo.com')) {
         // Déterminer le domaine cible selon le pays (redirection géographique)
+        // La redirection géographique se fait TOUJOURS selon le pays, indépendamment de locale_preference
         const targetDomain = getTargetDomainFromCountry(hostname, userCountry);
 
         // Si redirection géographique nécessaire (ex: FR vers kennelo.fr)
@@ -92,9 +132,13 @@ export async function middleware(request) {
             const redirectUrl = new URL(pathname + request.nextUrl.search, `https://${targetDomain}`);
             const response = NextResponse.redirect(redirectUrl, { status: 302 });
 
-            // Conserver la locale préférée de l'utilisateur (cookie)
-            const preferredLocale = determineLocale(request, targetDomain, userCountry);
-            setLocaleOnResponse(response, preferredLocale);
+            // Préserver le cookie locale_preference lors de la redirection
+            preserveLocalePreference(response, request);
+
+            // Déterminer la langue à afficher sur le domaine cible
+            // Si locale_preference existe, l'utiliser, sinon utiliser la langue du domaine cible
+            const locale = determineLocale(request, targetDomain, userCountry);
+            setLocaleOnResponse(response, locale);
 
             return response;
         }
