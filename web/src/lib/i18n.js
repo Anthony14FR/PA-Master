@@ -7,6 +7,7 @@ function parseI18nConfig() {
     const countryLocales = {};
     const localesCodes = {};
     const availableLocales = [];
+    const googleVerifications = {};
 
     i18nConfig.locales.forEach(localeConfig => {
         const { code, hreflang, domains } = localeConfig;
@@ -14,11 +15,15 @@ function parseI18nConfig() {
         availableLocales.push(code);
         localesCodes[code] = hreflang;
 
-        domains.forEach(({ domain, countries }) => {
+        domains.forEach(({ domain, countries, googleSiteVerification }) => {
             domainLocales[domain] = code;
 
             if (!localeDomains[code]) {
                 localeDomains[code] = domain;
+            }
+
+            if (googleSiteVerification) {
+                googleVerifications[domain] = googleSiteVerification;
             }
 
             countries.forEach(country => {
@@ -35,6 +40,7 @@ function parseI18nConfig() {
         countryLocales,
         localesCodes,
         availableLocales,
+        googleVerifications,
         defaultLocale: i18nConfig.defaultLocale
     };
 }
@@ -46,6 +52,7 @@ const {
     countryLocales: COUNTRY_LOCALES,
     localesCodes: LOCALES_CODES,
     availableLocales: AVAILABLE_LOCALES,
+    googleVerifications: GOOGLE_VERIFICATIONS,
     defaultLocale: DEFAULT_LOCALE
 } = parseI18nConfig();
 
@@ -270,6 +277,12 @@ export function preloadMessages(locale) {
 
 export function getMessagesSync(locale) {
     return messagesCache.get(locale) || {};
+}
+
+export function getGoogleSiteVerification(hostname) {
+    if (!hostname) return '';
+    const domain = hostname.replace('www.', '').toLowerCase();
+    return GOOGLE_VERIFICATIONS[domain] || '';
 }
 
 export { AVAILABLE_LOCALES, DEFAULT_LOCALE, DOMAIN_LOCALES, LOCALE_DOMAINS, LOCALES_CODES };

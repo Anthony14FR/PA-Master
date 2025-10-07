@@ -4,7 +4,7 @@ import { AuthProvider } from "@/shared/contexts/auth-context";
 import { TranslationProvider } from "@/shared/contexts/translation-context";
 import { HreflangTags } from "@/shared/components/hreflang-tags";
 import { OrganizationStructuredData, WebSiteStructuredData } from "@/shared/components/structured-data";
-import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, t } from "@/lib/i18n";
+import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, t } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,7 +46,7 @@ export async function generateMetadata() {
       description: t(messages, 'meta.description'),
     },
     other: {
-      'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION || '',
+      'google-site-verification': getGoogleSiteVerification(hostname),
     },
   };
 }

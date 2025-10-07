@@ -8,11 +8,13 @@
       "domains": [
         {
           "domain": "kennelo.fr",
-          "countries": ["FR"]
+          "countries": ["FR"],
+          "googleSiteVerification": ""
         },
         {
           "domain": "kennelo.be",
-          "countries": ["BE", "LU"]
+          "countries": ["BE", "LU"],
+          "googleSiteVerification": ""
         }
       ]
     },
@@ -23,7 +25,8 @@
       "domains": [
         {
           "domain": "kennelo.com",
-          "countries": ["US", "GB", "CA", "AU"]
+          "countries": ["US", "GB", "CA", "AU"],
+          "googleSiteVerification": "WtbWc7N6rkYQ6bBFmGBfxo6srmUjAXGNr8Caco9S9Ag"
         }
       ]
     },
@@ -34,7 +37,8 @@
       "domains": [
         {
           "domain": "kennelo.it",
-          "countries": ["IT"]
+          "countries": ["IT"],
+          "googleSiteVerification": ""
         }
       ]
     },
@@ -45,7 +49,8 @@
       "domains": [
         {
           "domain": "kennelo.de",
-          "countries": ["DE", "AT", "CH"]
+          "countries": ["DE", "AT", "CH"],
+          "googleSiteVerification": ""
         }
       ]
     }
