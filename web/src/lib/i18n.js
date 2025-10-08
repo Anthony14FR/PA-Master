@@ -10,13 +10,23 @@ function parseI18nConfig() {
     const googleVerifications = {};
 
     i18nConfig.locales.forEach(localeConfig => {
-        const { code, hreflang, domains = [] } = localeConfig;
+        const { code, hreflang, domains = [], countries = [] } = localeConfig;
 
         availableLocales.push(code);
         localesCodes[code] = hreflang;
 
+        if (countries.length > 0) {
+            countries.forEach(country => {
+                if (!countryLocales[country]) {
+                    countryLocales[country] = code;
+                }
+            });
+        }
+
         if (domains.length === 0) {
-            console.warn(`[i18n] Locale "${code}" has no domains configured. It will be available on the default domain.`);
+            if (countries.length === 0) {
+                console.warn(`[i18n] Locale "${code}" has no domains or countries configured. It will be available on the default domain.`);
+            }
             return;
         }
 
@@ -33,7 +43,9 @@ function parseI18nConfig() {
 
             countries.forEach(country => {
                 countryDomains[country] = domain;
-                countryLocales[country] = code;
+                if (!countryLocales[country]) {
+                    countryLocales[country] = code;
+                }
             });
         });
     });
@@ -101,37 +113,30 @@ export function getHreflangCode(locale) {
     return LOCALES_CODES[locale] || LOCALES_CODES[DEFAULT_LOCALE];
 }
 
-export async function getCountryFromIP(ip) {
-    if (!ip || ip === '127.0.0.1' || ip === '::1') {
-        return 'US';
-    }
 
-    try {
-        const response = await fetch(`https://ipapi.co/${ip}/country/`, {
-            headers: { 'User-Agent': 'Kennelo/1.0' },
-            next: { revalidate: 3600 }
-        });
-
-        if (response.ok) {
-            const countryCode = await response.text();
-            return countryCode.trim().toUpperCase();
-        }
-    } catch (error) {
-        console.warn('IP geolocation failed:', error.message);
-    }
-
-    return 'US';
+function getBaseDomain(host) {
+    if (!host) return null;
+    const parts = host.split('.');
+    return parts.length >= 2 ? parts.slice(-2).join('.') : host;
 }
 
 export function getTargetDomainFromCountry(hostname, userCountry) {
-    if (!hostname?.includes('kennelo.com')) {
+    if (!hostname) return null;
+
+    const currentBaseDomain = getBaseDomain(hostname);
+    const defaultBaseDomain = getBaseDomain(i18nConfig.defaultDomaine);
+
+    if (currentBaseDomain !== defaultBaseDomain) {
         return null;
     }
 
     const targetDomain = getDomainFromCountry(userCountry);
 
-    if (targetDomain && targetDomain !== 'kennelo.com') {
-        return targetDomain;
+    if (targetDomain) {
+        const targetBaseDomain = getBaseDomain(targetDomain);
+        if (targetBaseDomain && targetBaseDomain !== defaultBaseDomain) {
+            return targetDomain;
+        }
     }
 
     return null;
@@ -139,6 +144,19 @@ export function getTargetDomainFromCountry(hostname, userCountry) {
 
 export function shouldRedirectFromCom(hostname, userCountry) {
     return getTargetDomainFromCountry(hostname, userCountry);
+}
+
+export function buildRedirectHost(currentHost, targetDomain) {
+    if (!currentHost || !targetDomain) return targetDomain;
+
+    const currentBaseDomain = getBaseDomain(currentHost);
+    const subdomain = currentHost.replace(`.${currentBaseDomain}`, '');
+
+    if (subdomain && subdomain !== currentBaseDomain) {
+        return `${subdomain}.${targetDomain}`;
+    }
+
+    return targetDomain;
 }
 
 let messagesCache = new Map();

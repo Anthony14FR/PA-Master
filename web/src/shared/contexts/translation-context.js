@@ -1,20 +1,23 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback, useLayoutEffect } from 'react';
-import { getMessages, getMessagesSync, preloadMessages, getLocaleFromDomain, DEFAULT_LOCALE } from '@/lib/i18n';
+import { getMessages, getMessagesSync, getLocaleFromDomain, DEFAULT_LOCALE } from '@/lib/i18n';
+import { cookieUtils } from '@/shared/utils/cookies';
 
 const TranslationContext = createContext(null);
 
 function getCookieLocale() {
     if (typeof document === 'undefined') return null;
 
-    // Lire uniquement locale_preference (choix utilisateur)
-    const cookieLocale = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('locale_preference='))
-        ?.split('=')[1];
+    const cookieLocale = cookieUtils.get('locale_preference');
 
-    return cookieLocale || null;
+    if (cookieLocale) {
+        return cookieLocale;
+    }
+
+    const autoDetectedLocale = cookieUtils.get('auto_detected_locale');
+
+    return autoDetectedLocale || null;
 }
 
 export function TranslationProvider({ children, initialMessages = null, initialLocale: ssrLocale = null }) {

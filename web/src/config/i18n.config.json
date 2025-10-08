@@ -1,15 +1,17 @@
 {
   "defaultLocale": "en",
+  "defaultDomaine": "kennelo.com",
   "locales": [
     {
       "code": "fr",
       "name": "Français",
       "flag": "🇫🇷",
       "hreflang": "fr-FR",
+      "countries": ["FR", "BE"],
       "domains": [
         {
           "domain": "kennelo.fr",
-          "countries": ["FR", "BE"],
+          "countries": ["FR"],
           "googleSiteVerification": "XIsQ0OXdiFURmqqekqNXKlUvlFYxu-Vh29K50NrWB6c"
         }
       ]
@@ -45,13 +47,8 @@
       "name": "Deutsch",
       "flag": "🇩🇪",
       "hreflang": "de-DE",
-      "domains": [
-        {
-          "domain": "kennelo.com",
-          "countries": ["DE", "AT", "CH"],
-          "googleSiteVerification": ""
-        }
-      ]
+      "countries": ["DE", "AT", "CH"]
     }
   ]
 }
+

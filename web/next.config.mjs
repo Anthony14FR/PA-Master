@@ -5,6 +5,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    serverExternalPackages: ['maxmind', 'mmdb-lib'],
+
     experimental: {
         turbo: {
             rules: {
@@ -18,7 +20,6 @@ const nextConfig = {
 
     webpack: (config, { isServer }) => {
         if (!isServer) {
-            // Add our custom plugin to auto-discover translation files
             const TranslationManifestPlugin = require('./plugins/TranslationManifestPlugin');
 
             config.plugins.push(
