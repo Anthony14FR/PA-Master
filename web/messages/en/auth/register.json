@@ -1,0 +1,25 @@
+{
+  "title": "Sign Up",
+  "subtitle": "Create your new account",
+  "description": "Fill out the form to create your account",
+  "form": {
+    "name": "Full name",
+    "namePlaceholder": "Your full name",
+    "email": "Email address",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Create a password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "submit": "Sign up",
+    "loading": "Signing up..."
+  },
+  "links": {
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "goBack": "Go back home"
+  },
+  "errors": {
+    "passwordMismatch": "Passwords do not match"
+  }
+}

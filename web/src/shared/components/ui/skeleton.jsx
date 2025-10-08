@@ -2,10 +2,11 @@ import { cn } from "@/lib/utils"
 
 function Skeleton({
   className,
+  as: Component = 'div',
   ...props
 }) {
   return (
-    <div
+    <Component
       data-slot="skeleton"
       className={cn("bg-accent animate-pulse rounded-md", className)}
       {...props} />

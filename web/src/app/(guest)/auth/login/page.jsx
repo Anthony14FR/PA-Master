@@ -1,4 +1,4 @@
-import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { Login } from '@/features/auth/pages/login';
 
 export const metadata = {
     title: 'Connexion',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function Page() {
-    return <LoginPage />;
+    return <Login />;
 }

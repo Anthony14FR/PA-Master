@@ -1,68 +1,88 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { LanguageSwitcher } from "@/shared/components/language-switcher";
+import { useCommonTranslation } from "@/shared/hooks/useTranslation";
 
-export default function Home() {
+export default function Page() {
+  const { T } = useCommonTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
-            Kennelo
+            <T tKey="site.name" skeletonWidth={200} />
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 mb-8">
-            Plateforme de gestion moderne et intuitive
+            <T tKey="site.tagline" skeletonWidth={400} />
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>API Intégrée</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.api.title" skeletonWidth={120} />
+              </CardTitle>
               <CardDescription>
-                Testez notre API robuste et performante
+                <T tKey="home.cards.api.description" skeletonWidth={200} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/test">Tester l'API</Link>
+                <Link href="/test">
+                  <T tKey="home.cards.api.button" skeletonWidth={100} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>Connexion</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.login.title" skeletonWidth={100} />
+              </CardTitle>
               <CardDescription>
-                Accédez à votre compte existant
+                <T tKey="home.cards.login.description" skeletonWidth={180} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/login">Se connecter</Link>
+                <Link href="/auth/login">
+                  <T tKey="home.cards.login.button" skeletonWidth={100} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle>Inscription</CardTitle>
+              <CardTitle>
+                <T tKey="home.cards.register.title" skeletonWidth={110} />
+              </CardTitle>
               <CardDescription>
-                Créez votre nouveau compte
+                <T tKey="home.cards.register.description" skeletonWidth={170} />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/register">S'inscrire</Link>
+                <Link href="/auth/register">
+                  <T tKey="home.cards.register.button" skeletonWidth={90} />
+                </Link>
               </Button>
             </CardContent>
           </Card>
         </div>
 
-        <div className="text-center">
+        <div className="flex flex-col items-center gap-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Commencez votre expérience avec Kennelo dès aujourd'hui
+            <T tKey="home.cta" skeletonWidth={350} />
           </p>
+
+          <LanguageSwitcher />
         </div>
       </div>
     </div>
