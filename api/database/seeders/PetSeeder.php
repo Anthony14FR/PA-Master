@@ -2,29 +2,39 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnimalType;
+use App\Models\AttributeDefinition;
+use App\Models\AttributeOption;
+use App\Models\Pet;
+use App\Models\PetAttribute;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class PetSeeder extends Seeder
 {
+    private array $animalTypes;
+
+    private int $userId;
+
+    private array $attributeCache = [];
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        // Get animal type IDs
-        $dogId = DB::table('animal_types')->where('code', 'dog')->value('id');
-        $catId = DB::table('animal_types')->where('code', 'cat')->value('id');
-        $birdId = DB::table('animal_types')->where('code', 'bird')->value('id');
-        $fishId = DB::table('animal_types')->where('code', 'fish')->value('id');
-        $smallMammalId = DB::table('animal_types')->where('code', 'small_mammal')->value('id');
+        $this->loadDependencies();
 
-        // Get user ID (from existing UsersSeeder)
-        $userId = DB::table('users')->where('email', 'user@orus.com')->value('id');
+        $dogId = $this->animalTypes['dog'];
+        $catId = $this->animalTypes['cat'];
+        $birdId = $this->animalTypes['bird'];
+        $fishId = $this->animalTypes['fish'];
+        $smallMammalId = $this->animalTypes['small_mammal'];
 
         // === PET 1: Rex - Chien énergique ===
         $rexId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $dogId,
             'name' => 'Rex',
             'breed' => 'Labrador Retriever',
@@ -52,7 +62,7 @@ class PetSeeder extends Seeder
 
         // === PET 2: Minou - Chat d'intérieur ===
         $minouId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $catId,
             'name' => 'Minou',
             'breed' => 'Européen',
@@ -81,7 +91,7 @@ class PetSeeder extends Seeder
 
         // === PET 3: Kiwi - Perruche bavarde ===
         $kiwiId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $birdId,
             'name' => 'Kiwi',
             'breed' => 'Perruche ondulée',
@@ -110,7 +120,7 @@ class PetSeeder extends Seeder
 
         // === PET 4: Bulle - Poisson rouge ===
         $bulleId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $fishId,
             'name' => 'Bulle',
             'breed' => 'Poisson rouge commun',
@@ -136,7 +146,7 @@ class PetSeeder extends Seeder
 
         // === PET 5: Caramel - Lapin nain ===
         $caramelId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $smallMammalId,
             'name' => 'Caramel',
             'breed' => 'Lapin nain bélier',
@@ -163,7 +173,7 @@ class PetSeeder extends Seeder
 
         // === PET 6: Max - Chien âgé avec médicaments ===
         $maxId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $dogId,
             'name' => 'Max',
             'breed' => 'Berger Allemand',
@@ -192,7 +202,7 @@ class PetSeeder extends Seeder
 
         // === PET 7: Luna - Chatte d'extérieur ===
         $lunaId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $catId,
             'name' => 'Luna',
             'breed' => 'Maine Coon',
@@ -221,7 +231,7 @@ class PetSeeder extends Seeder
 
         // === PET 8: Nemo - Poisson tropical ===
         $nemoId = DB::table('pets')->insertGetId([
-            'user_id' => $userId,
+            'user_id' => $this->userId,
             'animal_type_id' => $fishId,
             'name' => 'Nemo',
             'breed' => 'Poisson-clown',
@@ -246,24 +256,52 @@ class PetSeeder extends Seeder
         $this->addPetAttributeText($nemoId, 'diet_specifics', 'Granulés pour poissons marins, artémias congelées, algues nori');
     }
 
+    private function loadDependencies(): void
+    {
+        $this->userId = User::where('email', 'user@orus.com')->value('id');
+        if (! $this->userId) {
+            throw new \RuntimeException('User with email user@orus.com not found. Run UsersSeeder first.');
+        }
+
+        $types = AnimalType::whereIn('code', ['dog', 'cat', 'bird', 'fish', 'small_mammal'])
+            ->pluck('id', 'code')->toArray();
+
+        if (count($types) !== 5) {
+            throw new \RuntimeException('Missing animal types. Run AnimalTypeSeeder first.');
+        }
+
+        $this->animalTypes = $types;
+    }
+
+    private function getAttributeId(string $code): ?int
+    {
+        if (! isset($this->attributeCache[$code])) {
+            $this->attributeCache[$code] = AttributeDefinition::where('code', $code)->value('id');
+        }
+
+        return $this->attributeCache[$code];
+    }
+
     /**
      * Helper to add pet attribute with predefined option
      */
     private function addPetAttribute(int $petId, string $attributeCode, string $optionValue): void
     {
-        $attributeId = DB::table('attribute_definitions')->where('code', $attributeCode)->value('id');
-        $optionId = DB::table('attribute_options')
-            ->where('attribute_definition_id', $attributeId)
+        $attributeId = $this->getAttributeId($attributeCode);
+        if (! $attributeId) {
+            return;
+        }
+
+        $optionId = AttributeOption::where('attribute_definition_id', $attributeId)
             ->where('value', $optionValue)
             ->value('id');
 
-        if ($attributeId && $optionId) {
-            DB::table('pet_attributes')->insert([
+        if ($optionId) {
+            PetAttribute::firstOrCreate([
                 'pet_id' => $petId,
                 'attribute_definition_id' => $attributeId,
+            ], [
                 'attribute_option_id' => $optionId,
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }
@@ -273,17 +311,17 @@ class PetSeeder extends Seeder
      */
     private function addPetAttributeText(int $petId, string $attributeCode, string $textValue): void
     {
-        $attributeId = DB::table('attribute_definitions')->where('code', $attributeCode)->value('id');
-
-        if ($attributeId) {
-            DB::table('pet_attributes')->insert([
-                'pet_id' => $petId,
-                'attribute_definition_id' => $attributeId,
-                'value_text' => $textValue,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $attributeId = $this->getAttributeId($attributeCode);
+        if (! $attributeId) {
+            return;
         }
+
+        PetAttribute::firstOrCreate([
+            'pet_id' => $petId,
+            'attribute_definition_id' => $attributeId,
+        ], [
+            'value_text' => $textValue,
+        ]);
     }
 
     /**
@@ -291,17 +329,17 @@ class PetSeeder extends Seeder
      */
     private function addPetAttributeInteger(int $petId, string $attributeCode, int $intValue): void
     {
-        $attributeId = DB::table('attribute_definitions')->where('code', $attributeCode)->value('id');
-
-        if ($attributeId) {
-            DB::table('pet_attributes')->insert([
-                'pet_id' => $petId,
-                'attribute_definition_id' => $attributeId,
-                'value_integer' => $intValue,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $attributeId = $this->getAttributeId($attributeCode);
+        if (! $attributeId) {
+            return;
         }
+
+        PetAttribute::firstOrCreate([
+            'pet_id' => $petId,
+            'attribute_definition_id' => $attributeId,
+        ], [
+            'value_integer' => $intValue,
+        ]);
     }
 
     /**
@@ -309,17 +347,17 @@ class PetSeeder extends Seeder
      */
     private function addPetAttributeDecimal(int $petId, string $attributeCode, float $decimalValue): void
     {
-        $attributeId = DB::table('attribute_definitions')->where('code', $attributeCode)->value('id');
-
-        if ($attributeId) {
-            DB::table('pet_attributes')->insert([
-                'pet_id' => $petId,
-                'attribute_definition_id' => $attributeId,
-                'value_decimal' => $decimalValue,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $attributeId = $this->getAttributeId($attributeCode);
+        if (! $attributeId) {
+            return;
         }
+
+        PetAttribute::firstOrCreate([
+            'pet_id' => $petId,
+            'attribute_definition_id' => $attributeId,
+        ], [
+            'value_decimal' => $decimalValue,
+        ]);
     }
 
     /**
@@ -327,16 +365,16 @@ class PetSeeder extends Seeder
      */
     private function addPetAttributeBoolean(int $petId, string $attributeCode, bool $boolValue): void
     {
-        $attributeId = DB::table('attribute_definitions')->where('code', $attributeCode)->value('id');
-
-        if ($attributeId) {
-            DB::table('pet_attributes')->insert([
-                'pet_id' => $petId,
-                'attribute_definition_id' => $attributeId,
-                'value_boolean' => $boolValue,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $attributeId = $this->getAttributeId($attributeCode);
+        if (! $attributeId) {
+            return;
         }
+
+        PetAttribute::firstOrCreate([
+            'pet_id' => $petId,
+            'attribute_definition_id' => $attributeId,
+        ], [
+            'value_boolean' => $boolValue,
+        ]);
     }
 }

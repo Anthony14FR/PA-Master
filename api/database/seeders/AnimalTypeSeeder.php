@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnimalType;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class AnimalTypeSeeder extends Seeder
 {
@@ -13,64 +13,21 @@ class AnimalTypeSeeder extends Seeder
     public function run(): void
     {
         $animalTypes = [
-            [
-                'code' => 'dog',
-                'name' => 'Chien',
-                'category' => 'mammals',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'cat',
-                'name' => 'Chat',
-                'category' => 'mammals',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'small_mammal',
-                'name' => 'Petit mammifère',
-                'category' => 'mammals',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'bird',
-                'name' => 'Oiseau',
-                'category' => 'birds',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'fish',
-                'name' => 'Poisson',
-                'category' => 'fish',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'reptile',
-                'name' => 'Reptile',
-                'category' => 'reptiles',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'amphibian',
-                'name' => 'Amphibien',
-                'category' => 'amphibians',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'code' => 'invertebrate',
-                'name' => 'Invertébré',
-                'category' => 'invertebrates',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            ['code' => 'dog', 'name' => 'Chien', 'category' => 'mammals'],
+            ['code' => 'cat', 'name' => 'Chat', 'category' => 'mammals'],
+            ['code' => 'small_mammal', 'name' => 'Petit mammifère', 'category' => 'mammals'],
+            ['code' => 'bird', 'name' => 'Oiseau', 'category' => 'birds'],
+            ['code' => 'fish', 'name' => 'Poisson', 'category' => 'fish'],
+            ['code' => 'reptile', 'name' => 'Reptile', 'category' => 'reptiles'],
+            ['code' => 'amphibian', 'name' => 'Amphibien', 'category' => 'amphibians'],
+            ['code' => 'invertebrate', 'name' => 'Invertébré', 'category' => 'invertebrates'],
         ];
 
-        DB::table('animal_types')->insert($animalTypes);
+        foreach ($animalTypes as $animalType) {
+            AnimalType::updateOrCreate(
+                ['code' => $animalType['code']],
+                $animalType
+            );
+        }
     }
 }

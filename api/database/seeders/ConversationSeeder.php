@@ -27,17 +27,29 @@ class ConversationSeeder extends Seeder
         $booking2Id = $bookings[1]->id ?? null; // Confirmed
 
         if (! $establishment1Id || ! $userId) {
-            return; // Skip if no data
+            throw new \RuntimeException('Required data missing. Ensure UsersSeeder and EstablishmentSeeder ran successfully.');
         }
 
-        // === CONVERSATION 1: With bookings and threads ===
-        $conversation1Id = DB::table('conversations')->insertGetId([
-            'user_id' => $userId,
-            'establishment_id' => $establishment1Id,
-            'last_message_at' => Carbon::now()->subHours(2),
-            'created_at' => Carbon::now()->subDays(30),
-            'updated_at' => Carbon::now()->subHours(2),
-        ]);
+        $existingConv1 = DB::table('conversations')
+            ->where('user_id', $userId)
+            ->where('establishment_id', $establishment1Id)
+            ->first();
+
+        if ($existingConv1) {
+            $conversation1Id = $existingConv1->id;
+            DB::table('conversations')->where('id', $conversation1Id)->update([
+                'last_message_at' => Carbon::now()->subHours(2),
+                'updated_at' => Carbon::now()->subHours(2),
+            ]);
+        } else {
+            $conversation1Id = DB::table('conversations')->insertGetId([
+                'user_id' => $userId,
+                'establishment_id' => $establishment1Id,
+                'last_message_at' => Carbon::now()->subHours(2),
+                'created_at' => Carbon::now()->subDays(30),
+                'updated_at' => Carbon::now()->subHours(2),
+            ]);
+        }
 
         // Initial contact message
         $message1Id = DB::table('messages')->insertGetId([
@@ -76,14 +88,19 @@ class ConversationSeeder extends Seeder
             ]);
 
             // Create booking thread
-            $thread1Id = DB::table('booking_threads')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'is_active' => false, // Completed booking, archived
-                'archived_at' => Carbon::now()->subDays(14),
-                'created_at' => Carbon::now()->subDays(25),
-                'updated_at' => Carbon::now()->subDays(14),
-            ]);
+            $existingThread1 = DB::table('booking_threads')->where('booking_id', $booking1Id)->first();
+            if (! $existingThread1) {
+                $thread1Id = DB::table('booking_threads')->insertGetId([
+                    'conversation_id' => $conversation1Id,
+                    'booking_id' => $booking1Id,
+                    'is_active' => false, // Completed booking, archived
+                    'archived_at' => Carbon::now()->subDays(14),
+                    'created_at' => Carbon::now()->subDays(25),
+                    'updated_at' => Carbon::now()->subDays(14),
+                ]);
+            } else {
+                $thread1Id = $existingThread1->id;
+            }
 
             // Messages in booking thread
             $message4Id = DB::table('messages')->insertGetId([
@@ -178,14 +195,19 @@ class ConversationSeeder extends Seeder
             ]);
 
             // Create active booking thread
-            $thread2Id = DB::table('booking_threads')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking2Id,
-                'is_active' => true,
-                'archived_at' => null,
-                'created_at' => Carbon::now()->subDays(3),
-                'updated_at' => Carbon::now()->subDays(3),
-            ]);
+            $existingThread2 = DB::table('booking_threads')->where('booking_id', $booking2Id)->first();
+            if (! $existingThread2) {
+                $thread2Id = DB::table('booking_threads')->insertGetId([
+                    'conversation_id' => $conversation1Id,
+                    'booking_id' => $booking2Id,
+                    'is_active' => true,
+                    'archived_at' => null,
+                    'created_at' => Carbon::now()->subDays(3),
+                    'updated_at' => Carbon::now()->subDays(3),
+                ]);
+            } else {
+                $thread2Id = $existingThread2->id;
+            }
 
             // Messages in active booking thread
             $message10Id = DB::table('messages')->insertGetId([
@@ -236,13 +258,22 @@ class ConversationSeeder extends Seeder
 
         // === CONVERSATION 2: Simple conversation without bookings ===
         if ($establishment2Id) {
-            $conversation2Id = DB::table('conversations')->insertGetId([
-                'user_id' => $userId,
-                'establishment_id' => $establishment2Id,
-                'last_message_at' => Carbon::now()->subDays(5),
-                'created_at' => Carbon::now()->subDays(10),
-                'updated_at' => Carbon::now()->subDays(5),
-            ]);
+            $existingConv2 = DB::table('conversations')
+                ->where('user_id', $userId)
+                ->where('establishment_id', $establishment2Id)
+                ->first();
+
+            if ($existingConv2) {
+                $conversation2Id = $existingConv2->id;
+            } else {
+                $conversation2Id = DB::table('conversations')->insertGetId([
+                    'user_id' => $userId,
+                    'establishment_id' => $establishment2Id,
+                    'last_message_at' => Carbon::now()->subDays(5),
+                    'created_at' => Carbon::now()->subDays(10),
+                    'updated_at' => Carbon::now()->subDays(5),
+                ]);
+            }
 
             $message14Id = DB::table('messages')->insertGetId([
                 'conversation_id' => $conversation2Id,

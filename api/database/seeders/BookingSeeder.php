@@ -2,6 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnimalType;
+use App\Models\Booking;
+use App\Models\Establishment;
+use App\Models\Pet;
+use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,65 +19,88 @@ class BookingSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get IDs
-        $userId = DB::table('users')->where('email', 'user@orus.com')->value('id');
-        $establishmentId = DB::table('establishments')->first()->id;
+        // Get IDs with validation
+        $userId = User::where('email', 'user@orus.com')->value('id');
+        if (! $userId) {
+            throw new \RuntimeException('User with email user@orus.com not found. Run UsersSeeder first.');
+        }
+
+        $establishmentId = Establishment::first()->id;
+        if (! $establishmentId) {
+            throw new \RuntimeException('No establishment found. Run EstablishmentSeeder first.');
+        }
 
         // Get pet IDs
-        $rexId = DB::table('pets')->where('name', 'Rex')->value('id');
-        $minouId = DB::table('pets')->where('name', 'Minou')->value('id');
-        $kiwiId = DB::table('pets')->where('name', 'Kiwi')->value('id');
-        $maxId = DB::table('pets')->where('name', 'Max')->value('id');
+        $pets = Pet::whereIn('name', ['Rex', 'Minou', 'Kiwi', 'Max'])->pluck('id', 'name')->toArray();
+        if (count($pets) !== 4) {
+            throw new \RuntimeException('Missing pets. Run PetSeeder first.');
+        }
+        $rexId = $pets['Rex'];
+        $minouId = $pets['Minou'];
+        $kiwiId = $pets['Kiwi'];
+        $maxId = $pets['Max'];
 
         // Get animal type IDs
-        $dogTypeId = DB::table('animal_types')->where('code', 'dog')->value('id');
-        $catTypeId = DB::table('animal_types')->where('code', 'cat')->value('id');
-        $birdTypeId = DB::table('animal_types')->where('code', 'bird')->value('id');
+        $animalTypes = AnimalType::whereIn('code', ['dog', 'cat', 'bird'])->pluck('id', 'code')->toArray();
+        if (count($animalTypes) !== 3) {
+            throw new \RuntimeException('Missing animal types. Run AnimalTypeSeeder first.');
+        }
+        $dogTypeId = $animalTypes['dog'];
+        $catTypeId = $animalTypes['cat'];
+        $birdTypeId = $animalTypes['bird'];
 
         // Create services for the establishment (specific to animal types)
-        $walkServiceId = DB::table('services')->insertGetId([
-            'establishment_id' => $establishmentId,
-            'animal_type_id' => $dogTypeId,
-            'name' => 'Promenade quotidienne',
-            'description' => 'Promenade d\'une heure dans le parc',
-            'is_included' => false,
-            'price' => 15.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $walkService = Service::firstOrCreate(
+            [
+                'establishment_id' => $establishmentId,
+                'animal_type_id' => $dogTypeId,
+                'name' => 'Promenade quotidienne',
+            ],
+            [
+                'description' => 'Promenade d\'une heure dans le parc',
+                'is_included' => false,
+                'price' => 15.00,
+            ]
+        );
 
-        $groomingServiceId = DB::table('services')->insertGetId([
-            'establishment_id' => $establishmentId,
-            'animal_type_id' => $dogTypeId,
-            'name' => 'Toilettage',
-            'description' => 'Bain, séchage et brossage complet',
-            'is_included' => false,
-            'price' => 45.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $groomingService = Service::firstOrCreate(
+            [
+                'establishment_id' => $establishmentId,
+                'animal_type_id' => $dogTypeId,
+                'name' => 'Toilettage',
+            ],
+            [
+                'description' => 'Bain, séchage et brossage complet',
+                'is_included' => false,
+                'price' => 45.00,
+            ]
+        );
 
-        $medicationServiceId = DB::table('services')->insertGetId([
-            'establishment_id' => $establishmentId,
-            'animal_type_id' => $dogTypeId,
-            'name' => 'Administration médicaments',
-            'description' => 'Prise en charge de l\'administration des médicaments',
-            'is_included' => true,
-            'price' => 0.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $medicationService = Service::firstOrCreate(
+            [
+                'establishment_id' => $establishmentId,
+                'animal_type_id' => $dogTypeId,
+                'name' => 'Administration médicaments',
+            ],
+            [
+                'description' => 'Prise en charge de l\'administration des médicaments',
+                'is_included' => true,
+                'price' => 0.00,
+            ]
+        );
 
-        $photoServiceId = DB::table('services')->insertGetId([
-            'establishment_id' => $establishmentId,
-            'animal_type_id' => $dogTypeId,
-            'name' => 'Photos quotidiennes',
-            'description' => 'Envoi de photos quotidiennes de votre animal',
-            'is_included' => true,
-            'price' => 0.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $photoService = Service::firstOrCreate(
+            [
+                'establishment_id' => $establishmentId,
+                'animal_type_id' => $dogTypeId,
+                'name' => 'Photos quotidiennes',
+            ],
+            [
+                'description' => 'Envoi de photos quotidiennes de votre animal',
+                'is_included' => true,
+                'price' => 0.00,
+            ]
+        );
 
         // === BOOKING 1: Completed - Rex only ===
         $booking1Id = DB::table('bookings')->insertGetId([
@@ -98,7 +127,7 @@ class BookingSeeder extends Seeder
 
         DB::table('booking_services')->insert([
             'booking_id' => $booking1Id,
-            'service_id' => $walkServiceId,
+            'service_id' => $walkService->id,
             'quantity' => 5,
             'unit_price' => 15.00,
             'subtotal' => 75.00,
@@ -143,7 +172,7 @@ class BookingSeeder extends Seeder
         DB::table('booking_services')->insert([
             [
                 'booking_id' => $booking2Id,
-                'service_id' => $walkServiceId,
+                'service_id' => $walkService->id,
                 'quantity' => 7,
                 'unit_price' => 15.00,
                 'subtotal' => 105.00,
@@ -152,7 +181,7 @@ class BookingSeeder extends Seeder
             ],
             [
                 'booking_id' => $booking2Id,
-                'service_id' => $groomingServiceId,
+                'service_id' => $groomingService->id,
                 'quantity' => 1,
                 'unit_price' => 45.00,
                 'subtotal' => 45.00,
@@ -186,7 +215,7 @@ class BookingSeeder extends Seeder
 
         DB::table('booking_services')->insert([
             'booking_id' => $booking3Id,
-            'service_id' => $medicationServiceId,
+            'service_id' => $medicationService->id,
             'quantity' => 8,
             'unit_price' => 0.00,
             'subtotal' => 0.00,

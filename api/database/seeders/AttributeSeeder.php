@@ -2,25 +2,31 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnimalType;
+use App\Models\AttributeAnimalType;
+use App\Models\AttributeDefinition;
+use App\Models\AttributeOption;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class AttributeSeeder extends Seeder
 {
+    private array $animalTypes;
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        // Get animal type IDs
-        $dogId = DB::table('animal_types')->where('code', 'dog')->value('id');
-        $catId = DB::table('animal_types')->where('code', 'cat')->value('id');
-        $smallMammalId = DB::table('animal_types')->where('code', 'small_mammal')->value('id');
-        $birdId = DB::table('animal_types')->where('code', 'bird')->value('id');
-        $fishId = DB::table('animal_types')->where('code', 'fish')->value('id');
-        $reptileId = DB::table('animal_types')->where('code', 'reptile')->value('id');
-        $amphibianId = DB::table('animal_types')->where('code', 'amphibian')->value('id');
-        $invertebrateId = DB::table('animal_types')->where('code', 'invertebrate')->value('id');
+        $this->loadAnimalTypes();
+
+        $dogId = $this->animalTypes['dog'];
+        $catId = $this->animalTypes['cat'];
+        $smallMammalId = $this->animalTypes['small_mammal'];
+        $birdId = $this->animalTypes['bird'];
+        $fishId = $this->animalTypes['fish'];
+        $reptileId = $this->animalTypes['reptile'];
+        $amphibianId = $this->animalTypes['amphibian'];
+        $invertebrateId = $this->animalTypes['invertebrate'];
 
         // ========== COMMON ATTRIBUTES (Dogs & Cats) ==========
         $this->createAttribute('energy_level', 'Niveau d\'énergie', 'text', true, [$dogId, $catId], [
@@ -235,43 +241,61 @@ class AttributeSeeder extends Seeder
         ]);
     }
 
+    private function loadAnimalTypes(): void
+    {
+        $types = AnimalType::whereIn('code', [
+            'dog',
+            'cat',
+            'small_mammal',
+            'bird',
+            'fish',
+            'reptile',
+            'amphibian',
+            'invertebrate',
+        ])->pluck('id', 'code')->toArray();
+
+        if (count($types) !== 8) {
+            throw new \RuntimeException('Missing animal types. Run AnimalTypeSeeder first.');
+        }
+
+        $this->animalTypes = $types;
+    }
+
     /**
      * Helper to create attribute with options
      */
     private function createAttribute(string $code, string $label, string $valueType, bool $hasPredefinedOptions, array $animalTypeIds, array $options = []): void
     {
-        // Insert attribute definition
-        $attributeId = DB::table('attribute_definitions')->insertGetId([
-            'code' => $code,
-            'label' => $label,
-            'value_type' => $valueType,
-            'has_predefined_options' => $hasPredefinedOptions,
-            'is_required' => false,
-            'validation_rules' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $attribute = AttributeDefinition::firstOrCreate(
+            ['code' => $code],
+            [
+                'label' => $label,
+                'value_type' => $valueType,
+                'has_predefined_options' => $hasPredefinedOptions,
+                'is_required' => false,
+                'validation_rules' => null,
+            ]
+        );
 
-        // Link to animal types
         foreach ($animalTypeIds as $animalTypeId) {
-            DB::table('attribute_animal_types')->insert([
-                'attribute_definition_id' => $attributeId,
+            AttributeAnimalType::firstOrCreate([
+                'attribute_definition_id' => $attribute->id,
                 'animal_type_id' => $animalTypeId,
             ]);
         }
 
-        // Insert predefined options
         if ($hasPredefinedOptions && ! empty($options)) {
-            $sortOrder = 0;
-            foreach ($options as $option) {
-                DB::table('attribute_options')->insert([
-                    'attribute_definition_id' => $attributeId,
-                    'value' => $option['value'],
-                    'label' => $option['label'],
-                    'sort_order' => $sortOrder++,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            foreach ($options as $index => $option) {
+                AttributeOption::firstOrCreate(
+                    [
+                        'attribute_definition_id' => $attribute->id,
+                        'value' => $option['value'],
+                    ],
+                    [
+                        'label' => $option['label'],
+                        'sort_order' => $index,
+                    ]
+                );
             }
         }
     }
