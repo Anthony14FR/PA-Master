@@ -23,9 +23,15 @@ class BookingSeeder extends Seeder
         $kiwiId = DB::table('pets')->where('name', 'Kiwi')->value('id');
         $maxId = DB::table('pets')->where('name', 'Max')->value('id');
 
-        // Create services for the establishment
+        // Get animal type IDs
+        $dogTypeId = DB::table('animal_types')->where('code', 'dog')->value('id');
+        $catTypeId = DB::table('animal_types')->where('code', 'cat')->value('id');
+        $birdTypeId = DB::table('animal_types')->where('code', 'bird')->value('id');
+
+        // Create services for the establishment (specific to animal types)
         $walkServiceId = DB::table('services')->insertGetId([
             'establishment_id' => $establishmentId,
+            'animal_type_id' => $dogTypeId,
             'name' => 'Promenade quotidienne',
             'description' => 'Promenade d\'une heure dans le parc',
             'is_included' => false,
@@ -36,6 +42,7 @@ class BookingSeeder extends Seeder
 
         $groomingServiceId = DB::table('services')->insertGetId([
             'establishment_id' => $establishmentId,
+            'animal_type_id' => $dogTypeId,
             'name' => 'Toilettage',
             'description' => 'Bain, séchage et brossage complet',
             'is_included' => false,
@@ -46,6 +53,7 @@ class BookingSeeder extends Seeder
 
         $medicationServiceId = DB::table('services')->insertGetId([
             'establishment_id' => $establishmentId,
+            'animal_type_id' => $dogTypeId,
             'name' => 'Administration médicaments',
             'description' => 'Prise en charge de l\'administration des médicaments',
             'is_included' => true,
@@ -56,6 +64,7 @@ class BookingSeeder extends Seeder
 
         $photoServiceId = DB::table('services')->insertGetId([
             'establishment_id' => $establishmentId,
+            'animal_type_id' => $dogTypeId,
             'name' => 'Photos quotidiennes',
             'description' => 'Envoi de photos quotidiennes de votre animal',
             'is_included' => true,

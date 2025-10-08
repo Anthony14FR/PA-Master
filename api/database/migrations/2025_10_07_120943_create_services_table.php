@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('establishment_id')->constrained()->onDelete('cascade');
+            $table->foreignId('animal_type_id')->constrained('animal_types')->onDelete('cascade');
             $table->string('name', 255);
             $table->text('description')->nullable();
             $table->boolean('is_included')->default(true);
