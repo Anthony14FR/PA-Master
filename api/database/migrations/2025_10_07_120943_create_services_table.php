@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('establishment_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('establishment_id')->constrained()->onDelete('cascade');
             $table->string('name', 255);
             $table->text('description')->nullable();
             $table->boolean('is_included')->default(true);

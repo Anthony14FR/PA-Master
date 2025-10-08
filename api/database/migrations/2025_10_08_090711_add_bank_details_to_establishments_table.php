@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('establishments', function (Blueprint $table) {
-            $table->string('bank_account_holder_name')->nullable()->after('stripe_payouts_enabled');
-            $table->string('bank_account_iban')->nullable()->after('bank_account_holder_name');
-            $table->string('bank_account_bic')->nullable()->after('bank_account_iban');
-            $table->string('bank_account_last4')->nullable()->after('bank_account_bic');
-            $table->boolean('bank_account_verified')->default(false)->after('bank_account_last4');
+            // Store only minimal bank info - full details managed by Stripe
+            $table->string('bank_account_last4', 4)->nullable()->after('stripe_payouts_enabled');
+            $table->string('bank_name', 100)->nullable()->after('bank_account_last4');
+            $table->boolean('bank_account_verified')->default(false)->after('bank_name');
             $table->timestamp('bank_account_verified_at')->nullable()->after('bank_account_verified');
         });
     }
@@ -28,10 +27,8 @@ return new class extends Migration
     {
         Schema::table('establishments', function (Blueprint $table) {
             $table->dropColumn([
-                'bank_account_holder_name',
-                'bank_account_iban',
-                'bank_account_bic',
                 'bank_account_last4',
+                'bank_name',
                 'bank_account_verified',
                 'bank_account_verified_at',
             ]);

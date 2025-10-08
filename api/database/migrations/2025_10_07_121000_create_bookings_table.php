@@ -14,13 +14,15 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('establishment_id')->constrained();
+            $table->foreignUuid('establishment_id')->constrained();
             $table->date('check_in_date');
             $table->date('check_out_date');
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending')->index();
             $table->text('special_requests')->nullable();
             $table->timestamps();
+
+            $table->index(['establishment_id', 'check_in_date', 'check_out_date'], 'bookings_availability_index');
         });
     }
 

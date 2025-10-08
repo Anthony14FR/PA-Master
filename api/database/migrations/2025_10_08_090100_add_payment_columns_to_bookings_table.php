@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::table('bookings', function (Blueprint $table) {
             $table->decimal('platform_fee', 10, 2)->default(0)->after('total_price');
             $table->decimal('establishment_amount', 10, 2)->default(0)->after('platform_fee');
-            $table->string('stripe_payment_intent_id')->unique()->nullable()->after('establishment_amount');
+            $table->string('stripe_payment_intent_id', 50)->unique()->nullable()->after('establishment_amount');
             $table->enum('payment_status', ['pending', 'requires_action', 'processing', 'succeeded', 'failed', 'refunded'])
                 ->default('pending')
+                ->index()
                 ->after('stripe_payment_intent_id');
             $table->timestamp('paid_at')->nullable()->after('payment_status');
             $table->timestamp('refunded_at')->nullable()->after('paid_at');

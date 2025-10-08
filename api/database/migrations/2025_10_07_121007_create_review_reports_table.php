@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('reporter_id')->constrained('users');
             $table->enum('reason', ['inappropriate', 'offensive', 'fake', 'spam', 'other']);
             $table->text('description')->nullable();
-            $table->enum('status', ['pending', 'reviewed', 'rejected', 'removed'])->default('pending');
+            $table->enum('status', ['pending', 'reviewed', 'rejected', 'removed'])->default('pending')->index();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
         });

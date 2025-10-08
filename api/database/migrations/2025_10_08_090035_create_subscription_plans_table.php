@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('subscription_plans', function (Blueprint $table) {
             $table->id();
-            $table->string('stripe_product_id')->unique();
-            $table->string('stripe_price_id')->unique();
+            $table->string('stripe_product_id', 50)->unique();
+            $table->string('stripe_price_id', 50)->unique();
             $table->string('name', 100);
-            $table->string('slug', 50)->unique();
+            $table->string('slug', 50)->unique()->index();
             $table->text('description')->nullable();
             $table->decimal('price_monthly', 10, 2);
             $table->decimal('price_yearly', 10, 2)->nullable();
             $table->char('currency', 3)->default('EUR');
             $table->json('features')->nullable();
             $table->json('limits')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(true)->index();
             $table->timestamps();
         });
     }

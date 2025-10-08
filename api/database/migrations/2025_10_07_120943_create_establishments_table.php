@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->uuid('address_id');
             $table->foreign('address_id')->references('id')->on('addresses')->onDelete('restrict');
-            $table->string('timezone', 50)->default('Europe/Paris');
+            $table->string('timezone', 50)->default('UTC');
             $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('manager_id');
             $table->foreign('manager_id')->references('id')->on('users')->onDelete('restrict');

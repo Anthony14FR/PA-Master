@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('establishment_capacities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('establishment_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('establishment_id')->constrained()->onDelete('cascade');
             $table->foreignId('animal_type_id')->constrained();
             $table->integer('max_capacity');
             $table->decimal('price_per_night', 8, 2);
