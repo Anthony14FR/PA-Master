@@ -15,17 +15,14 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('email', 255)->nullable();
-            $table->text('website')->nullable();
+            $table->string('website')->nullable();
             $table->uuid('address_id');
-            $table->string('timezone', 50)->default('Europe/Paris');
+            $table->foreign('address_id')->references('id')->on('addresses')->onDelete('restrict');
+            $table->string('timezone', 50)->default('UTC');
             $table->boolean('is_active')->default(true);
-            $table->integer('number_places_available')->nullable();
-            $table->decimal('price_places_available', 8, 2)->nullable();
             $table->unsignedBigInteger('manager_id');
+            $table->foreign('manager_id')->references('id')->on('users')->onDelete('restrict');
             $table->timestamps();
-
-            $table->foreign('address_id')->references('id')->on('addresses');
-            $table->foreign('manager_id')->references('id')->on('users');
         });
     }
 

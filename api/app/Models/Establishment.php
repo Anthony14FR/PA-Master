@@ -22,8 +22,6 @@ class Establishment extends Model
         'address_id',
         'timezone',
         'is_active',
-        'number_places_available',
-        'price_places_available',
         'manager_id',
     ];
 
@@ -31,8 +29,6 @@ class Establishment extends Model
     {
         return [
             'is_active' => 'boolean',
-            'number_places_available' => 'integer',
-            'price_places_available' => 'decimal:2',
         ];
     }
 

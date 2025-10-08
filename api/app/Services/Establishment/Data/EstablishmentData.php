@@ -18,8 +18,6 @@ class EstablishmentData extends Data
         public readonly string $address_id,
         public readonly string $timezone,
         public readonly bool $is_active,
-        public readonly ?int $number_places_available,
-        public readonly ?float $price_places_available,
         public readonly int $manager_id,
         public readonly string $created_at,
         public readonly string $updated_at,

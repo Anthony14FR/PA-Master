@@ -11,9 +11,17 @@ class EstablishmentSeeder extends Seeder
 {
     public function run(): void
     {
-        $addresses = Address::factory()->count(5)->create();
-        $managers = User::factory()->count(5)->create();
-        $collaborators = User::factory()->count(10)->create();
+        $addresses = Address::inRandomOrder()->limit(5)->get();
+        if ($addresses->isEmpty()) {
+            throw new \RuntimeException('No addresses found. Run AddressSeeder first.');
+        }
+
+        $managers = User::inRandomOrder()->limit(5)->get();
+        if ($managers->isEmpty()) {
+            throw new \RuntimeException('No users found. Run UsersSeeder first.');
+        }
+
+        $collaborators = User::inRandomOrder()->limit(10)->get();
 
         $addresses->each(function ($address) use ($managers, $collaborators) {
             $establishment = Establishment::factory()->create([
@@ -21,9 +29,11 @@ class EstablishmentSeeder extends Seeder
                 'manager_id' => $managers->random()->id,
             ]);
 
-            $establishment->collaborators()->attach(
-                $collaborators->random(min(3, $collaborators->count()))->pluck('id')
-            );
+            if ($collaborators->isNotEmpty()) {
+                $establishment->collaborators()->attach(
+                    $collaborators->random(min(3, $collaborators->count()))->pluck('id')
+                );
+            }
         });
     }
 }
