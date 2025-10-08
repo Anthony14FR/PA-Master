@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authService } from '../services/api/auth.js';
 import { ApiError } from '../services/api/client.js';
 import { getLocaleFromDomain, getDomainForLocale } from '@/lib/i18n';
+import { cookieUtils } from '@/shared/utils/cookies';
 
 const AuthContext = createContext(null);
 
@@ -24,13 +25,10 @@ export function AuthProvider({ children, locale = 'en' }) {
           setUser(userData);
 
           if (userData?.locale) {
-            const cookieLocale = document.cookie
-              .split('; ')
-              .find(row => row.startsWith('locale_preference='))
-              ?.split('=')[1];
+            const cookieLocale = cookieUtils.get('locale_preference');
 
             if (cookieLocale !== userData.locale) {
-              document.cookie = `locale_preference=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+              cookieUtils.set('locale_preference', userData.locale, 365, { sameSite: 'lax' });
             }
           }
         }
@@ -56,7 +54,7 @@ export function AuthProvider({ children, locale = 'en' }) {
       setUser(userData);
 
       if (userData?.locale) {
-        document.cookie = `locale_preference=${userData.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+        cookieUtils.set('locale_preference', userData.locale, 365, { sameSite: 'lax' });
       }
 
       return response;
@@ -81,7 +79,7 @@ export function AuthProvider({ children, locale = 'en' }) {
       setUser(newUser);
 
       if (newUser?.locale) {
-        document.cookie = `locale_preference=${newUser.locale}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+        cookieUtils.set('locale_preference', newUser.locale, 365, { sameSite: 'lax' });
       }
 
       return response;
