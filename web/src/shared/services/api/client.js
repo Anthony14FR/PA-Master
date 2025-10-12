@@ -1,14 +1,12 @@
 import { getLocaleFromDomain } from '@/lib/i18n';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class ApiClient {
   constructor(baseURL = API_BASE_URL) {
     this.baseURL = baseURL;
     this.token = null;
-
-    if (process.env.NODE_ENV === 'development') {
-      console.debug(`[ApiClient] API Base URL: ${this.baseURL}`);
-    }
+    this.refreshPromise = null;
   }
 
   setAuthToken(token) {
@@ -17,28 +15,50 @@ class ApiClient {
 
   clearAuthToken() {
     this.token = null;
+    this.refreshPromise = null;
   }
 
-  /**
-   * Récupère la locale depuis le domaine ou les variables d'environnement
-   * @returns {string} Code de locale (fr, en, it, de)
-   */
   getLocaleFromRequest() {
     if (typeof window === 'undefined') {
       return process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'en';
     }
-
     const hostname = window.location.hostname;
     return getLocaleFromDomain(hostname);
   }
 
-  /**
-   * Effectue une requête HTTP vers l'API
-   * @param {string} endpoint - Endpoint de l'API (ex: "/login")
-   * @param {Object} options - Options fetch
-   * @returns {Promise<Object>} Réponse JSON
-   */
-  async request(endpoint, options = {}) {
+  async attemptRefresh() {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = (async () => {
+      try {
+        const { authService } = await import('./auth.js');
+        const response = await authService.refresh();
+
+        if (response.access_token) {
+          this.setAuthToken(response.access_token);
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        this.clearAuthToken();
+
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login';
+        }
+
+        return false;
+      } finally {
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
+  async request(endpoint, options = {}, isRetry = false) {
     const url = `${this.baseURL}/api${endpoint}`;
 
     const defaultHeaders = {
@@ -64,11 +84,14 @@ class ApiClient {
     }
 
     try {
-      if (process.env.NODE_ENV === 'development') {
-        console.debug(`[ApiClient] ${config.method || 'GET'} ${url}`);
-      }
-
       const response = await fetch(url, config);
+
+      if (response.status === 401 && !isRetry && endpoint !== '/refresh' && endpoint !== '/login') {
+        const refreshed = await this.attemptRefresh();
+        if (refreshed) {
+          return this.request(endpoint, options, true);
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -85,7 +108,6 @@ class ApiClient {
         throw error;
       }
 
-      console.error('[ApiClient] Network error:', error);
       throw new ApiError(0, 'Network error or server unavailable', {
         originalError: error.message
       });

@@ -8,19 +8,32 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test', [TestController::class, 'index']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth.jwt'])->group(function () {
     Route::apiResource('establishments', EstablishmentController::class);
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::middleware(['auth.jwt', 'role:admin'])->group(function () {
     Route::apiResource('users', UserController::class);
 });
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware(['auth.jwt'])->get('/user', function (Request $request) {
+    $user = $request->user();
+    $user->load('roles');
+
+    return response()->json([
+        'id' => $user->id,
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'locale' => $user->locale,
+        'is_id_verified' => $user->is_id_verified,
+        'email_verified_at' => $user->email_verified_at,
+        'roles' => $user->roles->pluck('name'),
+    ]);
 });
 
-Route::middleware(['auth:sanctum'])->put('/user/locale', function (Request $request) {
+Route::middleware(['auth.jwt'])->put('/user/locale', function (Request $request) {
     $availableLocales = explode(',', config('app.available_locales', 'en'));
 
     $request->validate([

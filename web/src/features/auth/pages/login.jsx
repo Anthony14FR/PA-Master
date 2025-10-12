@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {useCommonTranslation, useTranslation} from "@/hooks/useTranslation";
+import { accessControlService } from "@/shared/services/access-control.service";
 
 export function Login() {
     const [email, setEmail] = useState("");
@@ -27,8 +28,10 @@ export function Login() {
         clearError();
 
         try {
-            await login({ email, password });
-            router.push('/dashboard');
+            const response = await login({ email, password });
+            const userData = response.user || response;
+
+            router.push(accessControlService.getUserHomePage(userData.roles || []));
         } catch (error) {
             console.error('Erreur de connexion:', error);
         } finally {
