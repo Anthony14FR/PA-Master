@@ -1,6 +1,38 @@
-import { apiClient } from './client.js';
+import { apiClient } from './client.service.js';
 import { cookieUtils } from '../../utils/cookies.js';
 import { cookieConfig } from '@/config/jwt.config';
+
+/**
+ * Get dynamic cookie domain based on current hostname
+ * Matches server-side logic for consistency
+ * @returns {string|undefined} Cookie domain (e.g., '.kennelo.fr') or undefined
+ */
+function getDynamicCookieDomain() {
+  if (typeof window === 'undefined') return cookieConfig.domain;
+
+  const hostname = window.location.hostname;
+
+  // Skip domain for localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return undefined;
+  }
+
+  // Skip domain if it's an IP address
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+    return undefined;
+  }
+
+  // Extract base domain (last 2 parts)
+  const parts = hostname.split('.');
+
+  // If hostname has at least 2 parts (e.g., kennelo.com, app.kennelo.fr)
+  if (parts.length >= 2) {
+    const baseDomain = parts.slice(-2).join('.');
+    return `.${baseDomain}`;  // Prefix with dot for subdomain sharing
+  }
+
+  return undefined;
+}
 
 export const authService = {
   async login(credentials) {
@@ -60,6 +92,8 @@ export const authService = {
       });
 
       if (response.access_token) {
+        const dynamicDomain = getDynamicCookieDomain();
+
         apiClient.setAuthToken(response.access_token);
         cookieUtils.set(
           cookieConfig.accessTokenName,
@@ -68,7 +102,7 @@ export const authService = {
           {
             secure: cookieConfig.accessTokenOptions.secure,
             sameSite: cookieConfig.accessTokenOptions.sameSite,
-            domain: cookieConfig.domain,
+            domain: dynamicDomain,
           }
         );
       }
@@ -108,6 +142,8 @@ export const authService = {
   },
 
   setTokens(accessToken, refreshToken) {
+    const dynamicDomain = getDynamicCookieDomain();
+
     cookieUtils.set(
       cookieConfig.accessTokenName,
       accessToken,
@@ -115,7 +151,7 @@ export const authService = {
       {
         secure: cookieConfig.accessTokenOptions.secure,
         sameSite: cookieConfig.accessTokenOptions.sameSite,
-        domain: cookieConfig.domain,
+        domain: dynamicDomain,
       }
     );
 
@@ -127,21 +163,23 @@ export const authService = {
         {
           secure: cookieConfig.refreshTokenOptions.secure,
           sameSite: cookieConfig.refreshTokenOptions.sameSite,
-          domain: cookieConfig.domain,
+          domain: dynamicDomain,
         }
       );
     }
   },
 
   clearTokens() {
+    const dynamicDomain = getDynamicCookieDomain();
+
     cookieUtils.remove(cookieConfig.accessTokenName, {
-      domain: cookieConfig.domain,
+      domain: dynamicDomain,
     });
     cookieUtils.remove(cookieConfig.refreshTokenName, {
-      domain: cookieConfig.domain,
+      domain: dynamicDomain,
     });
     cookieUtils.remove('auth_token', {
-      domain: cookieConfig.domain,
+      domain: dynamicDomain,
     });
   },
 

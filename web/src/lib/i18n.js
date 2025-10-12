@@ -102,10 +102,22 @@ export function getHreflangUrls(pathname = '/') {
 
     for (const locale of AVAILABLE_LOCALES) {
         const domain = getDomainForLocale(locale);
-        urls[locale] = `https://${domain}${pathname}`;
+        
+        // If locale has its own domain, use it directly
+        if (LOCALE_DOMAINS[locale]) {
+            urls[locale] = `https://${domain}${pathname}`;
+        } 
+        // If locale has no domain, use default domain with locale parameter
+        else {
+            const defaultDomain = getDomainForLocale(DEFAULT_LOCALE);
+            const separator = pathname.includes('?') ? '&' : '?';
+            urls[locale] = `https://${defaultDomain}${pathname}${separator}locale=${locale}`;
+        }
     }
 
-    urls['x-default'] = `https://kennelo.com${pathname}`;
+    // Use the default domain from config instead of hardcoded .com
+    const defaultDomain = getDomainForLocale(DEFAULT_LOCALE);
+    urls['x-default'] = `https://${defaultDomain}${pathname}`;
     return urls;
 }
 

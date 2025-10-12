@@ -1,77 +1,158 @@
 import { NextResponse } from 'next/server';
-import { getTargetDomainFromCountry, buildRedirectHost, getLocaleFromCountry } from './lib/i18n';
+import { getLocaleFromCountry } from './lib/i18n';
 import { getCountryFromIP } from './lib/geoip';
-import i18nConfig from './config/i18n.config.json';
+import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '@/shared/utils/cookies.server';
+import { accessControlService } from '@/shared/services/access-control.service';
+import { authenticationService } from '@/shared/services/authentication.service';
+import { redirectService } from '@/shared/services/redirect.service';
+import { domainService } from '@/shared/services/domain.service';
+import { PAGES } from '@/config/access-control.config';
+import i18nConfig from '@/config/i18n.config.json';
 
-function getBaseDomain(host) {
-    if (!host) return null;
-    const parts = host.split('.');
-    return parts.length >= 2 ? parts.slice(-2).join('.') : host;
-}
-
+/**
+ * Next.js Middleware - Handles authentication, authorization, and routing
+ */
 export async function middleware(request) {
-    const { pathname } = request.nextUrl;
-    const currentHost = request.headers.get('host')?.split(':')[0];
-    const token = request.cookies.get('auth_token');
+  const { pathname } = request.nextUrl;
+  const currentHost = request.headers.get('host')?.split(':')[0];
 
-    if (pathname.match(/^\/(auth)/) && token) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+  // Handle session token from URL (cross-domain authentication)
+  const sessionTokenResponse = redirectService.handleSessionTokenFromUrl(request);
+  if (sessionTokenResponse) {
+    return sessionTokenResponse;
+  }
+
+  // Extract subdomain and normalize pathname
+  const subdomain = domainService.extractSubdomain(request);
+  const normalizedPathname = subdomain && !pathname.startsWith('/s/')
+    ? `/s/${subdomain}${pathname}`
+    : pathname;
+
+  // Authenticate request and refresh token if needed
+  const { accessToken, userRoles, tokenRefreshed } = await authenticationService.authenticateRequest(request);
+  const isAuthenticated = authenticationService.isAuthenticated(accessToken);
+
+  // Handle auth routes - redirect authenticated users
+  if (accessControlService.isAuthRoute(normalizedPathname) && isAuthenticated) {
+    return redirectService.handleAuthRedirect(
+      request,
+      currentHost,
+      accessToken,
+      userRoles,
+      (roles) => accessControlService.getUserHomePage(roles)
+    );
+  }
+
+  // Handle protected routes - require authentication
+  if (accessControlService.isProtectedRoute(normalizedPathname, subdomain)) {
+    if (!isAuthenticated) {
+      const loginUrl = redirectService.buildLoginRedirect(request, pathname, subdomain);
+      return NextResponse.redirect(loginUrl, { status: 307 });
     }
 
-    if (pathname.match(/^\/(dashboard)/) && !token) {
-        return NextResponse.redirect(new URL('/auth/login', request.url));
+    // Check role-based access
+    const { allowed } = accessControlService.checkRouteAccess(normalizedPathname, userRoles, subdomain);
+    if (!allowed) {
+      return NextResponse.rewrite(new URL(PAGES.NOT_FOUND, request.url));
     }
+  }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-               request.headers.get('x-real-ip') ||
-               request.ip;
+  // Handle subdomain redirect (/s/subdomain → subdomain.domain.tld)
+  const subdomainRedirect = redirectService.handleSubdomainRedirect(request, pathname);
+  if (subdomainRedirect) {
+    return subdomainRedirect;
+  }
 
-    console.log('[Middleware] IP:', ip);
+  // Handle geo-location based redirect
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    request.ip;
+  const country = await getCountryFromIP(ip);
 
-    const country = await getCountryFromIP(ip);
-    console.log('[Middleware] Country detected:', country);
+  const geoRedirect = redirectService.handleGeoRedirect(
+    request,
+    currentHost,
+    country,
+    subdomain,
+    accessToken,
+    tokenRefreshed
+  );
+  if (geoRedirect) {
+    return geoRedirect;
+  }
 
-    const targetDomain = getTargetDomainFromCountry(currentHost, country);
+  let response = NextResponse.next();
+  const host = request.headers.get('host');
 
-    if (targetDomain) {
-        const newHost = buildRedirectHost(currentHost, targetDomain);
-        const redirectUrl = new URL(request.url);
-        redirectUrl.hostname = newHost;
-        redirectUrl.port = '';
-        return NextResponse.redirect(redirectUrl, { status: 307 });
+  const urlLocale = request.nextUrl.searchParams.get('locale');
+
+  if (urlLocale) {
+    const validLocales = i18nConfig.locales.map(locale => locale.code);
+    if (validLocales.includes(urlLocale)) {
+      setCookie(response, 'locale_preference', urlLocale, {
+        maxAge: 60 * 60 * 24 * 365,
+        path: '/',
+        sameSite: 'lax'
+      }, host);
     }
+  }
 
-    const currentBaseDomain = getBaseDomain(currentHost);
-    const defaultBaseDomain = getBaseDomain(i18nConfig.defaultDomaine);
-    const isDefaultDomain = currentBaseDomain === defaultBaseDomain;
+  //if (domainService.isDefaultDomain(currentHost)) {
+  const localePreference = getCookie(request, 'locale_preference');
+  const autoDetectedLocale = getCookie(request, 'auto_detected_locale');
 
-    if (isDefaultDomain) {
-        const localePreference = request.cookies.get('locale_preference')?.value;
-        const autoDetectedLocale = request.cookies.get('auto_detected_locale')?.value;
+  if (!localePreference && country) {
+    const detectedLocale = getLocaleFromCountry(country);
 
-        if (!localePreference && country) {
-            const detectedLocale = getLocaleFromCountry(country);
-            console.log('[Middleware] Detected locale from country:', detectedLocale);
-
-            if (autoDetectedLocale !== detectedLocale) {
-                const response = NextResponse.next();
-                response.cookies.set('auto_detected_locale', detectedLocale, {
-                    maxAge: 60 * 60 * 24 * 30,
-                    path: '/',
-                    sameSite: 'lax'
-                });
-                console.log('[Middleware] Setting auto_detected_locale cookie to:', detectedLocale);
-                return response;
-            }
-        }
+    if (autoDetectedLocale !== detectedLocale) {
+      setCookie(response, 'auto_detected_locale', detectedLocale, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+        sameSite: 'lax'
+      }, host);
     }
+  }
+  //}
 
-    return NextResponse.next();
+  // Update access token if refreshed
+  if (tokenRefreshed && accessToken) {
+    setAccessToken(response, accessToken, host);
+  }
+
+  // Clear auth tokens if no valid token
+  if (!accessToken && getCookie(request, 'access_token')) {
+    deleteAuthTokens(response, host);
+  }
+
+  // Handle subdomain rewrite (subdomain.domain.tld → /s/subdomain)
+  const subdomainRewrite = redirectService.handleSubdomainRewrite(request, subdomain, pathname);
+  if (subdomainRewrite) {
+    // IMPORTANT: Copier les cookies sur la réponse de rewrite
+    if (urlLocale) {
+      const validLocales = i18nConfig.locales.map(locale => locale.code);
+      if (validLocales.includes(urlLocale)) {
+        setCookie(subdomainRewrite, 'locale_preference', urlLocale, {
+          maxAge: 60 * 60 * 24 * 365,
+          path: '/',
+          sameSite: 'lax'
+        }, host);
+      }
+    }
+    
+    // Copier aussi les autres cookies nécessaires
+    if (tokenRefreshed && accessToken) {
+      setAccessToken(subdomainRewrite, accessToken, host);
+    }
+    
+    return subdomainRewrite;
+  }
+
+  return response;
 }
 
 export const config = {
-    runtime: 'nodejs',
-    matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.).*)',
-    ]
-}
+  runtime: 'nodejs',
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.).*)',
+  ]
+};
