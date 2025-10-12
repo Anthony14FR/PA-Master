@@ -5,13 +5,16 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { useCommonTranslation } from "@/shared/hooks/useTranslation";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { LogOut } from "lucide-react";
 
 export default function Page() {
-  const { T } = useCommonTranslation();
+  const { T, t } = useCommonTranslation();
+  const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <div className="w-2xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
             <T tKey="site.name" skeletonWidth={200} />
@@ -22,7 +25,7 @@ export default function Page() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center hover:shadow-lg transition-shadow">
+          <Card className="text-center hover:shadow-lg transition-shadow justify-between">
             <CardHeader>
               <CardTitle>
                 <T tKey="home.cards.api.title" skeletonWidth={120} />
@@ -40,7 +43,7 @@ export default function Page() {
             </CardContent>
           </Card>
 
-          <Card className="text-center hover:shadow-lg transition-shadow">
+          <Card className="text-center hover:shadow-lg transition-shadow justify-between">
             <CardHeader>
               <CardTitle>
                 <T tKey="home.cards.login.title" skeletonWidth={100} />
@@ -58,7 +61,7 @@ export default function Page() {
             </CardContent>
           </Card>
 
-          <Card className="text-center hover:shadow-lg transition-shadow">
+          <Card className="text-center hover:shadow-lg transition-shadow justify-between">
             <CardHeader>
               <CardTitle>
                 <T tKey="home.cards.register.title" skeletonWidth={110} />
@@ -76,13 +79,21 @@ export default function Page() {
             </CardContent>
           </Card>
         </div>
-
+        
         <div className="flex flex-col items-center gap-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             <T tKey="home.cta" skeletonWidth={350} />
           </p>
 
-          <LanguageSwitcher />
+          <div className="flex gap-2">
+            <LanguageSwitcher />
+            {user && (
+              <Button variant='destructive' size='sm' onClick={logout}>
+                <LogOut />
+                {t("dashboard.logout")}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

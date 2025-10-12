@@ -34,7 +34,8 @@ export default function Page() {
                 ✅ {t("dashboard.authSuccess")}
               </h2>
               <div className="space-y-2 text-green-700">
-                <p><strong>{t("dashboard.userInfo.name")} :</strong> {user.name}</p>
+                <p><strong>{t("dashboard.userInfo.name")} :</strong> {user.first_name} {user.last_name}</p>
+                <p><strong>{t("dashboard.userInfo.roles")} :</strong> {user.roles?.join(',')}</p>
                 <p><strong>{t("dashboard.userInfo.email")} :</strong> {user.email}</p>
                 <p><strong>{t("dashboard.userInfo.id")} :</strong> {user.id}</p>
               </div>

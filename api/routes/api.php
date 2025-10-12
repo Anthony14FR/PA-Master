@@ -7,16 +7,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test', [TestController::class, 'index']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth.jwt'])->group(function () {
     Route::apiResource('establishments', EstablishmentController::class);
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::middleware(['auth.jwt', 'role:admin'])->group(function () {
     Route::apiResource('users', UserController::class);
 });
 
-Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'getCurrentUser']);
-
-Route::middleware(['auth:sanctum'])->put('/user/locale', [UserController::class, 'updateLocale']);
+Route::middleware(['auth:jwt'])->get('/user', [UserController::class, 'getCurrentUser']);
+Route::middleware(['auth:jwt'])->put('/user/locale', [UserController::class, 'updateLocale']);
 
 require __DIR__.'/auth.php';
