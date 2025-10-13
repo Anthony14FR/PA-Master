@@ -15,9 +15,25 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Base data
             RoleSeeder::class,
+            AddressSeeder::class,
             UsersSeeder::class,
             EstablishmentSeeder::class,
+
+            // Animal system (EAV)
+            AnimalTypeSeeder::class,
+            AttributeSeeder::class,
+            PetSeeder::class,
+
+            // Bookings
+            BookingSeeder::class,
+
+            // Messaging
+            ConversationSeeder::class,
+
+            // Reviews
+            ReviewCriteriaSeeder::class,
         ]);
 
         User::factory(5)->create()->each(function ($user) {

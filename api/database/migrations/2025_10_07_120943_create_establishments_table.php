@@ -11,16 +11,18 @@ return new class extends Migration
         Schema::create('establishments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 255);
+            $table->string('siret', 14)->unique();
             $table->text('description')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('email', 255)->nullable();
-            $table->text('website')->nullable();
+            $table->string('website')->nullable();
             $table->uuid('address_id');
-            $table->string('timezone', 50)->nullable();
+            $table->foreign('address_id')->references('id')->on('addresses')->onDelete('restrict');
+            $table->string('timezone', 50)->default('UTC');
             $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('manager_id');
+            $table->foreign('manager_id')->references('id')->on('users')->onDelete('restrict');
             $table->timestamps();
-
-            $table->foreign('address_id')->references('id')->on('addresses');
         });
     }
 
