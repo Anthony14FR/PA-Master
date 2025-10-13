@@ -6,7 +6,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/shared/hooks/useAuth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import { useState } from "react";
 import {useCommonTranslation, useTranslation} from "@/hooks/useTranslation";
 import { accessControlService } from "@/shared/services/access-control.service";
@@ -15,6 +15,8 @@ export function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const searchParams = useSearchParams();
 
     const { t: tCommon } = useCommonTranslation();
     const { t: tAuth } = useTranslation("auth", "login");
@@ -31,7 +33,12 @@ export function Login() {
             const response = await login({ email, password });
             const userData = response.user || response;
 
-            router.push(accessControlService.getUserHomePage(userData.roles || []));
+            const returnUrl = searchParams.get('returnUrl');
+            if(returnUrl) {
+                router.push(decodeURIComponent(returnUrl));
+            } else {
+                router.push(accessControlService.getUserHomePage(userData.roles || []));
+            }
         } catch (error) {
             console.error('Erreur de connexion:', error);
         } finally {

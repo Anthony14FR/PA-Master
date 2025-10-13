@@ -2,7 +2,6 @@ const ROUTE_ROLES = {
   '/admin': ['admin'],
   '/dashboard': ['admin', 'manager'],
   '/dashboard/manager': ['admin', 'manager'],
-  '/dashboard': ['admin', 'manager'],
 };
 
 const ADMIN_HOME_PAGE = '/admin';

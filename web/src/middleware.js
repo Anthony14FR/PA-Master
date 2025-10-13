@@ -57,7 +57,15 @@ export async function middleware(request) {
 
   if (accessControlService.isProtectedRoute(pathname)) {
     if (!isAuthenticated) {
-      return NextResponse.redirect(new URL(LOGIN_PAGE, request.url));
+
+      const loginUrl = new URL(LOGIN_PAGE, request.url);
+
+      const returnUrl = encodeURIComponent(pathname);
+      loginUrl.searchParams.set('returnUrl', returnUrl);
+
+      return NextResponse.redirect(loginUrl);
+      
+      //return NextResponse.redirect(new URL(LOGIN_PAGE, request.url));
     }
 
     if (!hasAccessTo(pathname)) {
