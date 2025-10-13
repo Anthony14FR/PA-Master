@@ -8,8 +8,10 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useCommonTranslation, useTranslation } from "@/shared/hooks/useTranslation";
+import { getLocaleFromDomain } from "@/lib/i18n";
 
-export function RegisterPage() {
+export function Register() {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -18,6 +20,9 @@ export function RegisterPage() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [validationError, setValidationError] = useState("");
+
+    const { t: tCommon } = useCommonTranslation();
+    const { t: tAuth } = useTranslation("auth", "register");
 
     const { register, error, clearError } = useAuth();
     const router = useRouter();
@@ -34,9 +39,9 @@ export function RegisterPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (formData.password !== formData.confirmPassword) {
-            setValidationError("Les mots de passe ne correspondent pas");
+            setValidationError(tAuth("errors.passwordMismatch"));
             return;
         }
 
@@ -44,10 +49,19 @@ export function RegisterPage() {
         clearError();
 
         try {
-            await register(formData);
+            // Détecter la locale courante depuis le domaine
+            const currentLocale = typeof window !== 'undefined'
+                ? getLocaleFromDomain(window.location.hostname)
+                : 'en';
+
+            // Envoyer la locale avec les données d'inscription
+            await register({
+                ...formData,
+                locale: currentLocale
+            });
             router.push('/dashboard');
         } catch (error) {
-            console.error('Erreur d\'inscription:', error);
+            console.error('Registration error:', error);
         } finally {
             setIsSubmitting(false);
         }
@@ -58,18 +72,18 @@ export function RegisterPage() {
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <Link href="/" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-                        Kennelo
+                        {tCommon("site.name")}
                     </Link>
                     <p className="text-slate-600 dark:text-slate-300 mt-2">
-                        Créez votre nouveau compte
+                        {tAuth("subtitle")}
                     </p>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Inscription</CardTitle>
+                        <CardTitle>{tAuth("title")}</CardTitle>
                         <CardDescription>
-                            Remplissez le formulaire pour créer votre compte
+                            {tAuth("description")}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -79,14 +93,14 @@ export function RegisterPage() {
                                     {validationError || error}
                                 </div>
                             )}
-                            
+
                             <div className="space-y-2">
-                                <Label htmlFor="name">Nom complet</Label>
+                                <Label htmlFor="name">{tAuth("form.name")}</Label>
                                 <Input
                                     id="name"
                                     name="name"
                                     type="text"
-                                    placeholder="Votre nom complet"
+                                    placeholder={tAuth("form.namePlaceholder")}
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     disabled={isSubmitting}
@@ -94,12 +108,12 @@ export function RegisterPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">{tAuth("form.email")}</Label>
                                 <Input
                                     id="email"
                                     name="email"
                                     type="email"
-                                    placeholder="votre@email.com"
+                                    placeholder={tAuth("form.emailPlaceholder")}
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     disabled={isSubmitting}
@@ -107,12 +121,12 @@ export function RegisterPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="password">Mot de passe</Label>
+                                <Label htmlFor="password">{tAuth("form.password")}</Label>
                                 <Input
                                     id="password"
                                     name="password"
                                     type="password"
-                                    placeholder="Créez un mot de passe"
+                                    placeholder={tAuth("form.passwordPlaceholder")}
                                     value={formData.password}
                                     onChange={handleInputChange}
                                     disabled={isSubmitting}
@@ -120,12 +134,12 @@ export function RegisterPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                                <Label htmlFor="confirmPassword">{tAuth("form.confirmPassword")}</Label>
                                 <Input
                                     id="confirmPassword"
                                     name="confirmPassword"
                                     type="password"
-                                    placeholder="Confirmez votre mot de passe"
+                                    placeholder={tAuth("form.confirmPasswordPlaceholder")}
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
                                     disabled={isSubmitting}
@@ -133,23 +147,23 @@ export function RegisterPage() {
                                 />
                             </div>
                             <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
+                                {isSubmitting ? tAuth("form.loading") : tAuth("form.submit")}
                             </Button>
                         </form>
-                        
+
                         <div className="mt-6 text-center space-y-4">
                             <p className="text-sm text-slate-600 dark:text-slate-400">
-                                Déjà un compte ?{" "}
-                                <Link 
-                                    href="/auth/login" 
+                                {tAuth("links.hasAccount")}{" "}
+                                <Link
+                                    href="/auth/login"
                                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                                 >
-                                    Se connecter
+                                    {tAuth("links.login")}
                                 </Link>
                             </p>
                             <Button asChild variant="outline" className="w-full">
                                 <Link href="/">
-                                    Retour à l'accueil
+                                    {tAuth("links.goBack")}
                                 </Link>
                             </Button>
                         </div>

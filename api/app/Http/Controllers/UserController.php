@@ -23,4 +23,28 @@ class UserController extends Controller
             'timestamp' => human_date(Carbon::now()),
         ]);
     }
+
+    public function getCurrentUser(): JsonResponse
+    {
+        $user = auth()->user();
+
+        return response()->json($user);
+    }
+
+    public function updateLocale(): JsonResponse
+    {
+        $availableLocales = explode(',', config('app.available_locales', 'en'));
+
+        request()->validate([
+            'locale' => ['required', 'string', 'in:'.implode(',', $availableLocales)],
+        ]);
+
+        $user = auth()->user();
+        $user->update(['locale' => request('locale')]);
+
+        return response()->json([
+            'success' => true,
+            'locale' => $user->locale,
+        ]);
+    }
 }

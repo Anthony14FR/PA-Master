@@ -1,4 +1,4 @@
-import { RegisterPage } from '@/features/auth/pages/RegisterPage';
+import { Register } from '@/features/auth/pages/register';
 
 export const metadata = {
     title: 'Inscription',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function Page() {
-    return <RegisterPage />;
+    return <Register />;
 }

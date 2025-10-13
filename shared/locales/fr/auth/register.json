@@ -1,0 +1,25 @@
+{
+  "title": "Inscription",
+  "subtitle": "Créez votre nouveau compte",
+  "description": "Remplissez le formulaire pour créer votre compte",
+  "form": {
+    "name": "Nom complet",
+    "namePlaceholder": "Votre nom complet",
+    "email": "Adresse e-mail",
+    "emailPlaceholder": "votre@email.com",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Créez un mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "submit": "S'inscrire",
+    "loading": "Inscription en cours..."
+  },
+  "links": {
+    "hasAccount": "Déjà un compte ?",
+    "login": "Se connecter",
+    "goBack": "Retour à l'accueil"
+  },
+  "errors": {
+    "passwordMismatch": "Les mots de passe ne correspondent pas"
+  }
+}
