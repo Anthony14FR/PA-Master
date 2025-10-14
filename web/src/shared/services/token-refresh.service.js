@@ -1,10 +1,23 @@
+/**
+ * Token Refresh Service - Handles JWT token refresh
+ * Automatically refreshes expired access tokens using refresh tokens
+ */
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export const tokenRefreshService = {
+class TokenRefreshService {
+  /**
+   * Attempt to refresh access token using refresh token
+   * @param {NextRequest} request - Next.js request
+   * @returns {Promise<string|null>} New access token or null
+   */
   async attemptTokenRefresh(request) {
     try {
       const refreshToken = request.cookies.get('refresh_token')?.value;
-      if (!refreshToken) return null;
+
+      if (!refreshToken) {
+        return null;
+      }
 
       const response = await fetch(`${API_URL}/api/refresh`, {
         method: 'POST',
@@ -14,12 +27,17 @@ export const tokenRefreshService = {
         body: JSON.stringify({ refresh_token: refreshToken }),
       });
 
-      if (!response.ok) return null;
+      if (!response.ok) {
+        return null;
+      }
 
       const data = await response.json();
       return data.access_token || null;
     } catch (error) {
+      console.error('Token refresh failed:', error.message);
       return null;
     }
-  },
-};
+  }
+}
+
+export const tokenRefreshService = new TokenRefreshService();

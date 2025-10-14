@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService } from '../services/api/auth.js';
-import { ApiError } from '../services/api/client.js';
+import { authService } from '../services/api/auth.service.js';
+import { ApiError } from '../services/api/client.service.js';
 import { cookieUtils } from '@/shared/utils/cookies';
 
 const AuthContext = createContext(null);

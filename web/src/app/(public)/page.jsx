@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
-import { useCommonTranslation } from "@/shared/hooks/useTranslation";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useCommonTranslation } from "@/shared/hooks/use-translation";
+import { useAuth } from "@/shared/hooks/use-auth";
 import { LogOut } from "lucide-react";
 
 export default function Page() {
