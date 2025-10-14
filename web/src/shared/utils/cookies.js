@@ -1,4 +1,17 @@
-export const cookieUtils = {
+/**
+ * Client-Side Cookie Utilities
+ * For browser-side cookie management only
+ * 
+ * IMPORTANT: Do not use for sensitive data (use httpOnly cookies instead)
+ */
+class CookieUtils {
+  /**
+   * Set a cookie in the browser
+   * @param {string} name - Cookie name
+   * @param {string} value - Cookie value
+   * @param {number} days - Expiration in days (default: 7)
+   * @param {Object} options - Additional cookie options
+   */
   set(name, value, days = 7, options = {}) {
     if (typeof window === 'undefined') return;
 
@@ -14,6 +27,7 @@ export const cookieUtils = {
 
     const cookieOptions = { ...defaultOptions, ...options };
 
+    // Remove httpOnly as it's not supported in browser
     if (cookieOptions.httpOnly) {
       delete cookieOptions.httpOnly;
     }
@@ -29,8 +43,13 @@ export const cookieUtils = {
     });
 
     document.cookie = cookieString;
-  },
+  }
 
+  /**
+   * Get a cookie value from the browser
+   * @param {string} name - Cookie name
+   * @returns {string|null} Cookie value or null
+   */
   get(name) {
     if (typeof window === 'undefined') return null;
 
@@ -45,8 +64,13 @@ export const cookieUtils = {
       }
     }
     return null;
-  },
+  }
 
+  /**
+   * Remove a cookie from the browser
+   * @param {string} name - Cookie name
+   * @param {Object} options - Additional cookie options
+   */
   remove(name, options = {}) {
     if (typeof window === 'undefined') return;
 
@@ -69,4 +93,29 @@ export const cookieUtils = {
 
     document.cookie = cookieString;
   }
-};
+
+  /**
+   * Set a cookie with maxAge instead of expires
+   * @param {NextResponse} response - Next.js response (server-side)
+   * @param {string} name - Cookie name
+   * @param {string} value - Cookie value
+   * @param {Object} options - Cookie options
+   */
+  setCookie(response, name, value, options = {}) {
+    if (!response?.cookies?.set) {
+      console.warn('setCookie called without valid response object');
+      return response;
+    }
+
+    response.cookies.set(name, value, {
+      path: '/',
+      sameSite: 'lax',
+      ...options
+    });
+
+    return response;
+  }
+}
+
+// Export singleton instance
+export const cookieUtils = new CookieUtils();

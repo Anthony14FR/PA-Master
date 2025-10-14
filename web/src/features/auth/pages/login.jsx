@@ -4,11 +4,11 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/shared/hooks/use-auth";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
 import { useState } from "react";
-import {useCommonTranslation, useTranslation} from "@/hooks/useTranslation";
+import {useCommonTranslation, useTranslation} from "@/shared/hooks/use-translation";
 import { accessControlService } from "@/shared/services/access-control.service";
 
 export function Login() {
@@ -32,10 +32,34 @@ export function Login() {
         try {
             const response = await login({ email, password });
             const userData = response.user || response;
+            const accessToken = response.access_token || response.token;
 
             const returnUrl = searchParams.get('returnUrl');
             if(returnUrl) {
-                router.push(decodeURIComponent(returnUrl));
+                const decodedReturnUrl = decodeURIComponent(returnUrl);
+                
+                // Vérifier si le returnUrl est sur un domaine différent
+                const currentHostname = window.location.hostname;
+                const returnUrlObj = new URL(decodedReturnUrl);
+                const returnHostname = returnUrlObj.hostname;
+                
+                // Extraire les domaines de base (sans sous-domaine)
+                const getBaseDomain = (hostname) => {
+                    const parts = hostname.split('.');
+                    return parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
+                };
+                
+                const currentBaseDomain = getBaseDomain(currentHostname);
+                const returnBaseDomain = getBaseDomain(returnHostname);
+                
+                // Si le TLD est différent, ajouter le token dans l'URL
+                if (currentBaseDomain !== returnBaseDomain && accessToken) {
+                    returnUrlObj.searchParams.set('session_token', accessToken);
+                    window.location.href = returnUrlObj.toString();
+                } else {
+                    // Même domaine, redirection normale (token déjà dans les cookies)
+                    router.push(decodedReturnUrl);
+                }
             } else {
                 router.push(accessControlService.getUserHomePage(userData.roles || []));
             }

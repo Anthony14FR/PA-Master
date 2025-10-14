@@ -4,11 +4,11 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { useAuth } from "@/shared/hooks/useAuth";
+import { useAuth } from "@/shared/hooks/use-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCommonTranslation, useTranslation } from "@/shared/hooks/useTranslation";
+import { useCommonTranslation, useTranslation } from "@/shared/hooks/use-translation";
 import { getLocaleFromDomain } from "@/lib/i18n";
 
 export function Register() {

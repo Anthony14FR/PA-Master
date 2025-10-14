@@ -1,7 +1,7 @@
 'use client';
 
-import { useAuth } from '@/shared/hooks/useAuth';
-import { useCommonTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/shared/hooks/use-auth';
+import { useCommonTranslation } from '@/shared/hooks/use-translation';
 
 export default function Page() {
   const { user, logout, loading } = useAuth();
