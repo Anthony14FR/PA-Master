@@ -1,0 +1,22 @@
+{
+  "de": [
+    "auth/login.json",
+    "auth/register.json",
+    "common.json"
+  ],
+  "en": [
+    "auth/login.json",
+    "auth/register.json",
+    "common.json"
+  ],
+  "fr": [
+    "auth/login.json",
+    "auth/register.json",
+    "common.json"
+  ],
+  "it": [
+    "auth/login.json",
+    "auth/register.json",
+    "common.json"
+  ]
+}
