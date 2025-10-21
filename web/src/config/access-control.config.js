@@ -25,8 +25,8 @@ export const ROUTE_ROLES = {
  * Used for redirects after login
  */
 export const HOME_PAGES = {
-    admin: '/admin',
-    manager: '/dashboard',
+    admin: '/s/admin',
+    manager: '/s/app/overview',
     user: '/',
 };
 
@@ -41,19 +41,21 @@ export const DEFAULT_HOME_PAGE = '/';
  */
 export const AUTH_NAMESPACE = 'account';
 
-/**
- * Login page configuration
- */
+export const AUTH_CONFIG = {
+    subdomain: AUTH_NAMESPACE, // Login is on account.domain.tld
+    tld: '.com'
+};
+
 export const LOGIN_CONFIG = {
     path: '/login',
-    subdomain: AUTH_NAMESPACE, // Login is on account.domain.tld
+    ...AUTH_CONFIG
 };
 
 /**
  * Authentication routes
  * These are accessible without authentication but handle auth logic
  */
-export const AUTH_ROUTE_PATTERN = /^\/(s\/account|login|register)/;
+export const AUTH_ROUTE_PATTERN = /^\/(s\/account\/(login|register)|login|register)/;
 
 /**
  * Special pages configuration

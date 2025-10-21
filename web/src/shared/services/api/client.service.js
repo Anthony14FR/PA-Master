@@ -1,4 +1,6 @@
 import { getLocaleFromDomain } from '@/lib/i18n';
+import { LOGIN_CONFIG } from '@/config/access-control.config';
+import i18nConfig from '@/config/i18n.config.json';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -46,7 +48,11 @@ class ApiClient {
         this.clearAuthToken();
 
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login';
+          if (process.env.NEXT_PUBLIC_ENABLE_SUBDOMAIN_REDIRECT !== 'false') {
+            window.location.href = `https://${LOGIN_CONFIG.subdomain}.${i18nConfig.defaultDomaine}${LOGIN_CONFIG.path}`;
+          } else {
+            window.location.href = `/s/${LOGIN_CONFIG.subdomain}${LOGIN_CONFIG.path}`;
+          }
         }
 
         return false;
@@ -73,6 +79,7 @@ class ApiClient {
 
     const config = {
       ...options,
+      credentials: 'include',
       headers: {
         ...defaultHeaders,
         ...options.headers,

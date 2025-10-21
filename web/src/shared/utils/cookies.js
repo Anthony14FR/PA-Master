@@ -1,8 +1,36 @@
+import { cookieConfig } from "@/config/jwt.config";
+
+/**
+ * Extract base domain for cookie sharing across subdomains
+ * @param {string} host - Current host (e.g., 'app.kennelo.fr:3000')
+ * @returns {string|undefined} Cookie domain (e.g., '.kennelo.fr') or undefined
+ */
+export function getCookieDomain(host) {
+  if (!host) return undefined;
+
+  const hostname = host.split(':')[0];
+
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return undefined;
+  }
+
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+    return undefined;
+  }
+
+  const parts = hostname.split('.');
+
+  if (parts.length >= 2) {
+    const baseDomain = parts.slice(-2).join('.');
+    return `.${baseDomain}`;
+  }
+
+  return undefined;
+}
+
 /**
  * Client-Side Cookie Utilities
  * For browser-side cookie management only
- * 
- * IMPORTANT: Do not use for sensitive data (use httpOnly cookies instead)
  */
 class CookieUtils {
   /**
@@ -26,6 +54,15 @@ class CookieUtils {
     };
 
     const cookieOptions = { ...defaultOptions, ...options };
+    const host = window.location.hostname;
+    if (host) {
+      const dynamicDomain = getCookieDomain(host);
+      if (dynamicDomain) {
+        cookieOptions.domain = dynamicDomain;
+      }
+    } else if (cookieConfig.domain) {
+      cookieOptions.domain = cookieConfig.domain;
+    }
 
     // Remove httpOnly as it's not supported in browser
     if (cookieOptions.httpOnly) {
@@ -93,29 +130,6 @@ class CookieUtils {
 
     document.cookie = cookieString;
   }
-
-  /**
-   * Set a cookie with maxAge instead of expires
-   * @param {NextResponse} response - Next.js response (server-side)
-   * @param {string} name - Cookie name
-   * @param {string} value - Cookie value
-   * @param {Object} options - Cookie options
-   */
-  setCookie(response, name, value, options = {}) {
-    if (!response?.cookies?.set) {
-      console.warn('setCookie called without valid response object');
-      return response;
-    }
-
-    response.cookies.set(name, value, {
-      path: '/',
-      sameSite: 'lax',
-      ...options
-    });
-
-    return response;
-  }
 }
 
-// Export singleton instance
 export const cookieUtils = new CookieUtils();

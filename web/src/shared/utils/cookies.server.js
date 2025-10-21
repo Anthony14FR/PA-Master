@@ -62,7 +62,7 @@ export function getCookie(request, name) {
  */
 export function setCookie(response, name, value, options = {}, host = null) {
   const cookieOptions = {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
@@ -90,13 +90,16 @@ export function setCookie(response, name, value, options = {}, host = null) {
  * @param {string} host - Current host for dynamic domain extraction
  * @returns {NextResponse} Modified response
  */
-export function deleteCookie(response, name, host = null) {
+export function deleteCookie(response, name, host = null, options = {}) {
   const cookieOptions = {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
     path: '/',
-    maxAge: 0,
+    ...options,
+    maxAge: 0, // Override to delete
   };
 
-  // Use same domain logic as setCookie
   if (host) {
     const dynamicDomain = getCookieDomain(host);
     if (dynamicDomain) {
@@ -183,7 +186,7 @@ export function setAuthTokens(response, accessToken, refreshToken, host = null) 
  * @returns {NextResponse} Modified response
  */
 export function deleteAccessToken(response, host = null) {
-  return deleteCookie(response, cookieConfig.accessTokenName, host);
+  return deleteCookie(response, cookieConfig.accessTokenName, host, cookieConfig.accessTokenOptions);
 }
 
 /**
@@ -193,7 +196,7 @@ export function deleteAccessToken(response, host = null) {
  * @returns {NextResponse} Modified response
  */
 export function deleteRefreshToken(response, host = null) {
-  return deleteCookie(response, cookieConfig.refreshTokenName, host);
+  return deleteCookie(response, cookieConfig.refreshTokenName, host, cookieConfig.refreshTokenOptions);
 }
 
 /**
