@@ -100,14 +100,21 @@ class DomainService {
      * @returns {string|null} Subdomain or null
      */
     _extractProductionSubdomain(hostname) {
-        const rootDomainFormatted = this.rootDomain.split(':')[0];
+        // Check against all allowed domains, not just rootDomain
+        for (const allowedDomain of this.allowedDomains) {
+            const domainFormatted = allowedDomain.split(':')[0];
+            
+            const isSubdomain =
+                hostname !== domainFormatted &&
+                hostname !== `www.${domainFormatted}` &&
+                hostname.endsWith(`.${domainFormatted}`);
 
-        const isSubdomain =
-            hostname !== rootDomainFormatted &&
-            hostname !== `www.${rootDomainFormatted}` &&
-            hostname.endsWith(`.${rootDomainFormatted}`);
-
-        return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null;
+            if (isSubdomain) {
+                return hostname.replace(`.${domainFormatted}`, '');
+            }
+        }
+        
+        return null;
     }
 
     /**

@@ -25,7 +25,7 @@ export const cookieConfig = {
   domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined,
 
   accessTokenOptions: {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
@@ -33,7 +33,7 @@ export const cookieConfig = {
   },
 
   refreshTokenOptions: {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { setAccessToken } from '@/shared/utils/cookies.server';
+import { setAccessToken, setRefreshToken, getCookie } from '@/shared/utils/cookies.server';
 import { domainService } from './domain.service';
 import { getTargetDomainFromCountry, buildRedirectHost } from '@/lib/i18n';
-import { AUTH_NAMESPACE, PAGES } from '@/config/access-control.config';
+import { AUTH_NAMESPACE, PAGES, LOGIN_CONFIG } from '@/config/access-control.config';
+import i18nConfig from '@/config/i18n.config.json';
 
 const ENABLE_SUBDOMAIN_REDIRECT = process.env.NEXT_PUBLIC_ENABLE_SUBDOMAIN_REDIRECT !== 'false';
 
@@ -24,14 +25,17 @@ class RedirectService {
         const returnUrl = request.nextUrl.searchParams.get('returnUrl');
 
         if (!returnUrl) {
-            return NextResponse.redirect(new URL(getHomePage(userRoles), request.url));
+            const homePage = getHomePage(userRoles);
+            const cleanUrl = this._buildCleanUrl(request, homePage);
+            return NextResponse.redirect(cleanUrl);
         }
 
         const decodedReturnUrl = decodeURIComponent(returnUrl);
 
-        // Validate return URL
         if (!domainService.isValidReturnUrl(decodedReturnUrl)) {
-            return NextResponse.redirect(new URL(getHomePage(userRoles), request.url));
+            const homePage = getHomePage(userRoles);
+            const cleanUrl = this._buildCleanUrl(request, homePage);
+            return NextResponse.redirect(cleanUrl);
         }
 
         try {
@@ -40,16 +44,16 @@ class RedirectService {
             const currentBaseDomain = domainService.getBaseDomain(currentHost);
             const returnBaseDomain = domainService.getBaseDomain(returnHostname);
 
-            // Cross-domain redirect with session token
             if (currentBaseDomain !== returnBaseDomain) {
                 returnUrlObj.searchParams.set('session_token', accessToken);
                 return NextResponse.redirect(returnUrlObj, { status: 307 });
             }
 
-            // Same domain redirect
             return NextResponse.redirect(new URL(decodedReturnUrl, request.url), { status: 307 });
         } catch {
-            return NextResponse.redirect(new URL(getHomePage(userRoles), request.url));
+            const homePage = getHomePage(userRoles);
+            const cleanUrl = this._buildCleanUrl(request, homePage);
+            return NextResponse.redirect(cleanUrl);
         }
     }
 
@@ -67,6 +71,10 @@ class RedirectService {
         const [hostname, port] = host.split(':');
         const cleanHostname = hostname.replace(/^www\./, '');
         const tld = cleanHostname.split('.').pop();
+
+        const currentLocale = getCookie(request, 'locale_preference')
+            || getCookie(request, 'auto_detected_locale')
+            || i18nConfig.defaultLocale;
 
         const cleanHost = port ? `${cleanHostname}:${port}` : cleanHostname;
 
@@ -89,17 +97,22 @@ class RedirectService {
                 const baseDomain = localhostMatch ? localhostMatch[1] : cleanHostname;
                 loginHost = port ? `${baseDomain}:${port}` : baseDomain;
             } else {
-                // For production, replace TLD with .com
-                loginHost = cleanHostname.replace(`.${tld}`, '.com');
+                // For production, extract base domain (last 2 segments) and replace TLD with .com
+                const hostParts = cleanHostname.split('.');
+                const baseDomain = hostParts.length >= 2
+                    ? hostParts.slice(-2).join('.')
+                    : cleanHostname;
+                loginHost = baseDomain.replace(`.${tld}`, LOGIN_CONFIG.tld);
             }
 
-            loginUrl = new URL(`${protocol}//${AUTH_NAMESPACE}.${loginHost}/login`);
+            loginUrl = new URL(`${protocol}//${AUTH_NAMESPACE}.${loginHost}${LOGIN_CONFIG.path}`);
         } else {
             // Use path-based routing: localhost:3000/s/account/login
-            loginUrl = new URL(`${protocol}//${cleanHost}/s/${AUTH_NAMESPACE}/login`);
+            loginUrl = new URL(`${protocol}//${cleanHost}/s/${AUTH_NAMESPACE}${LOGIN_CONFIG.path}`);
         }
 
         loginUrl.searchParams.set('returnUrl', returnUrl);
+        loginUrl.searchParams.set('locale', currentLocale);
 
         return loginUrl;
     }
@@ -128,7 +141,7 @@ class RedirectService {
                 let finalHost = cleanHost;
 
                 if (targetSubdomain === AUTH_NAMESPACE) {
-                    finalHost = cleanHost.replace(`.${tld}`, '.com');
+                    finalHost = cleanHost.replace(`.${tld}`, LOGIN_CONFIG.tld);
                 }
 
                 return `${protocol}//${targetSubdomain}.${finalHost}${newPathname}${search}`;
@@ -136,7 +149,7 @@ class RedirectService {
         } else if (subdomain) {
             let finalHost = cleanHost;
             if (subdomain === AUTH_NAMESPACE) {
-                finalHost = cleanHost.replace(`.${tld}`, '.com');
+                finalHost = cleanHost.replace(`.${tld}`, LOGIN_CONFIG.tld);
             }
             return `${protocol}//${finalHost}${pathname}${search}`;
         }
@@ -168,7 +181,6 @@ class RedirectService {
 
         if (tokenRefreshed && accessToken) {
             const redirectResponse = NextResponse.redirect(redirectUrl, { status: 307 });
-            // Pass new host for dynamic cookie domain
             setAccessToken(redirectResponse, accessToken, `${newHost}:${redirectUrl.port || ''}`);
             return redirectResponse;
         }
@@ -204,7 +216,7 @@ class RedirectService {
         const tld = host.split('.').pop();
 
         if (targetSubdomain === AUTH_NAMESPACE) {
-            host = host.replace(`.${tld}`, '.com');
+            host = host.replace(`.${tld}`, LOGIN_CONFIG.tld);
         }
 
         return NextResponse.redirect(
@@ -246,12 +258,47 @@ class RedirectService {
         cleanUrl.searchParams.delete('session_token');
 
         const response = NextResponse.redirect(cleanUrl, { status: 307 });
-
-        // Pass host for dynamic cookie domain
         const host = request.headers.get('host');
-        setAccessToken(response, sessionToken, host);
+
+        try {
+            const decodedSession = JSON.parse(atob(sessionToken));
+
+            if (decodedSession.access_token) {
+                setAccessToken(response, decodedSession.access_token, host);
+            }
+
+            if (decodedSession.refresh_token) {
+                setRefreshToken(response, decodedSession.refresh_token, host);
+            }
+        } catch (error) {
+            setAccessToken(response, sessionToken, host);
+        }
 
         return response;
+    }
+
+    /**
+     * Build clean URL without 'account' subdomain for auth redirects
+     * @private
+     * @param {NextRequest} request - Next.js request
+     * @param {string} path - Target path (e.g., '/s/admin')
+     * @returns {URL} Clean URL
+     */
+    _buildCleanUrl(request, path) {
+        const protocol = request.nextUrl.protocol;
+        let host = request.headers.get('host') || '';
+
+        const [hostname, port] = host.split(':');
+
+        const authPrefix = AUTH_NAMESPACE + '.';
+        const cleanHostname = hostname.startsWith(authPrefix)
+            ? hostname.substring(authPrefix.length)
+            : hostname;
+
+        const cleanHost = port ? cleanHostname + ':' + port : cleanHostname;
+        const cleanUrl = new URL(protocol + '//' + cleanHost + path);
+
+        return cleanUrl;
     }
 }
 

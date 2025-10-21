@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/shared/hooks/use-auth";
-import Link from "next/link";
+import KLink from "@/shared/components/k-link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCommonTranslation, useTranslation } from "@/shared/hooks/use-translation";
@@ -71,9 +71,9 @@ export function Register() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <Link href="/" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                    <KLink href="/" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
                         {tCommon("site.name")}
-                    </Link>
+                    </KLink>
                     <p className="text-slate-600 dark:text-slate-300 mt-2">
                         {tAuth("subtitle")}
                     </p>
@@ -154,17 +154,18 @@ export function Register() {
                         <div className="mt-6 text-center space-y-4">
                             <p className="text-sm text-slate-600 dark:text-slate-400">
                                 {tAuth("links.hasAccount")}{" "}
-                                <Link
-                                    href="/auth/login"
+                                <KLink
+                                    context="account"
+                                    href="/login"
                                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                                 >
                                     {tAuth("links.login")}
-                                </Link>
+                                </KLink>
                             </p>
                             <Button asChild variant="outline" className="w-full">
-                                <Link href="/">
+                                <KLink href="/">
                                     {tAuth("links.goBack")}
-                                </Link>
+                                </KLink>
                             </Button>
                         </div>
                     </CardContent>

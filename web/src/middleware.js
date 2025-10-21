@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getLocaleFromCountry } from './lib/i18n';
 import { getCountryFromIP } from './lib/geoip';
-import i18nConfig from './config/i18n.config.json';
-import { setAccessToken, deleteAuthTokens } from '@/shared/utils/cookies.server';
+import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '@/shared/utils/cookies.server';
 import { accessControlService } from '@/shared/services/access-control.service';
 import { authenticationService } from '@/shared/services/authentication.service';
 import { redirectService } from '@/shared/services/redirect.service';
 import { domainService } from '@/shared/services/domain.service';
-import { cookieUtils } from './shared/utils/cookies';
 import { PAGES } from '@/config/access-control.config';
+import i18nConfig from '@/config/i18n.config.json';
 
 /**
  * Next.js Middleware - Handles authentication, authorization, and routing
@@ -82,41 +81,69 @@ export async function middleware(request) {
     return geoRedirect;
   }
 
-  // Set locale cookies for default domain
   let response = NextResponse.next();
+  const host = request.headers.get('host');
 
-  if (domainService.isDefaultDomain(currentHost)) {
-    const localePreference = request.cookies.get('locale_preference')?.value;
-    const autoDetectedLocale = request.cookies.get('auto_detected_locale')?.value;
+  const urlLocale = request.nextUrl.searchParams.get('locale');
 
-    if (!localePreference && country) {
-      const detectedLocale = getLocaleFromCountry(country);
-
-      if (autoDetectedLocale !== detectedLocale) {
-        cookieUtils.setCookie(response, 'auto_detected_locale', detectedLocale, {
-          maxAge: 60 * 60 * 24 * 30,
-          path: '/',
-          sameSite: 'lax'
-        });
-      }
+  if (urlLocale) {
+    const validLocales = i18nConfig.locales.map(locale => locale.code);
+    if (validLocales.includes(urlLocale)) {
+      setCookie(response, 'locale_preference', urlLocale, {
+        maxAge: 60 * 60 * 24 * 365,
+        path: '/',
+        sameSite: 'lax'
+      }, host);
     }
   }
 
+  //if (domainService.isDefaultDomain(currentHost)) {
+  const localePreference = getCookie(request, 'locale_preference');
+  const autoDetectedLocale = getCookie(request, 'auto_detected_locale');
+
+  if (!localePreference && country) {
+    const detectedLocale = getLocaleFromCountry(country);
+
+    if (autoDetectedLocale !== detectedLocale) {
+      setCookie(response, 'auto_detected_locale', detectedLocale, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+        sameSite: 'lax'
+      }, host);
+    }
+  }
+  //}
+
   // Update access token if refreshed
   if (tokenRefreshed && accessToken) {
-    const host = request.headers.get('host');
     setAccessToken(response, accessToken, host);
   }
 
   // Clear auth tokens if no valid token
-  if (!accessToken && request.cookies.get('access_token')) {
-    const host = request.headers.get('host');
+  if (!accessToken && getCookie(request, 'access_token')) {
     deleteAuthTokens(response, host);
   }
 
   // Handle subdomain rewrite (subdomain.domain.tld → /s/subdomain)
   const subdomainRewrite = redirectService.handleSubdomainRewrite(request, subdomain, pathname);
   if (subdomainRewrite) {
+    // IMPORTANT: Copier les cookies sur la réponse de rewrite
+    if (urlLocale) {
+      const validLocales = i18nConfig.locales.map(locale => locale.code);
+      if (validLocales.includes(urlLocale)) {
+        setCookie(subdomainRewrite, 'locale_preference', urlLocale, {
+          maxAge: 60 * 60 * 24 * 365,
+          path: '/',
+          sameSite: 'lax'
+        }, host);
+      }
+    }
+    
+    // Copier aussi les autres cookies nécessaires
+    if (tokenRefreshed && accessToken) {
+      setAccessToken(subdomainRewrite, accessToken, host);
+    }
+    
     return subdomainRewrite;
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import KLink from "@/shared/components/k-link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
@@ -36,9 +36,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/test">
+                <KLink href="/test">
                   <T tKey="home.cards.api.button" skeletonWidth={100} />
-                </Link>
+                </KLink>
               </Button>
             </CardContent>
           </Card>
@@ -54,9 +54,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/login">
+                <KLink context="account" href="/login">
                   <T tKey="home.cards.login.button" skeletonWidth={100} />
-                </Link>
+                </KLink>
               </Button>
             </CardContent>
           </Card>
@@ -72,9 +72,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/register">
+                <KLink context="account" href="/login">
                   <T tKey="home.cards.register.button" skeletonWidth={90} />
-                </Link>
+                </KLink>
               </Button>
             </CardContent>
           </Card>

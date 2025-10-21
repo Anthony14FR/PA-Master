@@ -3,6 +3,8 @@
  * Automatically refreshes expired access tokens using refresh tokens
  */
 
+import { getRefreshToken } from '@/shared/utils/cookies.server';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class TokenRefreshService {
@@ -13,7 +15,7 @@ class TokenRefreshService {
    */
   async attemptTokenRefresh(request) {
     try {
-      const refreshToken = request.cookies.get('refresh_token')?.value;
+      const refreshToken = getRefreshToken(request);
 
       if (!refreshToken) {
         return null;
