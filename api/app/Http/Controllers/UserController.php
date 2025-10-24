@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ApiStatus;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class UserController extends Controller
@@ -24,23 +25,34 @@ class UserController extends Controller
         ]);
     }
 
-    public function getCurrentUser(): JsonResponse
+    public function getCurrentUser(Request $request): JsonResponse
     {
-        $user = auth()->user();
+        $user = $request->user();
+        $user->load('roles');
 
-        return response()->json($user);
+        return response()->json([
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'locale' => $user->locale,
+            'is_id_verified' => $user->is_id_verified,
+            'email_verified_at' => $user->email_verified_at,
+            'roles' => $user->roles->pluck('name'),
+        ]);
     }
 
-    public function updateLocale(): JsonResponse
+    public function updateLocale(Request $request): JsonResponse
     {
         $availableLocales = explode(',', config('app.available_locales', 'en'));
 
-        request()->validate([
+        $request->validate([
             'locale' => ['required', 'string', 'in:'.implode(',', $availableLocales)],
         ]);
 
-        $user = auth()->user();
-        $user->update(['locale' => request('locale')]);
+        $user = $request->user();
+        $user->update(['locale' => $request->locale]);
 
         return response()->json([
             'success' => true,
