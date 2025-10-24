@@ -4,16 +4,19 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { useAuth } from "@/shared/hooks/useAuth";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/shared/hooks/use-auth";
+import KLink from "@/shared/components/k-link";
+import {useRouter, useSearchParams} from "next/navigation";
 import { useState } from "react";
-import {useCommonTranslation, useTranslation} from "@/hooks/useTranslation";
+import {useCommonTranslation, useTranslation} from "@/shared/hooks/use-translation";
+import { accessControlService } from "@/shared/services/access-control.service";
 
 export function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const searchParams = useSearchParams();
 
     const { t: tCommon } = useCommonTranslation();
     const { t: tAuth } = useTranslation("auth", "login");
@@ -27,8 +30,46 @@ export function Login() {
         clearError();
 
         try {
-            await login({ email, password });
-            router.push('/dashboard');
+            const response = await login({ email, password });
+            const userData = response.user || response;
+            const accessToken = response.access_token || response.token;
+            const refreshToken = response.refresh_token;
+
+            const returnUrl = searchParams.get('returnUrl');
+            if(returnUrl) {
+                const decodedReturnUrl = decodeURIComponent(returnUrl);
+                
+                // Vérifier si le returnUrl est sur un domaine différent
+                const currentHostname = window.location.hostname;
+                const returnUrlObj = new URL(decodedReturnUrl);
+                const returnHostname = returnUrlObj.hostname;
+                
+                // Extraire les domaines de base (sans sous-domaine)
+                const getBaseDomain = (hostname) => {
+                    const parts = hostname.split('.');
+                    return parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
+                };
+                
+                const currentBaseDomain = getBaseDomain(currentHostname);
+                const returnBaseDomain = getBaseDomain(returnHostname);
+                
+                // Si le TLD est différent, encoder les tokens pour le cross-domain
+                if (currentBaseDomain !== returnBaseDomain && accessToken) {
+                    // Encoder les deux tokens dans un objet JSON en Base64
+                    const sessionData = {
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    };
+                    const encodedSession = btoa(JSON.stringify(sessionData));
+                    returnUrlObj.searchParams.set('session_token', encodedSession);
+                    window.location.href = returnUrlObj.toString();
+                } else {
+                    // Même domaine, redirection normale (token déjà dans les cookies)
+                    router.push(decodedReturnUrl);
+                }
+            } else {
+                router.push(accessControlService.getUserHomePage(userData.roles || []));
+            }
         } catch (error) {
             console.error('Erreur de connexion:', error);
         } finally {
@@ -40,9 +81,9 @@ export function Login() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <Link href="/" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                    <KLink href="/" className="text-3xl font-bold text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
                         {tCommon("site.name")}
-                    </Link>
+                    </KLink>
                     <p className="text-slate-600 dark:text-slate-300 mt-2">
                         {tAuth("subtitle")}
                     </p>
@@ -95,17 +136,18 @@ export function Login() {
                         <div className="mt-6 text-center space-y-4">
                             <p className="text-sm text-slate-600 dark:text-slate-400">
                                 {tAuth("links.noAccount")}{" "}
-                                <Link
-                                    href="/auth/register"
+                                <KLink
+                                    context="account"
+                                    href="/register"
                                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                                 >
                                     {tAuth("links.register")}
-                                </Link>
+                                </KLink>
                             </p>
                             <Button asChild variant="outline" className="w-full">
-                                <Link href="/">
+                                <KLink href="/">
                                     {tAuth("links.goBack")}
-                                </Link>
+                                </KLink>
                             </Button>
                         </div>
                     </CardContent>

@@ -1,30 +1,27 @@
-import { getLocaleFromDomain, getDomainForLocale, getHreflangUrls, getHreflangCode, AVAILABLE_LOCALES } from '@/lib/i18n';
+import { headers } from 'next/headers';
+import { getLocaleFromDomain, getHreflangUrls, getHreflangCode } from '@/lib/i18n';
+import { SITEMAP_ROUTES } from '@/config/sitemap.config';
 
-export default function sitemap() {
-    const hostname = process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'https://kennelo.com';
+/**
+ * Dynamic sitemap generation - Domain-aware
+ * Automatically adapts URLs based on the requesting domain
+ * Each domain (kennelo.fr, kennelo.com, etc.) gets its own sitemap with correct URLs
+ */
+export default async function sitemap() {
+    const headersList = await headers();
+    const host = headersList.get('host') || 'kennelo.com';
 
-    const domain = hostname.replace('https://', '').replace('http://', '');
-    const locale = getLocaleFromDomain(domain);
-    const currentDomain = getDomainForLocale(locale);
+    const currentDomain = host.split(':')[0].replace(/^www\./, '');
+    const locale = getLocaleFromDomain(currentDomain);
 
-    const routes = [
-        '',
-        '/auth/login',
-        '/auth/register',
-        '/dashboard',
-        '/dashboard/home',
-    ];
-
-    return routes.map(route => {
-        const hreflangUrls = getHreflangUrls(route || '/');
+    return SITEMAP_ROUTES.map(route => {
+        const hreflangUrls = getHreflangUrls(route.path || '/');
 
         return {
-            url: `https://${currentDomain}${route}`,
+            url: `https://${currentDomain}${route.path}`,
             lastModified: new Date(),
-            changeFrequency: route === '' ? 'daily' : 'weekly',
-            priority: route === '' ? 1 : 0.8,
+            changeFrequency: route.changeFrequency,
+            priority: route.priority,
             alternates: {
                 languages: Object.entries(hreflangUrls).reduce((acc, [key, url]) => {
                     if (key === 'x-default') {

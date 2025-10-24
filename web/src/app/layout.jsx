@@ -2,9 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from 'next/headers';
 import { AuthProvider } from "@/shared/contexts/auth-context";
 import { TranslationProvider } from "@/shared/contexts/translation-context";
-import { HreflangTags } from "@/shared/components/hreflang-tags";
 import { OrganizationStructuredData, WebSiteStructuredData } from "@/shared/components/structured-data";
-import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, t } from "@/lib/i18n";
+import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, getHreflangUrls, t } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,12 +24,14 @@ export async function generateMetadata() {
   const locale = getLocaleFromDomain(hostname);
   const messages = await getMessages(locale);
   const currentDomain = getDomainForLocale(locale);
+  const hreflangUrls = getHreflangUrls(pathname);
 
   return {
     title: t(messages, 'meta.title'),
     description: t(messages, 'meta.description'),
     alternates: {
       canonical: `https://${currentDomain}${pathname}`,
+      languages: hreflangUrls,
     },
     openGraph: {
       title: t(messages, 'meta.title'),
@@ -45,6 +46,11 @@ export async function generateMetadata() {
       title: t(messages, 'meta.title'),
       description: t(messages, 'meta.description'),
     },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    viewport: 'width=device-width, initial-scale=1',
     other: {
       'google-site-verification': getGoogleSiteVerification(hostname),
     },
@@ -61,16 +67,11 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang={locale}>
-      <head>
-        <HreflangTags pathname={pathname} />
-        <OrganizationStructuredData locale={locale} messages={messages} t={t} />
-        <WebSiteStructuredData locale={locale} messages={messages} t={t} />
-        <meta name="robots" content="index, follow" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <OrganizationStructuredData locale={locale} messages={messages} t={t} />
+        <WebSiteStructuredData locale={locale} messages={messages} t={t} />
         <TranslationProvider initialMessages={messages} initialLocale={locale}>
           <AuthProvider locale={locale}>
             {children}

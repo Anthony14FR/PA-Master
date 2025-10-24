@@ -11,7 +11,10 @@ test('new users can register', function () {
 
     $response->assertStatus(201)
         ->assertJsonStructure([
-            'token',
+            'access_token',
+            'refresh_token',
+            'token_type',
+            'expires_in',
             'user' => ['id', 'first_name', 'last_name', 'email'],
         ]);
 });
