@@ -1,11 +1,11 @@
 "use client";
 
-import KLink from "@/shared/components/k-link";
+import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
-import { useCommonTranslation } from "@/shared/hooks/use-translation";
-import { useAuth } from "@/shared/hooks/use-auth";
+import { useCommonTranslation } from "@/shared/hooks/useTranslation";
+import { useAuth } from "@/shared/hooks/useAuth";
 import { LogOut } from "lucide-react";
 
 export default function Page() {
@@ -36,9 +36,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <KLink href="/test">
+                <Link href="/test">
                   <T tKey="home.cards.api.button" skeletonWidth={100} />
-                </KLink>
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -54,9 +54,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <KLink context="account" href="/login">
+                <Link href="/auth/login">
                   <T tKey="home.cards.login.button" skeletonWidth={100} />
-                </KLink>
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -72,9 +72,9 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <KLink context="account" href="/login">
+                <Link href="/auth/register">
                   <T tKey="home.cards.register.button" skeletonWidth={90} />
-                </KLink>
+                </Link>
               </Button>
             </CardContent>
           </Card>

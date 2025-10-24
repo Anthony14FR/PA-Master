@@ -2,11 +2,9 @@
 
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService } from '../services/api/auth.service.js';
-import { ApiError } from '../services/api/client.service.js';
+import { authService } from '../services/api/auth.js';
+import { ApiError } from '../services/api/client.js';
 import { cookieUtils } from '@/shared/utils/cookies';
-import i18nConfig from '@/config/i18n.config.json';
-import { AUTH_NAMESPACE } from '@/config/access-control.config';
 
 const AuthContext = createContext(null);
 
@@ -124,29 +122,12 @@ export function AuthProvider({ children, locale = 'en' }) {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-
       await authService.logout();
-
       setUser(null);
       setRoles([]);
-
-      const currentHostname = window.location.hostname;
-      const currentBaseDomain = currentHostname.split('.').slice(-2).join('.');
-      const defaultBaseDomain = i18nConfig.defaultDomaine;
-
-      const returnUrl = encodeURIComponent(window.location.origin);
-
-      if (currentBaseDomain !== defaultBaseDomain) {
-        window.location.href = `https://${AUTH_NAMESPACE}.${defaultBaseDomain}/logout?returnUrl=${returnUrl}`;
-      } else {
-        router.push('/');
-      }
+      router.push('/auth/login');
     } catch (error) {
-      console.error('Logout error:', error);
-      authService.clearTokens();
-      setUser(null);
-      setRoles([]);
-      router.push('/');
+      console.error('Erreur lors de la déconnexion:', error);
     } finally {
       setLoading(false);
     }
