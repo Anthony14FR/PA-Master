@@ -1,0 +1,39 @@
+{
+  "name": "@kennelo/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync": "node ../../scripts/sync-locales.js",
+    "dev": "pnpm sync && next dev --turbopack",
+    "build": "pnpm sync && next build",
+    "start": "next start",
+    "lint": "eslint",
+    
+    "cap:init": "cap init",
+    "cap:add:ios": "cap add ios",
+    "cap:add:android": "cap add android",
+    "cap:sync": "pnpm build && cap sync",
+    "cap:open:ios": "cap open ios",
+    "cap:open:android": "cap open android",
+    
+    "ios:dev": "pnpm build && cap sync ios && cap open ios",
+    "android:dev": "pnpm build && cap sync android && cap open android",
+    
+    "ios:prod": "pnpm build && cap sync ios && cap copy ios && cap open ios",
+    "android:prod": "pnpm build && cap sync android && cap copy android && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.1",
+    "@capacitor/ios": "^6.2.0",
+    "@capacitor/keyboard": "^6.0.2",
+    "@capacitor/preferences": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1",
+    "@capacitor/splash-screen": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}

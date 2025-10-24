@@ -1,0 +1,15 @@
+import KLink from '@kennelo/components/k-link';
+import { Button } from '@kennelo/ui/button';
+
+export default function Page() {
+    return (
+        <>
+            <p>Search page</p>
+            <Button asChild variant="outline">
+                <KLink href="/">
+                    Home page
+                </KLink>
+            </Button>
+        </>
+    );
+}

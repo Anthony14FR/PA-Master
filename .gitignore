@@ -1,6 +1,10 @@
+.claude
 .idea
-
 .vscode
+
+/node_modules
+package-lock.json
+/out/
 
 .DS_Store
 

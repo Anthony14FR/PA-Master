@@ -59,11 +59,11 @@
             "@php artisan migrate --graceful --ansi"
         ],
         "post-install-cmd": [
-            "bash ../install-hooks.sh"
+            "bash ../scripts/install-hooks.sh"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-            "bash ../install-hooks.sh"
+            "bash ../scripts/install-hooks.sh"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",

@@ -1,0 +1,16 @@
+{
+  "name": "@kennelo/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync": "node ../../scripts/sync-locales.js",
+    "dev": "pnpm sync && next dev --turbopack",
+    "build": "pnpm sync && next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "jose": "^6.1.0",
+    "maxmind": "^5.0.0"
+  }
+}

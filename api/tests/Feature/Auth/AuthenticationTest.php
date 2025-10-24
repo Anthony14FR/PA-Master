@@ -12,7 +12,10 @@ test('users can authenticate using the login screen', function () {
 
     $response->assertStatus(200)
         ->assertJsonStructure([
-            'token',
+            'access_token',
+            'refresh_token',
+            'token_type',
+            'expires_in',
             'user' => ['id', 'first_name', 'last_name', 'email'],
         ]);
 });
@@ -30,11 +33,18 @@ test('users can not authenticate with invalid password', function () {
 
 test('users can logout', function () {
     $user = User::factory()->create();
-    $token = $user->createToken('test-token')->plainTextToken;
+
+    // Generate JWT token using JWTService
+    $jwtService = app(\App\Services\JWTService::class);
+    $user->load('roles');
+    $accessToken = $jwtService->generateAccessToken($user);
+    $refreshToken = $jwtService->generateRefreshToken($user);
 
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer '.$token,
-    ])->post('/api/logout');
+        'Authorization' => 'Bearer '.$accessToken,
+    ])->post('/api/logout', [
+        'refresh_token' => $refreshToken,
+    ]);
 
     $response->assertNoContent();
 });
