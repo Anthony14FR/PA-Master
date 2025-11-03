@@ -16,7 +16,7 @@ function generateLocalesManifest() {
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
-        console.log(`📦 Génération du manifest pour ${localeDirs.length} locales: ${localeDirs.join(', ')}`);
+        console.log(`📦 Generation du manifest pour ${localeDirs.length} locales: ${localeDirs.join(', ')}`);
 
         for (const locale of localeDirs) {
             const localePath = path.join(LOCALES_DIR, locale);

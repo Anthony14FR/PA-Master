@@ -1,5 +1,4 @@
 import { headers } from 'next/headers';
-import { getLocaleFromDomain } from '@kennelo/lib/i18n';
 import { PROTECTED_SUBDOMAINS } from '@kennelo/config/access-control.config';
 
 /**

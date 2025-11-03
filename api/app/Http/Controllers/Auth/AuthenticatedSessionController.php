@@ -34,10 +34,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // Load user roles for JWT payload
         $user->load('roles');
 
-        // Generate JWT tokens
         $accessToken = $this->jwtService->generateAccessToken($user);
         $refreshToken = $this->jwtService->generateRefreshToken($user);
 
@@ -98,7 +96,6 @@ class AuthenticatedSessionController extends Controller
     {
         $refreshToken = $request->input('refresh_token');
 
-        // Blacklist the refresh token if provided
         if ($refreshToken) {
             try {
                 $this->jwtService->blacklistToken($refreshToken);

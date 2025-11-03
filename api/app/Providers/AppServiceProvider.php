@@ -14,7 +14,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register JWTService as a singleton
         $this->app->singleton(JWTService::class, function ($app) {
             return new JWTService;
         });
@@ -29,7 +28,6 @@ class AppServiceProvider extends ServiceProvider
             return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
 
-        // Register custom JWT guard
         Auth::extend('jwt', function ($app, $name, array $config) {
             return new \Illuminate\Auth\TokenGuard(
                 Auth::createUserProvider($config['provider']),

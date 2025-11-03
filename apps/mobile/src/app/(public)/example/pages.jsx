@@ -10,14 +10,12 @@ import { useCapacitor } from '@/hooks/use-capacitor';
 export function Page() {
   const { isNative } = useCapacitor();
 
-  // Exemple 1: Retour haptique
   const triggerHaptic = async () => {
     if (isNative) {
       await Haptics.impact({ style: ImpactStyle.Medium });
     }
   };
 
-  // Exemple 2: Sauvegarder des données localement
   const saveData = async () => {
     if (isNative) {
       await Preferences.set({
@@ -37,7 +35,6 @@ export function Page() {
     }
   };
 
-  // Exemple 3: Changer la status bar
   const changeStatusBar = async () => {
     if (isNative) {
       await StatusBar.setStyle({ style: Style.Dark });
@@ -45,7 +42,6 @@ export function Page() {
     }
   };
 
-  // Exemple 4: Gérer le clavier
   const hideKeyboard = async () => {
     if (isNative) {
       await Keyboard.hide();
@@ -54,25 +50,6 @@ export function Page() {
   const showKeyboard = async () => {
     if (isNative) {
       await Keyboard.hide();
-    }
-  };
-
-  // Exemple 5: Écouter l'état de l'app
-  const setupAppListeners = () => {
-    if (isNative) {
-      // Quand l'app revient en foreground
-      App.addListener('appStateChange', ({ isActive }) => {
-        console.log('App state changed. Is active?', isActive);
-      });
-
-      // Back button sur Android
-      App.addListener('backButton', ({ canGoBack }) => {
-        if (!canGoBack) {
-          App.exitApp();
-        } else {
-          window.history.back();
-        }
-      });
     }
   };
 

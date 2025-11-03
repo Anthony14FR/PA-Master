@@ -1,6 +1,6 @@
-import { getAccessToken } from '@/utils/cookies.server';
-import { jwtService } from '@/utils/jwt.server';
-import { tokenRefreshService } from '@/services/token-refresh.service';
+import { getAccessToken } from '@kennelo/utils/cookies.server';
+import { jwtService } from '@kennelo/utils/jwt.server';
+import { tokenRefreshService } from '@kennelo/services/server/token-refresh.service';
 
 /**
  * Authentication Service - Handles token validation and refresh

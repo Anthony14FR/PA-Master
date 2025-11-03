@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getLocaleFromCountry } from '@kennelo/lib/i18n';
 import { getCountryFromIP } from '@/lib/geoip';
-import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '@/utils/cookies.server';
+import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '../../../packages/shared/utils/cookies.server';
 import { accessControlService } from '@kennelo/services/access-control.service';
-import { authenticationService } from '@/services/authentication.service';
-import { redirectService } from '@/services/redirect.service';
-import { domainService } from '@/services/domain.service';
+import { authenticationService } from '@kennelo/services/server/authentication.service';
+import { redirectService } from '@kennelo/services/server/redirect.service';
+import { domainService } from '@kennelo/services/server/domain.service';
 import { PAGES } from '@kennelo/config/access-control.config';
 import i18nConfig from '@kennelo/config/i18n.config.json';
 

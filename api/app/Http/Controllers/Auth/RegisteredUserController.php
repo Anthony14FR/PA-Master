@@ -51,15 +51,12 @@ class RegisteredUserController extends Controller
             'locale' => $request->locale ?? config('app.locale', 'en'),
         ]);
 
-        // Assign default 'user' role
         $user->assignRole('user');
 
         event(new Registered($user));
 
-        // Load user roles for JWT payload
         $user->load('roles');
 
-        // Generate JWT tokens
         $accessToken = $this->jwtService->generateAccessToken($user);
         $refreshToken = $this->jwtService->generateRefreshToken($user);
 

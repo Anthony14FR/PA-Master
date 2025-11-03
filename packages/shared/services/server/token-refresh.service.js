@@ -1,4 +1,4 @@
-import { getRefreshToken } from '@/utils/cookies.server';
+import { getRefreshToken } from '@kennelo/utils/cookies.server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 

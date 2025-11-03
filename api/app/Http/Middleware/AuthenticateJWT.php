@@ -39,28 +39,22 @@ class AuthenticateJWT
         }
 
         try {
-            // Validate the token
             $payload = $this->jwtService->validateToken($token);
 
-            // Verify it's an access token
             if (! isset($payload->type) || $payload->type !== 'access') {
                 throw new \Exception('Invalid token type');
             }
 
-            // Get the user from the payload
             $user = User::find($payload->sub);
 
             if (! $user) {
                 throw new \Exception('User not found');
             }
 
-            // Load user roles for authorization
             $user->load('roles');
 
-            // Set the authenticated user
             $request->setUserResolver(fn () => $user);
 
-            // Optionally add token payload to request for easy access
             $request->attributes->set('jwt_payload', $payload);
         } catch (\Exception $e) {
             return response()->json([
@@ -77,13 +71,11 @@ class AuthenticateJWT
      */
     protected function extractToken(Request $request): ?string
     {
-        // Check Authorization header
         $header = $request->header('Authorization');
         if ($header && preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
             return $matches[1];
         }
 
-        // Fallback: check query parameter (not recommended for production)
         if ($request->has('token')) {
             return $request->query('token');
         }

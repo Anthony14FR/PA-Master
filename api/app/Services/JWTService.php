@@ -47,7 +47,6 @@ class JWTService
                 new Key(config('jwt.secret'), config('jwt.algorithm'))
             );
 
-            // Check if token is blacklisted
             if (config('jwt.blacklist_enabled') && $this->isBlacklisted($token)) {
                 throw new \Exception('Token has been revoked');
             }
@@ -109,10 +108,8 @@ class JWTService
                 return;
             }
 
-            // Calculate TTL: time until token expires + grace period
             $ttl = max(0, $expiresAt - time()) + config('jwt.blacklist_grace_period', 0);
 
-            // Store token hash in cache with TTL
             $tokenHash = $this->hashToken($token);
             Cache::put(
                 $this->getBlacklistKey($tokenHash),
@@ -120,7 +117,6 @@ class JWTService
                 $ttl
             );
         } catch (\Exception $e) {
-            // Log error but don't throw exception
             logger()->error('Failed to blacklist token: '.$e->getMessage());
         }
     }
@@ -150,18 +146,15 @@ class JWTService
     {
         $payload = $this->validateToken($refreshToken);
 
-        // Verify this is a refresh token
         if (! isset($payload->type) || $payload->type !== 'refresh') {
             throw new \Exception('Invalid token type');
         }
 
-        // Get the user
         $user = User::find($payload->sub);
         if (! $user) {
             throw new \Exception('User not found');
         }
 
-        // Generate new access token
         $accessToken = $this->generateAccessToken($user);
 
         return [
@@ -178,22 +171,20 @@ class JWTService
         $exp = $now + $ttl;
 
         $payload = [
-            'iss' => config('jwt.issuer'), // Issuer
-            'aud' => config('jwt.audience'), // Audience
-            'iat' => $now, // Issued at
-            'exp' => $exp, // Expiration time
-            'sub' => $user->id, // Subject (user ID)
-            'jti' => Str::uuid()->toString(), // JWT ID (unique identifier)
+            'iss' => config('jwt.issuer'),
+            'aud' => config('jwt.audience'),
+            'iat' => $now,
+            'exp' => $exp,
+            'sub' => $user->id,
+            'jti' => Str::uuid()->toString(),
         ];
 
-        // Add user-specific claims only for access tokens
         if (! $isRefreshToken) {
             $payload['email'] = $user->email;
             $payload['roles'] = $user->roles->pluck('name')->toArray();
             $payload['locale'] = $user->locale ?? config('app.locale', 'en');
         }
 
-        // Add token type
         $payload['type'] = $isRefreshToken ? 'refresh' : 'access';
 
         return $payload;

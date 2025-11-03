@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { setAccessToken, setRefreshToken, getCookie } from '@/utils/cookies.server';
-import { domainService } from '@/services/domain.service';
+import { setAccessToken, setRefreshToken, getCookie } from '@kennelo/utils/cookies.server';
+import { domainService } from '@kennelo/services/server/domain.service';
 import { getTargetDomainFromCountry, buildRedirectHost } from '@kennelo/lib/i18n';
 import { AUTH_NAMESPACE, PAGES, LOGIN_CONFIG } from '@kennelo/config/access-control.config';
 import i18nConfig from '@kennelo/config/i18n.config.json';

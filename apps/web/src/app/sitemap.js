@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { getLocaleFromDomain, getHreflangUrls, getHreflangCode } from '@kennelo/lib/i18n';
+import { getHreflangUrls, getHreflangCode } from '@kennelo/lib/i18n';
 import { SITEMAP_ROUTES } from '@kennelo/config/sitemap.config';
 
 /**
@@ -12,7 +12,7 @@ export default async function sitemap() {
     const host = headersList.get('host') || 'kennelo.com';
 
     const currentDomain = host.split(':')[0].replace(/^www\./, '');
-    const locale = getLocaleFromDomain(currentDomain);
+    //const locale = getLocaleFromDomain(currentDomain);
 
     return SITEMAP_ROUTES.map(route => {
         const hreflangUrls = getHreflangUrls(route.path || '/');
