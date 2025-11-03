@@ -1,9 +1,4 @@
-/**
- * Token Refresh Service - Handles JWT token refresh
- * Automatically refreshes expired access tokens using refresh tokens
- */
-
-import { getRefreshToken } from '@/shared/utils/cookies.server';
+import { getRefreshToken } from '@/utils/cookies.server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
