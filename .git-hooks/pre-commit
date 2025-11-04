@@ -1,5 +1,8 @@
 #!/bin/sh
 
+BOLD='\033[1m'
+NC='\033[0m'
+
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$BRANCH_NAME" = "HEAD" ]; then
@@ -9,74 +12,130 @@ fi
 VALID_BRANCH_PATTERN="^(feature|fix)/(api|web)/.+"
 
 if ! echo "$BRANCH_NAME" | grep -qE "$VALID_BRANCH_PATTERN"; then
-    echo "❌ Nom de branche invalide: $BRANCH_NAME"
+    echo "❌ Invalid branch name: $BRANCH_NAME"
     echo ""
-    echo "Le nom de la branche doit respecter le format:"
+    echo "Branch name must follow this format:"
     echo "  - feature/api/description"
     echo "  - feature/web/description"
     echo "  - fix/api/description"
     echo "  - fix/web/description"
     echo ""
-    echo "Pour renommer votre branche actuelle:"
+    echo "To rename your current branch:"
     echo "   git branch -m feature/api/description"
     echo ""
-    echo "❌ Nom de branche invalide: $BRANCH_NAME"
+    echo "❌ Invalid branch name: $BRANCH_NAME"
     echo "😎 Signé: le petit blond relou 😘"
     exit 1
 fi
 
-echo "✅ Nom de branche valide: $BRANCH_NAME bravo tié le goat"
+echo -e "✅ Valid branch name: $BRANCH_NAME ${BOLD}bravo tié le goat${NC}"
+echo ""
+echo -e "${BOLD}Running API checks...${NC}"
 
-echo "Running API checks..."
+API_FILES=$(git diff --cached --name-only | grep -E "^api/" || true)
 
-if [ ! -d "api" ]; then
-    echo "API directory not found!"
-    exit 1
+if [ -n "$API_FILES" ]; then
+    echo "API files detected, running Pint and PHPStan..."
+
+    if [ ! -d "api" ]; then
+        echo "❌ API directory not found!"
+        exit 1
+    fi
+
+    cd api
+
+    if [ ! -d "vendor" ]; then
+        echo "❌ Run 'composer install' in api/ first"
+        exit 1
+    fi
+
+    echo "Running Pint..."
+
+    cd ..
+    git diff --name-only > /tmp/before_pint
+    cd api
+
+    vendor/bin/pint -v
+    PINT_EXIT_CODE=$?
+
+    cd ..
+    git diff --name-only > /tmp/after_pint
+
+    PINT_MODIFIED=$(comm -13 /tmp/before_pint /tmp/after_pint)
+
+    if [ -n "$PINT_MODIFIED" ]; then
+        echo "Pint has modified files, adding them to commit:"
+        echo "$PINT_MODIFIED"
+        echo "$PINT_MODIFIED" | xargs git add
+    fi
+
+    rm -f /tmp/before_pint /tmp/after_pint
+
+    cd api
+
+    if [ $PINT_EXIT_CODE -ne 0 ]; then
+        echo "❌ Pint failed"
+        exit 1
+    fi
+
+    echo "Running PHPStan..."
+    if ! vendor/bin/phpstan analyse --memory-limit=2G; then
+        echo "❌ PHPStan failed"
+        exit 1
+    fi
+
+    cd ..
+
+    echo "✅ API checks passed"
+else
+    echo "No API files to check"
 fi
+echo ""
+echo -e "${BOLD}Running Frontend checks...${NC}"
 
-cd api
+FRONTEND_FILES=$(git diff --cached --name-only | grep -E "^(apps/|packages/)" || true)
 
-if [ ! -d "vendor" ]; then
-    echo "Run 'composer install' in api/ first"
-    exit 1
+if [ -n "$FRONTEND_FILES" ]; then
+    echo "Frontend files detected, running ESLint..."
+
+    if ! command -v pnpm &> /dev/null; then
+        echo "❌ pnpm not found, install it first"
+        exit 1
+    fi
+
+    if [ ! -d "node_modules" ]; then
+        echo "❌ Run 'pnpm install' first"
+        exit 1
+    fi
+
+    echo "Running ESLint with auto-fix..."
+
+    git diff --name-only > /tmp/before_eslint
+
+    pnpm lint --fix
+    ESLINT_EXIT_CODE=$?
+
+    git diff --name-only > /tmp/after_eslint
+
+    ESLINT_MODIFIED=$(comm -13 /tmp/before_eslint /tmp/after_eslint)
+
+    if [ -n "$ESLINT_MODIFIED" ]; then
+        echo "ESLint has modified files, adding them to commit:"
+        echo "$ESLINT_MODIFIED"
+        echo "$ESLINT_MODIFIED" | xargs git add
+    fi
+
+    rm -f /tmp/before_eslint /tmp/after_eslint
+
+    if [ $ESLINT_EXIT_CODE -ne 0 ]; then
+        echo "❌ ESLint failed"
+        exit 1
+    fi
+
+    echo "✅ ESLint passed"
+else
+    echo "No frontend files to check"
 fi
-
-echo "Running Pint..."
-
-cd ..
-git diff --name-only > /tmp/before_pint
-cd api
-
-vendor/bin/pint -v
-PINT_EXIT_CODE=$?
-
-cd ..
-git diff --name-only > /tmp/after_pint
-
-PINT_MODIFIED=$(comm -13 /tmp/before_pint /tmp/after_pint)
-
-if [ -n "$PINT_MODIFIED" ]; then
-    echo "Pint has modified files, adding them to commit:"
-    echo "$PINT_MODIFIED"
-    echo "$PINT_MODIFIED" | xargs git add
-fi
-
-rm -f /tmp/before_pint /tmp/after_pint
-
-cd api
-
-if [ $PINT_EXIT_CODE -ne 0 ]; then
-    echo "❌ Pint failed"
-    exit 1
-fi
-
-echo "Running PHPStan..."
-if ! vendor/bin/phpstan analyse --memory-limit=2G; then
-    echo "❌ PHPStan failed"
-    exit 1
-fi
-
-cd ..
-
-echo "Checks passed"
+echo ""
+echo -e "All checks passed ${BOLD}bravo tié un congélateur${NC}"
 exit 0
