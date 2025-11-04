@@ -73,7 +73,7 @@ export async function middleware(request) {
         return geoRedirect;
     }
 
-    let response = NextResponse.next();
+    const response = NextResponse.next();
     const host = request.headers.get('host');
 
     const urlLocale = request.nextUrl.searchParams.get('locale');

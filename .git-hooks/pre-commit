@@ -29,54 +29,64 @@ echo "✅ Nom de branche valide: $BRANCH_NAME bravo tié le goat"
 
 echo "Running API checks..."
 
-if [ ! -d "api" ]; then
-    echo "API directory not found!"
-    exit 1
+API_FILES=$(git diff --cached --name-only | grep -E "^api/" || true)
+
+if [ -n "$API_FILES" ]; then
+    echo "API files detected, running Pint and PHPStan..."
+
+    if [ ! -d "api" ]; then
+        echo "API directory not found!"
+        exit 1
+    fi
+
+    cd api
+
+    if [ ! -d "vendor" ]; then
+        echo "Run 'composer install' in api/ first"
+        exit 1
+    fi
+
+    echo "Running Pint..."
+
+    cd ..
+    git diff --name-only > /tmp/before_pint
+    cd api
+
+    vendor/bin/pint -v
+    PINT_EXIT_CODE=$?
+
+    cd ..
+    git diff --name-only > /tmp/after_pint
+
+    PINT_MODIFIED=$(comm -13 /tmp/before_pint /tmp/after_pint)
+
+    if [ -n "$PINT_MODIFIED" ]; then
+        echo "Pint has modified files, adding them to commit:"
+        echo "$PINT_MODIFIED"
+        echo "$PINT_MODIFIED" | xargs git add
+    fi
+
+    rm -f /tmp/before_pint /tmp/after_pint
+
+    cd api
+
+    if [ $PINT_EXIT_CODE -ne 0 ]; then
+        echo "❌ Pint failed"
+        exit 1
+    fi
+
+    echo "Running PHPStan..."
+    if ! vendor/bin/phpstan analyse --memory-limit=2G; then
+        echo "❌ PHPStan failed"
+        exit 1
+    fi
+
+    cd ..
+
+    echo "✅ API checks passed"
+else
+    echo "No API files to check"
 fi
-
-cd api
-
-if [ ! -d "vendor" ]; then
-    echo "Run 'composer install' in api/ first"
-    exit 1
-fi
-
-echo "Running Pint..."
-
-cd ..
-git diff --name-only > /tmp/before_pint
-cd api
-
-vendor/bin/pint -v
-PINT_EXIT_CODE=$?
-
-cd ..
-git diff --name-only > /tmp/after_pint
-
-PINT_MODIFIED=$(comm -13 /tmp/before_pint /tmp/after_pint)
-
-if [ -n "$PINT_MODIFIED" ]; then
-    echo "Pint has modified files, adding them to commit:"
-    echo "$PINT_MODIFIED"
-    echo "$PINT_MODIFIED" | xargs git add
-fi
-
-rm -f /tmp/before_pint /tmp/after_pint
-
-cd api
-
-if [ $PINT_EXIT_CODE -ne 0 ]; then
-    echo "❌ Pint failed"
-    exit 1
-fi
-
-echo "Running PHPStan..."
-if ! vendor/bin/phpstan analyse --memory-limit=2G; then
-    echo "❌ PHPStan failed"
-    exit 1
-fi
-
-cd ..
 
 echo "Running Frontend checks..."
 
