@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignUuid('user_id')->constrained();
             $table->foreignUuid('establishment_id')->constrained();
             $table->date('check_in_date');
             $table->date('check_out_date');
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending')->index();
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed', 'in_progress'])->default('pending')->index()->comment('App\Enums\BookingStatus');
             $table->text('special_requests')->nullable();
             $table->timestamps();
 

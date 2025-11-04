@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,6 +22,7 @@ class Booking extends Model
         'check_in_date' => 'date',
         'check_out_date' => 'date',
         'total_price' => 'decimal:2',
+        'status' => BookingStatus::class,
     ];
 
     public function user(): BelongsTo

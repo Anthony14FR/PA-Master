@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
             $table->foreignId('booking_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('sender_id')->nullable()->constrained('users');
+            $table->foreignUuid('sender_id')->nullable()->constrained('users');
             $table->enum('sender_type', ['user', 'establishment', 'system'])->index();
             $table->enum('message_type', ['text', 'file', 'booking_reference', 'system'])->default('text')->index();
             $table->text('content')->nullable();

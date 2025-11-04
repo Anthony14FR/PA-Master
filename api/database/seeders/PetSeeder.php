@@ -15,7 +15,7 @@ class PetSeeder extends Seeder
 {
     private array $animalTypes;
 
-    private int $userId;
+    private string $userId;
 
     private array $attributeCache = [];
 
