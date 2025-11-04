@@ -9,8 +9,8 @@ main: ## Checkout main branch && git pull
 
 update: ## Update/install dependencies Back/Front
 	if [ -f api/composer.lock ]; then cd api && composer update; else cd api && composer install; fi
-	if [ -f web/package-lock.json ]; then cd web && npm update; else cd web && npm install; fi
+	pnpm install
 
 start: ## Start API and Web
 	cd api && php artisan serve &
-	cd web && npm run dev &
+	pnpm dev &
