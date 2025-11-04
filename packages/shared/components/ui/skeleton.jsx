@@ -1,12 +1,11 @@
-import { cn } from '@kennelo/utils/commun'
+import { cn } from "@kennelo/lib/utils"
 
 function Skeleton({
   className,
-  as: Component = 'div',
   ...props
 }) {
   return (
-    <Component
+    <div
       data-slot="skeleton"
       className={cn("bg-accent animate-pulse rounded-md", className)}
       {...props} />

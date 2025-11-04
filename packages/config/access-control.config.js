@@ -20,8 +20,8 @@ export const PROTECTED_SUBDOMAINS = ['app', 'admin', 'dashboard'];
  * Maps routes to required roles (user must have at least one)
  */
 export const ROUTE_ROLES = {
-    '/s/admin': [ROLES.Admin],
-    '/s/app': [ROLES.Admin, ROLES.Manager],
+    '/s/admin': [ROLES.User],
+    '/s/app': [ROLES.Manager],
     '/s/my': [ROLES.Admin, ROLES.Manager, ROLES.User],
     '/dashboard': [ROLES.Admin, ROLES.Manager]
 };
