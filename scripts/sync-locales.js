@@ -2,96 +2,63 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
-const SHARED_LOCALES_DIR = path.join(ROOT_DIR, 'shared', 'locales');
-const API_LANG_DIR = path.join(ROOT_DIR, 'api', 'lang');
-const WEB_MESSAGES_DIR = path.join(ROOT_DIR, 'web', 'messages');
 
-console.log('🔄 Synchronizing locale files...');
+/**
+ * Manage traductions manifest in packages/locales
+ */
+function generateLocalesManifest() {
+    const LOCALES_DIR = path.join(ROOT_DIR, 'packages', 'locales');
+    const MANIFEST_PATH = path.join(LOCALES_DIR, 'manifest.json');
+    const manifest = {};
 
-function copyDirectory(sourceDir, destDir, relativePath = '') {
-    const items = fs.readdirSync(sourceDir);
-
-    for (const item of items) {
-        const sourcePath = path.join(sourceDir, item);
-        const destPath = path.join(destDir, item);
-        const itemRelativePath = path.join(relativePath, item);
-
-        if (fs.statSync(sourcePath).isDirectory()) {
-            if (!fs.existsSync(destPath)) {
-                fs.mkdirSync(destPath, { recursive: true });
-            }
-            copyDirectory(sourcePath, destPath, itemRelativePath);
-        } else if (item.endsWith('.json')) {
-            try {
-                const content = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-                fs.writeFileSync(destPath, JSON.stringify(content, null, 2));
-                console.log(`✅ ${itemRelativePath} → Synced`);
-            } catch (error) {
-                console.error(`❌ Invalid JSON in ${itemRelativePath}:`, error.message);
-                process.exit(1);
-            }
-        }
-    }
-}
-
-function syncLocales() {
     try {
-        if (!fs.existsSync(SHARED_LOCALES_DIR)) {
-            console.error('❌ Shared locales directory not found:', SHARED_LOCALES_DIR);
-            process.exit(1);
-        }
+        const localeDirs = fs.readdirSync(LOCALES_DIR, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
 
-        if (!fs.existsSync(API_LANG_DIR)) {
-            fs.mkdirSync(API_LANG_DIR, { recursive: true });
-        }
-        if (!fs.existsSync(WEB_MESSAGES_DIR)) {
-            fs.mkdirSync(WEB_MESSAGES_DIR, { recursive: true });
-        }
+        console.log(`📦 Génération du manifest pour ${localeDirs.length} locales : ${localeDirs.join(', ')}`);
 
-        const locales = fs.readdirSync(SHARED_LOCALES_DIR).filter(item =>
-            fs.statSync(path.join(SHARED_LOCALES_DIR, item)).isDirectory()
-        );
+        for (const locale of localeDirs) {
+            const localePath = path.join(LOCALES_DIR, locale);
+            const files = [];
 
-        for (const locale of locales) {
-            const sourceDir = path.join(SHARED_LOCALES_DIR, locale);
-            const apiDestDir = path.join(API_LANG_DIR, locale);
-            const webDestDir = path.join(WEB_MESSAGES_DIR, locale);
+            function scanDirectory(dir, relativePath = '') {
+                const items = fs.readdirSync(dir, { withFileTypes: true });
 
-            if (!fs.existsSync(apiDestDir)) {
-                fs.mkdirSync(apiDestDir, { recursive: true });
-            }
-            if (!fs.existsSync(webDestDir)) {
-                fs.mkdirSync(webDestDir, { recursive: true });
+                for (const item of items) {
+                    const itemPath = path.join(dir, item.name);
+                    const itemRelativePath = relativePath ? `${relativePath}/${item.name}` : item.name;
+
+                    if (item.isDirectory()) {
+                        scanDirectory(itemPath, itemRelativePath);
+                    } else if (item.name.endsWith('.json')) {
+                        files.push(itemRelativePath);
+                    }
+                }
             }
 
-            console.log(`📁 Processing locale: ${locale}`);
-            copyDirectory(sourceDir, apiDestDir, locale);
-            copyDirectory(sourceDir, webDestDir, locale);
+            scanDirectory(localePath);
+            manifest[locale] = files.sort();
         }
 
-        console.log('🎉 Locale synchronization completed!');
-        console.log(`📁 Synced ${locales.length} locales to:`);
-        console.log(`   - ${API_LANG_DIR}`);
-        console.log(`   - ${WEB_MESSAGES_DIR}`);
+        fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+        console.log(`✅ Manifest généré : ${Object.values(manifest).reduce((sum, files) => sum + files.length, 0)} fichiers dans ${Object.keys(manifest).length} locales`);
 
-        // Generate i18n manifest for automatic file discovery
-        console.log('\n🔍 Generating i18n manifest...');
-        const { generateI18nManifest } = require('./generate-i18n-manifest');
-
-        // Change to web directory to generate manifest correctly
-        const originalCwd = process.cwd();
-        process.chdir(path.join(ROOT_DIR, 'web'));
-
-        try {
-            generateI18nManifest();
-        } finally {
-            process.chdir(originalCwd);
-        }
-
+        return manifest;
     } catch (error) {
-        console.error('❌ Synchronization failed:', error.message);
+        console.error('❌ Erreur lors de la génération du manifest:', error);
         process.exit(1);
     }
 }
 
-syncLocales();
+function main() {
+    console.log('🔄 Génération du manifest des traductions...\n');
+    generateLocalesManifest();
+    console.log('\n✅ Synchronisation terminée - Les apps utilisent maintenant directement packages/locales');
+}
+
+if (require.main === module) {
+    main();
+}
+
+module.exports = { generateLocalesManifest };
