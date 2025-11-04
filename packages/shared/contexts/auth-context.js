@@ -45,9 +45,13 @@ export function AuthProvider({ children, locale = 'en' }) {
       } catch (error) {
         console.error('Erreur lors de l\'initialisation:', error);
 
-        await authService.clearTokens();
-        setUser(null);
-        setRoles([]);
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          await authService.clearTokens();
+          setUser(null);
+          setRoles([]);
+        } else if (error instanceof ApiError && error.status === 0) {
+          console.warn('Mode dégradé : impossible de contacter l\'API, session conservée');
+        }
       } finally {
         setLoading(false);
       }
@@ -170,8 +174,11 @@ export function AuthProvider({ children, locale = 'en' }) {
       }
     } catch (error) {
       console.error('Erreur lors du rafraîchissement:', error);
-      setUser(null);
-      setRoles([]);
+
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        setUser(null);
+        setRoles([]);
+      }
     }
   }, []);
 

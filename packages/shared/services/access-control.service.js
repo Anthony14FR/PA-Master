@@ -1,5 +1,5 @@
 import {
-  PROTECTED_SUBDOMAINS,
+  SPACES_PROTECTIONS,
   ROUTE_ROLES,
   HOME_PAGES,
   DEFAULT_HOME_PAGE,
@@ -17,14 +17,15 @@ class AccessControlService {
     let normalizedPath = pathname;
     let effectiveSubdomain = subdomain;
 
+    // Extract subdomain from /s/ paths
     if (pathname.startsWith('/s/')) {
       const parts = pathname.split('/').filter(Boolean);
       effectiveSubdomain = parts[1];
       normalizedPath = parts.length > 2 ? '/' + parts.slice(2).join('/') : '/';
     }
 
-    if (effectiveSubdomain && PROTECTED_SUBDOMAINS.includes(effectiveSubdomain)) {
-      normalizedPath = `/${effectiveSubdomain}${normalizedPath === '/' ? '' : normalizedPath}`;
+    if (effectiveSubdomain && SPACES_PROTECTIONS[effectiveSubdomain]) {
+      return SPACES_PROTECTIONS[effectiveSubdomain];
     }
 
     for (const [route, roles] of Object.entries(ROUTE_ROLES)) {
@@ -32,6 +33,7 @@ class AccessControlService {
         return roles;
       }
     }
+
     return null;
   }
 
@@ -54,17 +56,23 @@ class AccessControlService {
 
   /**
    * Check if user has any of the required roles
-   * @param {string[]} userRoles - User's roles
-   * @param {string[]} requiredRoles - Required roles
+   * @param {string[]} userRoles - User's roles (can be empty array for authenticated users without roles)
+   * @param {string[]} requiredRoles - Required roles (can include "*" wildcard)
    * @returns {boolean} True if user has at least one required role
    */
   hasRequiredRole(userRoles, requiredRoles) {
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
+
+    if (requiredRoles.includes("*")) {
+      return userRoles !== null && userRoles !== undefined && Array.isArray(userRoles);
+    }
+
     if (!userRoles || userRoles.length === 0) {
       return false;
     }
+
     return requiredRoles.some(role => userRoles.includes(role));
   }
 
@@ -106,7 +114,7 @@ class AccessControlService {
       const parts = pathname.split('/').filter(Boolean);
       const extractedSubdomain = parts[1];
 
-      if (PROTECTED_SUBDOMAINS.includes(extractedSubdomain)) {
+      if (extractedSubdomain && extractedSubdomain in SPACES_PROTECTIONS) {
         return true;
       }
 
@@ -114,7 +122,7 @@ class AccessControlService {
       return this._isPathProtected(normalizedPath);
     }
 
-    if (subdomain && PROTECTED_SUBDOMAINS.includes(subdomain)) {
+    if (subdomain && subdomain in SPACES_PROTECTIONS) {
       return true;
     }
 

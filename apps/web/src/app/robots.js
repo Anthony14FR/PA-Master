@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { PROTECTED_SUBDOMAINS } from '@kennelo/config/access-control.config';
+import { SPACES_PROTECTIONS } from '@kennelo/config/access-control.config';
 
 /**
  * Dynamic robots.txt generation - Domain-aware
@@ -16,7 +16,7 @@ export default async function robots() {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: [...PROTECTED_SUBDOMAINS.map(s => `/${s}/`), '/api/', '/_next/', '/s/'],
+            disallow: [...Object.keys(SPACES_PROTECTIONS).map(s => `/${s}/`), '/api/', '/_next/', '/s/'],
         },
         sitemap: `https://${currentDomain}/sitemap.xml`,
         host: `https://${currentDomain}`,
