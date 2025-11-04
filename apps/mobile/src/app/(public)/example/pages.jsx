@@ -4,7 +4,6 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Preferences } from '@capacitor/preferences';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
-import { App } from '@capacitor/app';
 import { useCapacitor } from '@/hooks/use-capacitor';
 
 export function Page() {

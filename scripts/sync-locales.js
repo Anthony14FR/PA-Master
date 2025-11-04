@@ -16,7 +16,7 @@ function generateLocalesManifest() {
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
-        console.log(`📦 Generation du manifest pour ${localeDirs.length} locales: ${localeDirs.join(', ')}`);
+        console.log(`📦 Génération du manifest pour ${localeDirs.length} locales : ${localeDirs.join(', ')}`);
 
         for (const locale of localeDirs) {
             const localePath = path.join(LOCALES_DIR, locale);
@@ -42,7 +42,7 @@ function generateLocalesManifest() {
         }
 
         fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
-        console.log(`✅ Manifest généré: ${Object.values(manifest).reduce((sum, files) => sum + files.length, 0)} fichiers dans ${Object.keys(manifest).length} locales`);
+        console.log(`✅ Manifest généré : ${Object.values(manifest).reduce((sum, files) => sum + files.length, 0)} fichiers dans ${Object.keys(manifest).length} locales`);
 
         return manifest;
     } catch (error) {
