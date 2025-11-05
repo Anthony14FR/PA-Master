@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@kenn
 import { LanguageSwitcher } from "@kennelo/components/language-switcher";
 import { useCommonTranslation } from "@kennelo/hooks/use-translation";
 import { useAuth } from "@kennelo/hooks/use-auth";
+import { UnreadBadge } from "@kennelo/features/conversations/components/unread-badge";
 import { LogOut } from "lucide-react";
 
 export default function Page() {
@@ -27,39 +28,58 @@ export default function Page() {
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="text-center hover:shadow-lg transition-shadow justify-between">
               <CardHeader>
-                <CardTitle>
-                  <T tKey="home.cards.api.title" skeletonWidth={120} />
-                </CardTitle>
+                <CardTitle>Établissements</CardTitle>
                 <CardDescription>
-                  <T tKey="home.cards.api.description" skeletonWidth={200} />
+                  Trouvez le meilleur établissement pour votre animal
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button asChild className="w-full">
-                  <KLink href="/test">
-                    <T tKey="home.cards.api.button" skeletonWidth={100} />
+                  <KLink href="/establishments">
+                    Voir les établissements
                   </KLink>
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow justify-between">
-              <CardHeader>
-                <CardTitle>
-                  <T tKey="home.cards.login.title" skeletonWidth={100} />
-                </CardTitle>
-                <CardDescription>
-                  <T tKey="home.cards.login.description" skeletonWidth={180} />
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild variant="outline" className="w-full">
-                  <KLink context="account" href="/login">
-                    <T tKey="home.cards.login.button" skeletonWidth={100} />
-                  </KLink>
-                </Button>
-              </CardContent>
-            </Card>
+            {user ? (
+              <Card className="text-center hover:shadow-lg transition-shadow justify-between">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-center">
+                    Mes Conversations
+                    <UnreadBadge />
+                  </CardTitle>
+                  <CardDescription>
+                    Gérez vos conversations avec les établissements
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild variant="outline" className="w-full">
+                    <KLink context="my" href="/conversations">
+                      Voir mes conversations
+                    </KLink>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="text-center hover:shadow-lg transition-shadow justify-between">
+                <CardHeader>
+                  <CardTitle>
+                    <T tKey="home.cards.login.title" skeletonWidth={100} />
+                  </CardTitle>
+                  <CardDescription>
+                    <T tKey="home.cards.login.description" skeletonWidth={180} />
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild variant="outline" className="w-full">
+                    <KLink context="account" href="/login">
+                      <T tKey="home.cards.login.button" skeletonWidth={100} />
+                    </KLink>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="text-center hover:shadow-lg transition-shadow justify-between">
               <CardHeader>
@@ -88,10 +108,17 @@ export default function Page() {
             <div className="flex gap-2">
               <LanguageSwitcher />
               {user && (
+                <>
+                  <Button asChild variant='default' size='sm'>
+                    <KLink context="app" href="/overview">
+                      Tableau de bord
+                    </KLink>
+                  </Button>
                   <Button variant='destructive' size='sm' onClick={logout}>
                     <LogOut />
                     {t("dashboard.logout")}
                   </Button>
+                </>
               )}
             </div>
           </div>

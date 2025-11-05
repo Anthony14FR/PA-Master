@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('message_id')->constrained()->onDelete('cascade');
             $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->timestamp('read_at');
+            $table->timestamps();
 
             $table->unique(['message_id', 'user_id']);
         });

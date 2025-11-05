@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { InitStorage } from '@/lib/init-storage';
 import { AuthProvider } from "@kennelo/contexts/auth-context";
 import { TranslationProvider } from "@kennelo/contexts/translation-context";
+import { ConversationProvider } from "@kennelo/features/conversations/contexts/conversation-context";
 import { OrganizationStructuredData, WebSiteStructuredData } from "@kennelo/components/structured-data";
 import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, getHreflangUrls, t } from "@kennelo/lib/i18n";
 import "./globals.css";
@@ -76,7 +77,9 @@ export default async function RootLayout({ children }) {
         <WebSiteStructuredData locale={locale} messages={messages} t={t} />
         <TranslationProvider initialMessages={messages} initialLocale={locale}>
           <AuthProvider locale={locale}>
-            {children}
+            <ConversationProvider>
+              {children}
+            </ConversationProvider>
           </AuthProvider>
         </TranslationProvider>
       </body>

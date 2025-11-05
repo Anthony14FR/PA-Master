@@ -258,9 +258,9 @@ class PetSeeder extends Seeder
 
     private function loadDependencies(): void
     {
-        $this->userId = User::where('email', 'user@orus.com')->value('id');
+        $this->userId = User::where('email', 'client1@orus.com')->value('id');
         if (! $this->userId) {
-            throw new \RuntimeException('User with email user@orus.com not found. Run UsersSeeder first.');
+            throw new \RuntimeException('User with email client1@orus.com not found. Run UsersSeeder first.');
         }
 
         $types = AnimalType::whereIn('code', ['dog', 'cat', 'bird', 'fish', 'small_mammal'])

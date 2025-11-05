@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Conversation;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,314 +14,291 @@ class ConversationSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get IDs
-        $userId = DB::table('users')->where('email', 'user@orus.com')->value('id');
-        $managerId = DB::table('users')->where('email', 'manager@orus.com')->value('id');
-        $establishments = DB::table('establishments')->limit(2)->get();
+        // Récupérer les IDs des clients
+        $client1Id = DB::table('users')->where('email', 'client1@orus.com')->value('id');
+        $client2Id = DB::table('users')->where('email', 'client2@orus.com')->value('id');
+        $client3Id = DB::table('users')->where('email', 'client3@orus.com')->value('id');
+        $client4Id = DB::table('users')->where('email', 'client4@orus.com')->value('id');
 
+        // Récupérer les IDs des managers
+        $manager1Id = DB::table('users')->where('email', 'manager1@orus.com')->value('id');
+        $manager2Id = DB::table('users')->where('email', 'manager2@orus.com')->value('id');
+        $manager3Id = DB::table('users')->where('email', 'manager3@orus.com')->value('id');
+
+        // Récupérer les établissements
+        $establishments = DB::table('establishments')->limit(3)->get();
         $establishment1Id = $establishments[0]->id ?? null;
         $establishment2Id = $establishments[1]->id ?? null;
+        $establishment3Id = $establishments[2]->id ?? null;
 
-        // Get booking IDs
-        $bookings = DB::table('bookings')->get();
-        $booking1Id = $bookings[0]->id ?? null; // Completed
-        $booking2Id = $bookings[1]->id ?? null; // Confirmed
-
-        if (! $establishment1Id || ! $userId) {
+        if (! $client1Id || ! $establishment1Id) {
             throw new \RuntimeException('Required data missing. Ensure UsersSeeder and EstablishmentSeeder ran successfully.');
         }
 
-        $existingConv1 = DB::table('conversations')
-            ->where('user_id', $userId)
-            ->where('establishment_id', $establishment1Id)
-            ->first();
-
-        if ($existingConv1) {
-            $conversation1Id = $existingConv1->id;
-            DB::table('conversations')->where('id', $conversation1Id)->update([
-                'last_message_at' => Carbon::now()->subHours(2),
-                'updated_at' => Carbon::now()->subHours(2),
-            ]);
-        } else {
-            $conversation1Id = DB::table('conversations')->insertGetId([
-                'user_id' => $userId,
+        // === CONVERSATION 1: Client 1 (Marie Dupont) <-> Établissement 1 ===
+        $conv1 = Conversation::firstOrCreate(
+            [
+                'user_id' => $client1Id,
                 'establishment_id' => $establishment1Id,
-                'last_message_at' => Carbon::now()->subHours(2),
-                'created_at' => Carbon::now()->subDays(30),
-                'updated_at' => Carbon::now()->subHours(2),
+            ],
+            [
+                'last_message_at' => Carbon::now()->subHours(1),
+                'created_at' => Carbon::now()->subDays(15),
+                'updated_at' => Carbon::now()->subHours(1),
+            ]
+        );
+
+        DB::table('messages')->insertOrIgnore([
+            [
+                'conversation_id' => $conv1->id,
+                'booking_id' => null,
+                'sender_id' => $client1Id,
+                'sender_type' => 'user',
+                'message_type' => 'text',
+                'content' => 'Bonjour, j\'aimerais savoir si vous acceptez les chiens de grande taille ?',
+                'created_at' => Carbon::now()->subDays(15),
+                'updated_at' => Carbon::now()->subDays(15),
+            ],
+            [
+                'conversation_id' => $conv1->id,
+                'booking_id' => null,
+                'sender_id' => $manager1Id,
+                'sender_type' => 'establishment',
+                'message_type' => 'text',
+                'content' => 'Bonjour Marie ! Oui, nous acceptons les chiens de toutes tailles. Nous avons de l\'expérience avec les grandes races. De quelle race s\'agit-il ?',
+                'created_at' => Carbon::now()->subDays(15)->addHours(2),
+                'updated_at' => Carbon::now()->subDays(15)->addHours(2),
+            ],
+            [
+                'conversation_id' => $conv1->id,
+                'booking_id' => null,
+                'sender_id' => $client1Id,
+                'sender_type' => 'user',
+                'message_type' => 'text',
+                'content' => 'C\'est un Golden Retriever de 3 ans, très sociable !',
+                'created_at' => Carbon::now()->subDays(14),
+                'updated_at' => Carbon::now()->subDays(14),
+            ],
+            [
+                'conversation_id' => $conv1->id,
+                'booking_id' => null,
+                'sender_id' => $manager1Id,
+                'sender_type' => 'establishment',
+                'message_type' => 'text',
+                'content' => 'Parfait ! Les Golden sont adorables. N\'hésitez pas à réserver, nous avons de la place.',
+                'created_at' => Carbon::now()->subDays(14)->addHours(1),
+                'updated_at' => Carbon::now()->subDays(14)->addHours(1),
+            ],
+            [
+                'conversation_id' => $conv1->id,
+                'booking_id' => null,
+                'sender_id' => $client1Id,
+                'sender_type' => 'user',
+                'message_type' => 'text',
+                'content' => 'Super ! Je vais faire une réservation. Merci beaucoup !',
+                'created_at' => Carbon::now()->subHours(1),
+                'updated_at' => Carbon::now()->subHours(1),
+            ],
+        ]);
+
+        // === CONVERSATION 2: Client 2 (Jean Moreau) <-> Établissement 1 ===
+        if ($client2Id && $establishment1Id) {
+            $conv2 = Conversation::firstOrCreate(
+                [
+                    'user_id' => $client2Id,
+                    'establishment_id' => $establishment1Id,
+                ],
+                [
+                    'last_message_at' => Carbon::now()->subDays(2),
+                    'created_at' => Carbon::now()->subDays(7),
+                    'updated_at' => Carbon::now()->subDays(2),
+                ]
+            );
+
+            DB::table('messages')->insertOrIgnore([
+                [
+                    'conversation_id' => $conv2->id,
+                    'booking_id' => null,
+                    'sender_id' => $client2Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour, acceptez-vous les chats ?',
+                    'created_at' => Carbon::now()->subDays(7),
+                    'updated_at' => Carbon::now()->subDays(7),
+                ],
+                [
+                    'conversation_id' => $conv2->id,
+                    'booking_id' => null,
+                    'sender_id' => $manager1Id,
+                    'sender_type' => 'establishment',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour Jean ! Oui, nous avons un espace dédié aux chats avec tout le confort nécessaire.',
+                    'created_at' => Carbon::now()->subDays(7)->addHours(3),
+                    'updated_at' => Carbon::now()->subDays(7)->addHours(3),
+                ],
+                [
+                    'conversation_id' => $conv2->id,
+                    'booking_id' => null,
+                    'sender_id' => $client2Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Parfait ! Mon chat est assez timide, est-ce qu\'il aura un espace tranquille ?',
+                    'created_at' => Carbon::now()->subDays(6),
+                    'updated_at' => Carbon::now()->subDays(6),
+                ],
+                [
+                    'conversation_id' => $conv2->id,
+                    'booking_id' => null,
+                    'sender_id' => $manager1Id,
+                    'sender_type' => 'establishment',
+                    'message_type' => 'text',
+                    'content' => 'Absolument ! Chaque chat a son propre box avec des cachettes. Pas de stress pour votre petit félin.',
+                    'created_at' => Carbon::now()->subDays(2),
+                    'updated_at' => Carbon::now()->subDays(2),
+                ],
             ]);
         }
 
-        // Initial contact message
-        $message1Id = DB::table('messages')->insertGetId([
-            'conversation_id' => $conversation1Id,
-            'booking_id' => null,
-            'sender_id' => $userId,
-            'sender_type' => 'user',
-            'message_type' => 'text',
-            'content' => 'Bonjour, j\'aimerais savoir si vous acceptez les chiens de grande taille ?',
-            'created_at' => Carbon::now()->subDays(30),
-            'updated_at' => Carbon::now()->subDays(30),
-        ]);
-
-        $message2Id = DB::table('messages')->insertGetId([
-            'conversation_id' => $conversation1Id,
-            'booking_id' => null,
-            'sender_id' => $managerId,
-            'sender_type' => 'establishment',
-            'message_type' => 'text',
-            'content' => 'Bonjour ! Oui, nous acceptons les chiens de toutes tailles. Nous avons de l\'expérience avec les grandes races. N\'hésitez pas à me parler de votre chien !',
-            'created_at' => Carbon::now()->subDays(30)->addHours(1),
-            'updated_at' => Carbon::now()->subDays(30)->addHours(1),
-        ]);
-
-        // Booking reference message (booking 1)
-        if ($booking1Id) {
-            $message3Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => null,
-                'sender_type' => 'system',
-                'message_type' => 'booking_reference',
-                'content' => 'Réservation confirmée pour Rex',
-                'created_at' => Carbon::now()->subDays(25),
-                'updated_at' => Carbon::now()->subDays(25),
-            ]);
-
-            // Create booking thread
-            $existingThread1 = DB::table('booking_threads')->where('booking_id', $booking1Id)->first();
-            if (! $existingThread1) {
-                $thread1Id = DB::table('booking_threads')->insertGetId([
-                    'conversation_id' => $conversation1Id,
-                    'booking_id' => $booking1Id,
-                    'is_active' => false, // Completed booking, archived
-                    'archived_at' => Carbon::now()->subDays(14),
-                    'created_at' => Carbon::now()->subDays(25),
-                    'updated_at' => Carbon::now()->subDays(14),
-                ]);
-            } else {
-                $thread1Id = $existingThread1->id;
-            }
-
-            // Messages in booking thread
-            $message4Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => null,
-                'sender_type' => 'system',
-                'message_type' => 'system',
-                'content' => 'Thread de réservation créé - Check-in: '.Carbon::now()->subDays(20)->format('d/m/Y').', Check-out: '.Carbon::now()->subDays(15)->format('d/m/Y'),
-                'created_at' => Carbon::now()->subDays(25),
-                'updated_at' => Carbon::now()->subDays(25),
-            ]);
-
-            $message5Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => $userId,
-                'sender_type' => 'user',
-                'message_type' => 'text',
-                'content' => 'Bonjour, je vous envoie le carnet de vaccination de Rex.',
-                'created_at' => Carbon::now()->subDays(22),
-                'updated_at' => Carbon::now()->subDays(22),
-            ]);
-
-            // File attached to message
-            DB::table('message_files')->insert([
-                'message_id' => $message5Id,
-                'file_name' => 'carnet_vaccination_rex.pdf',
-                'file_path' => 'messages/files/carnet_vaccination_rex.pdf',
-                'file_type' => 'document',
-                'file_size' => 524288, // 512 KB
-                'mime_type' => 'application/pdf',
-                'created_at' => Carbon::now()->subDays(22),
-            ]);
-
-            $message6Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => $managerId,
-                'sender_type' => 'establishment',
-                'message_type' => 'text',
-                'content' => 'Parfait, tout est en ordre ! Rex sera entre de bonnes mains.',
-                'created_at' => Carbon::now()->subDays(22)->addHours(2),
-                'updated_at' => Carbon::now()->subDays(22)->addHours(2),
-            ]);
-
-            // During stay - photo message
-            $message7Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => $managerId,
-                'sender_type' => 'establishment',
-                'message_type' => 'file',
-                'content' => 'Rex s\'amuse bien au parc !',
-                'created_at' => Carbon::now()->subDays(18),
-                'updated_at' => Carbon::now()->subDays(18),
-            ]);
-
-            DB::table('message_files')->insert([
-                'message_id' => $message7Id,
-                'file_name' => 'rex_parc.jpg',
-                'file_path' => 'messages/photos/rex_parc.jpg',
-                'file_type' => 'image',
-                'file_size' => 2097152, // 2 MB
-                'mime_type' => 'image/jpeg',
-                'created_at' => Carbon::now()->subDays(18),
-            ]);
-
-            $message8Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking1Id,
-                'sender_id' => $userId,
-                'sender_type' => 'user',
-                'message_type' => 'text',
-                'content' => 'Merci beaucoup ! Il a l\'air très heureux !',
-                'created_at' => Carbon::now()->subDays(18)->addHours(1),
-                'updated_at' => Carbon::now()->subDays(18)->addHours(1),
-            ]);
-        }
-
-        // Booking reference message (booking 2)
-        if ($booking2Id) {
-            $message9Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking2Id,
-                'sender_id' => null,
-                'sender_type' => 'system',
-                'message_type' => 'booking_reference',
-                'content' => 'Réservation confirmée pour Rex et Minou',
-                'created_at' => Carbon::now()->subDays(3),
-                'updated_at' => Carbon::now()->subDays(3),
-            ]);
-
-            // Create active booking thread
-            $existingThread2 = DB::table('booking_threads')->where('booking_id', $booking2Id)->first();
-            if (! $existingThread2) {
-                $thread2Id = DB::table('booking_threads')->insertGetId([
-                    'conversation_id' => $conversation1Id,
-                    'booking_id' => $booking2Id,
-                    'is_active' => true,
-                    'archived_at' => null,
-                    'created_at' => Carbon::now()->subDays(3),
-                    'updated_at' => Carbon::now()->subDays(3),
-                ]);
-            } else {
-                $thread2Id = $existingThread2->id;
-            }
-
-            // Messages in active booking thread
-            $message10Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking2Id,
-                'sender_id' => null,
-                'sender_type' => 'system',
-                'message_type' => 'system',
-                'content' => 'Thread de réservation créé - Check-in: '.Carbon::now()->addDays(5)->format('d/m/Y').', Check-out: '.Carbon::now()->addDays(12)->format('d/m/Y'),
-                'created_at' => Carbon::now()->subDays(3),
-                'updated_at' => Carbon::now()->subDays(3),
-            ]);
-
-            $message11Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking2Id,
-                'sender_id' => $userId,
-                'sender_type' => 'user',
-                'message_type' => 'text',
-                'content' => 'Bonjour ! Petite précision : Minou n\'aime pas trop les autres chats. Est-ce que cela pose problème ?',
-                'created_at' => Carbon::now()->subDays(2),
-                'updated_at' => Carbon::now()->subDays(2),
-            ]);
-
-            $message12Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation1Id,
-                'booking_id' => $booking2Id,
-                'sender_id' => $managerId,
-                'sender_type' => 'establishment',
-                'message_type' => 'text',
-                'content' => 'Pas de souci ! Nous avons des espaces séparés et nous gérons cela régulièrement. Minou aura son propre espace tranquille.',
-                'created_at' => Carbon::now()->subHours(2),
-                'updated_at' => Carbon::now()->subHours(2),
-            ]);
-        }
-
-        // General conversation message (outside threads)
-        $message13Id = DB::table('messages')->insertGetId([
-            'conversation_id' => $conversation1Id,
-            'booking_id' => null,
-            'sender_id' => $userId,
-            'sender_type' => 'user',
-            'message_type' => 'text',
-            'content' => 'Super ! J\'ai hâte. Merci pour votre professionnalisme.',
-            'created_at' => Carbon::now()->subHours(1),
-            'updated_at' => Carbon::now()->subHours(1),
-        ]);
-
-        // === CONVERSATION 2: Simple conversation without bookings ===
-        if ($establishment2Id) {
-            $existingConv2 = DB::table('conversations')
-                ->where('user_id', $userId)
-                ->where('establishment_id', $establishment2Id)
-                ->first();
-
-            if ($existingConv2) {
-                $conversation2Id = $existingConv2->id;
-            } else {
-                $conversation2Id = DB::table('conversations')->insertGetId([
-                    'user_id' => $userId,
+        // === CONVERSATION 3: Client 3 (Isabelle Laurent) <-> Établissement 2 ===
+        if ($client3Id && $establishment2Id && $manager2Id) {
+            $conv3 = Conversation::firstOrCreate(
+                [
+                    'user_id' => $client3Id,
                     'establishment_id' => $establishment2Id,
+                ],
+                [
                     'last_message_at' => Carbon::now()->subDays(5),
                     'created_at' => Carbon::now()->subDays(10),
                     'updated_at' => Carbon::now()->subDays(5),
-                ]);
-            }
+                ]
+            );
 
-            $message14Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation2Id,
-                'booking_id' => null,
-                'sender_id' => $userId,
-                'sender_type' => 'user',
-                'message_type' => 'text',
-                'content' => 'Bonjour, acceptez-vous les oiseaux ? J\'ai une perruche.',
-                'created_at' => Carbon::now()->subDays(10),
-                'updated_at' => Carbon::now()->subDays(10),
-            ]);
-
-            $message15Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation2Id,
-                'booking_id' => null,
-                'sender_id' => $managerId,
-                'sender_type' => 'establishment',
-                'message_type' => 'text',
-                'content' => 'Bonjour ! Malheureusement, nous ne sommes pas équipés pour les oiseaux pour le moment. Désolé !',
-                'created_at' => Carbon::now()->subDays(10)->addHours(3),
-                'updated_at' => Carbon::now()->subDays(10)->addHours(3),
-            ]);
-
-            $message16Id = DB::table('messages')->insertGetId([
-                'conversation_id' => $conversation2Id,
-                'booking_id' => null,
-                'sender_id' => $userId,
-                'sender_type' => 'user',
-                'message_type' => 'text',
-                'content' => 'Pas de problème, merci de votre réponse !',
-                'created_at' => Carbon::now()->subDays(5),
-                'updated_at' => Carbon::now()->subDays(5),
+            DB::table('messages')->insertOrIgnore([
+                [
+                    'conversation_id' => $conv3->id,
+                    'booking_id' => null,
+                    'sender_id' => $client3Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour, acceptez-vous les lapins ?',
+                    'created_at' => Carbon::now()->subDays(10),
+                    'updated_at' => Carbon::now()->subDays(10),
+                ],
+                [
+                    'conversation_id' => $conv3->id,
+                    'booking_id' => null,
+                    'sender_id' => $manager2Id,
+                    'sender_type' => 'establishment',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour Isabelle ! Oui, nous avons l\'habitude des lapins. Ils ont un enclos spacieux.',
+                    'created_at' => Carbon::now()->subDays(10)->addHours(4),
+                    'updated_at' => Carbon::now()->subDays(10)->addHours(4),
+                ],
+                [
+                    'conversation_id' => $conv3->id,
+                    'booking_id' => null,
+                    'sender_id' => $client3Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Super ! Merci pour l\'information.',
+                    'created_at' => Carbon::now()->subDays(5),
+                    'updated_at' => Carbon::now()->subDays(5),
+                ],
             ]);
         }
 
-        // Mark some messages as read
-        if (isset($message1Id, $message2Id, $message3Id)) {
-            DB::table('message_reads')->insert([
+        // === CONVERSATION 4: Client 4 (Lucas Petit) <-> Établissement 2 ===
+        if ($client4Id && $establishment2Id && $manager2Id) {
+            $conv4 = Conversation::firstOrCreate(
                 [
-                    'message_id' => $message1Id,
-                    'user_id' => $managerId,
-                    'read_at' => Carbon::now()->subDays(30)->addMinutes(30),
+                    'user_id' => $client4Id,
+                    'establishment_id' => $establishment2Id,
                 ],
                 [
-                    'message_id' => $message2Id,
-                    'user_id' => $userId,
-                    'read_at' => Carbon::now()->subDays(30)->addHours(2),
+                    'last_message_at' => Carbon::now()->subHours(3),
+                    'created_at' => Carbon::now()->subDays(3),
+                    'updated_at' => Carbon::now()->subHours(3),
+                ]
+            );
+
+            DB::table('messages')->insertOrIgnore([
+                [
+                    'conversation_id' => $conv4->id,
+                    'booking_id' => null,
+                    'sender_id' => $client4Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour, j\'ai un Husky très énergique, pouvez-vous le gérer ?',
+                    'created_at' => Carbon::now()->subDays(3),
+                    'updated_at' => Carbon::now()->subDays(3),
+                ],
+                [
+                    'conversation_id' => $conv4->id,
+                    'booking_id' => null,
+                    'sender_id' => $manager2Id,
+                    'sender_type' => 'establishment',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour Lucas ! Bien sûr ! Nous avons un grand parc et faisons plusieurs sorties par jour. Les Huskies adorent !',
+                    'created_at' => Carbon::now()->subDays(3)->addHours(1),
+                    'updated_at' => Carbon::now()->subDays(3)->addHours(1),
+                ],
+                [
+                    'conversation_id' => $conv4->id,
+                    'booking_id' => null,
+                    'sender_id' => $client4Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Génial ! Il a besoin de beaucoup d\'exercice, c\'est parfait.',
+                    'created_at' => Carbon::now()->subHours(3),
+                    'updated_at' => Carbon::now()->subHours(3),
+                ],
+            ]);
+        }
+
+        // === CONVERSATION 5: Client 1 (Marie Dupont) <-> Établissement 3 ===
+        if ($client1Id && $establishment3Id && $manager3Id) {
+            $conv5 = Conversation::firstOrCreate(
+                [
+                    'user_id' => $client1Id,
+                    'establishment_id' => $establishment3Id,
+                ],
+                [
+                    'last_message_at' => Carbon::now()->subDays(8),
+                    'created_at' => Carbon::now()->subDays(20),
+                    'updated_at' => Carbon::now()->subDays(8),
+                ]
+            );
+
+            DB::table('messages')->insertOrIgnore([
+                [
+                    'conversation_id' => $conv5->id,
+                    'booking_id' => null,
+                    'sender_id' => $client1Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour, avez-vous des disponibilités en août ?',
+                    'created_at' => Carbon::now()->subDays(20),
+                    'updated_at' => Carbon::now()->subDays(20),
+                ],
+                [
+                    'conversation_id' => $conv5->id,
+                    'booking_id' => null,
+                    'sender_id' => $manager3Id,
+                    'sender_type' => 'establishment',
+                    'message_type' => 'text',
+                    'content' => 'Bonjour Marie ! Malheureusement nous sommes complets pour août. Désolée !',
+                    'created_at' => Carbon::now()->subDays(20)->addHours(5),
+                    'updated_at' => Carbon::now()->subDays(20)->addHours(5),
+                ],
+                [
+                    'conversation_id' => $conv5->id,
+                    'booking_id' => null,
+                    'sender_id' => $client1Id,
+                    'sender_type' => 'user',
+                    'message_type' => 'text',
+                    'content' => 'Pas de problème, merci de votre réponse !',
+                    'created_at' => Carbon::now()->subDays(8),
+                    'updated_at' => Carbon::now()->subDays(8),
                 ],
             ]);
         }

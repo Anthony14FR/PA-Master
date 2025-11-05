@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Booking extends Model
 {
@@ -15,6 +15,7 @@ class Booking extends Model
         'check_out_date',
         'total_price',
         'status',
+        'payment_status',
         'special_requests',
     ];
 
@@ -22,7 +23,6 @@ class Booking extends Model
         'check_in_date' => 'date',
         'check_out_date' => 'date',
         'total_price' => 'decimal:2',
-        'status' => BookingStatus::class,
     ];
 
     public function user(): BelongsTo
@@ -33,5 +33,15 @@ class Booking extends Model
     public function establishment(): BelongsTo
     {
         return $this->belongsTo(Establishment::class);
+    }
+
+    public function pets(): BelongsToMany
+    {
+        return $this->belongsToMany(Pet::class, 'booking_pets');
+    }
+
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'booking_services')->withPivot('price');
     }
 }
