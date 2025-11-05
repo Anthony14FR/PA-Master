@@ -3,8 +3,8 @@ import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
-import { cn } from '@kennelo/utils/commun'
-import { Button } from '@kennelo/ui/button'
+import { cn } from "@kennelo/lib/utils"
+import { Button } from "@kennelo/components/ui/button"
 
 const CarouselContext = React.createContext(null)
 

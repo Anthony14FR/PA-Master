@@ -1,28 +1,28 @@
 "use client";
-import { Slot } from "@radix-ui/react-slot";
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
-import * as React from "react";
+import { PanelLeftIcon } from "lucide-react"
 
-import { useIsMobile } from '@kennelo/hooks/use-mobile';
-import { cn } from '@kennelo/utils/commun';
-import { Button } from '@kennelo/ui/button';
-import { Input } from '@kennelo/ui/input';
-import { Separator } from '@kennelo/ui/separator';
+import { useIsMobile } from "@kennelo/hooks/use-mobile"
+import { cn } from "@kennelo/lib/utils"
+import { Button } from "@kennelo/components/ui/button"
+import { Input } from "@kennelo/components/ui/input"
+import { Separator } from "@kennelo/components/ui/separator"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@kennelo/ui/sheet';
-import { Skeleton } from '@kennelo/ui/skeleton';
+} from "@kennelo/components/ui/sheet"
+import { Skeleton } from "@kennelo/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@kennelo/ui/tooltip';
+} from "@kennelo/components/ui/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -678,5 +678,5 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar
-};
+  useSidebar,
+}

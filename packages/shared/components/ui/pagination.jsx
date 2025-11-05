@@ -5,8 +5,8 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react"
 
-import { cn } from '@kennelo/utils/commun'
-import { buttonVariants } from '@kennelo/ui/button';
+import { cn } from "@kennelo/lib/utils"
+import { buttonVariants } from "@kennelo/components/ui/button";
 
 function Pagination({
   className,
