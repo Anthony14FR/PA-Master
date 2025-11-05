@@ -9,15 +9,24 @@ export const ROLES = {
 }
 
 /**
- * Protected subdomains/spaces that require authentication
- * Users must be logged in to access these subdomains
+ * Space-based protection with role requirements
+ * Maps each space/subdomain to required roles:
+ * - If space is not listed: public access (no authentication required)
+ * - If space has ["*"]: authentication required, any role accepted
+ * - If space has specific roles: authentication required, user must have at least one of those roles
+ *
  * Supports both formats: /s/subdomain and subdomain.domain.tld
  */
-export const PROTECTED_SUBDOMAINS = ['app', 'admin', 'dashboard'];
+export const SPACES_PROTECTIONS = {
+    'admin': [ROLES.Admin],
+    'app': [ROLES.Admin, ROLES.Manager],
+    'my': ["*"],
+};
 
 /**
- * Role-based route protection
- * Maps routes to required roles (user must have at least one)
+ * Role-based route protection for non-space routes
+ * Maps specific routes to required roles (user must have at least one)
+ * Use this for routes outside of the space system (e.g., /dashboard, /search)
  */
 export const ROUTE_ROLES = {
     '/s/admin': [ROLES.User],
