@@ -29,6 +29,9 @@ export const SPACES_PROTECTIONS = {
  * Use this for routes outside of the space system (e.g., /dashboard, /search)
  */
 export const ROUTE_ROLES = {
+    '/s/admin': [ROLES.User],
+    '/s/app': [ROLES.Manager],
+    '/s/my': [ROLES.Admin, ROLES.Manager, ROLES.User],
     '/dashboard': [ROLES.Admin, ROLES.Manager]
 };
 

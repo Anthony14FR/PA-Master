@@ -8,8 +8,8 @@ import {
 } from "lucide-react"
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 
-import { cn } from '@kennelo/utils/commun'
-import { Button, buttonVariants } from '@kennelo/ui/button'
+import { cn } from "@kennelo/lib/utils"
+import { Button, buttonVariants } from "@kennelo/components/ui/button"
 
 function Calendar({
   className,
@@ -85,7 +85,10 @@ function Calendar({
           defaultClassNames.week_number
         ),
         day: cn(
-          "relative w-full h-full p-0 text-center [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
+          "relative w-full h-full p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
+          props.showWeekNumber
+            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-md"
+            : "[&:first-child[data-selected=true]_button]:rounded-l-md",
           defaultClassNames.day
         ),
         range_start: cn("rounded-l-md bg-accent", defaultClassNames.range_start),

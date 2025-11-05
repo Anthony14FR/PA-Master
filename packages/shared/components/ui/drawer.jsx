@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
-import { cn } from '@kennelo/utils/commun'
+import { cn } from "@kennelo/lib/utils"
 
 function Drawer({
   ...props

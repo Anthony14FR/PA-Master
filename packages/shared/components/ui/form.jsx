@@ -3,8 +3,8 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { Controller, FormProvider, useFormContext, useFormState } from "react-hook-form";
 
-import { cn } from '@kennelo/utils/commun'
-import { Label } from '@kennelo/ui/label'
+import { cn } from "@kennelo/lib/utils"
+import { Label } from "@kennelo/components/ui/label"
 
 const Form = FormProvider
 

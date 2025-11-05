@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { cn } from '@kennelo/utils/commun'
+import { cn } from "@kennelo/lib/utils"
 
 function Table({
   className,

@@ -5,16 +5,16 @@
   "tsx": false,
   "tailwind": {
     "config": "",
-    "css": "src/app/globals.css",
-    "baseColor": "neutral",
+    "css": "packages/shared/styles/globals.css",
+    "baseColor": "slate",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@kennelo/components",
-    "utils": "@kennelo/utils",
-    "ui": "@kennelo/ui",
+    "utils": "@kennelo/lib/utils",
+    "ui": "@kennelo/components/ui",
     "lib": "@kennelo/lib",
     "hooks": "@kennelo/hooks"
   },

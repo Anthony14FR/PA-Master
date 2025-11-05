@@ -1,20 +1,23 @@
 #!/bin/sh
 
+BOLD='\033[1m'
+NC='\033[0m'
+
 COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
 if echo "$BRANCH_NAME" | grep -qE "^feature/" && ! echo "$COMMIT_MSG" | grep -qE "^feat:"; then
-    echo "❌ Branche 'feature/' doit avoir un commit 'feat:'"
-    echo "Branche: $BRANCH_NAME | Commit: $COMMIT_MSG"
+    echo "❌ Branch 'feature/' must have commit message starting with 'feat:'"
+    echo "Branch: $BRANCH_NAME | Commit: $COMMIT_MSG"
     echo "😎 Signé: le petit blond relou 😘"
     exit 1
 elif echo "$BRANCH_NAME" | grep -qE "^fix/" && ! echo "$COMMIT_MSG" | grep -qE "^fix:"; then
-    echo "❌ Branche 'fix/' doit avoir un commit 'fix:'"
-    echo "Branche: $BRANCH_NAME | Commit: $COMMIT_MSG"
+    echo "❌ Branch 'fix/' must have commit message starting with 'fix:'"
+    echo "Branch: $BRANCH_NAME | Commit: $COMMIT_MSG"
     echo "😎 Signé: le petit blond relou 😘"
     exit 1
 fi
 
-echo "✅ Message de commit valide bravo tié le goat"
+echo -e "✅ Valid commit message ${BOLD}. Tié un lampadaire${NC}"
 exit 0
