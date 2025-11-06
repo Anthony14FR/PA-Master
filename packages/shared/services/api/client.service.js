@@ -78,12 +78,17 @@ class ApiClient {
     }
 
     const config = {
-      ...options,
       credentials: 'include',
       headers: {
         ...defaultHeaders,
         ...options.headers,
       },
+      cache: 'force-cache',
+      next: {
+        revalidate: 60 * 5,
+        tags: options?.tags
+      },
+      ...options,
     };
 
     if (config.body && typeof config.body === 'object') {
