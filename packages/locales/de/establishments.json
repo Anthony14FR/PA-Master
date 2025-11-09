@@ -1,0 +1,21 @@
+{
+  "title": "Einrichtungen",
+  "description": "Tierpension",
+  "findBest": "Finden Sie die beste Einrichtung für Ihr Haustier",
+  "findPerfect": "Finden Sie die perfekte Einrichtung für Ihr Haustier",
+  "viewAll": "Einrichtungen anzeigen",
+  "backToList": "Zurück zu Einrichtungen",
+  "contactThis": "Diese Einrichtung kontaktieren",
+  "loading": "Wird geladen...",
+  "labels": {
+    "address": "Adresse",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "website": "Webseite"
+  },
+  "buttons": {
+    "contact": "Kontakt",
+    "viewDetails": "Details anzeigen",
+    "loadMore": "Mehr laden"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Établissements",
+  "description": "Pension pour animaux",
+  "findBest": "Trouvez le meilleur établissement pour votre animal",
+  "findPerfect": "Trouvez l'établissement parfait pour votre animal de compagnie",
+  "viewAll": "Voir les établissements",
+  "backToList": "Retour aux établissements",
+  "contactThis": "Contacter cet établissement",
+  "loading": "Chargement...",
+  "labels": {
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "Email",
+    "website": "Site web"
+  },
+  "buttons": {
+    "contact": "Contacter",
+    "viewDetails": "Voir détails",
+    "loadMore": "Charger plus"
+  }
+}

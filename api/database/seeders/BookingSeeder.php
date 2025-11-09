@@ -20,9 +20,9 @@ class BookingSeeder extends Seeder
     public function run(): void
     {
         // Get IDs with validation
-        $userId = User::where('email', 'user@orus.com')->value('id');
+        $userId = User::where('email', 'client1@orus.com')->value('id');
         if (! $userId) {
-            throw new \RuntimeException('User with email user@orus.com not found. Run UsersSeeder first.');
+            throw new \RuntimeException('User with email client1@orus.com not found. Run UsersSeeder first.');
         }
 
         $establishmentId = Establishment::first()->id;

@@ -1,0 +1,33 @@
+{
+  "title": "Conversations",
+  "myConversations": "Mes conversations",
+  "manage": "Gérez vos conversations avec les établissements",
+  "viewAll": "Voir toutes les conversations",
+  "empty": {
+    "title": "Aucune conversation",
+    "description": "Commencez une conversation avec un établissement"
+  },
+  "labels": {
+    "establishment": "Établissement",
+    "client": "Client",
+    "clientNumber": "Client #{{id}}",
+    "unknown": "Inconnu",
+    "unknownClient": "Client #{{id}} ({{establishment}})",
+    "clientWithEstablishment": "{{client}} ({{establishment}})",
+    "userWithEstablishment": "{{user}} - {{establishment}}",
+    "you": "Vous",
+    "systemMessage": "Message système",
+    "unknownUser": "Utilisateur inconnu"
+  },
+  "placeholders": {
+    "writeMessage": "Écrivez votre message..."
+  },
+  "booking": {
+    "title": "Réservation",
+    "number": "Réservation #{{id}}",
+    "dates": "Dates",
+    "price": "Prix",
+    "pets": "Animaux",
+    "clickToView": "Cliquer pour voir la discussion"
+  }
+}

@@ -15,8 +15,26 @@ class EstablishmentFactory extends Factory
             'Europe/London',
         ];
 
+        $petCareNames = [
+            'Happy Paws Pension',
+            'Pet Paradise',
+            'Les Amis à Quatre Pattes',
+            'Au Bonheur des Animaux',
+            'Toutou & Minou Hôtel',
+            'La Pension des Animaux',
+            'Patte d\'Or',
+            'Le Refuge des Compagnons',
+            'Animaux en Vacances',
+            'Le Paradis des Animaux',
+            'La Maison des Animaux',
+            'Pension Animalière du Parc',
+            'Au Nid Douillet',
+            'Les Quatre Pattes',
+            'Pension Zen pour Animaux',
+        ];
+
         return [
-            'name' => fake()->company(),
+            'name' => fake()->randomElement($petCareNames),
             'siret' => fake()->numerify('##############'),
             'description' => fake()->optional(0.8)->sentence(10),
             'phone' => fake()->phoneNumber(),

@@ -1,0 +1,33 @@
+{
+  "title": "Conversazioni",
+  "myConversations": "Le mie conversazioni",
+  "manage": "Gestisci le tue conversazioni con le strutture",
+  "viewAll": "Vedi tutte le conversazioni",
+  "empty": {
+    "title": "Nessuna conversazione",
+    "description": "Inizia una conversazione con una struttura"
+  },
+  "labels": {
+    "establishment": "Struttura",
+    "client": "Cliente",
+    "clientNumber": "Cliente #{{id}}",
+    "unknown": "Sconosciuto",
+    "unknownClient": "Cliente #{{id}} ({{establishment}})",
+    "clientWithEstablishment": "{{client}} ({{establishment}})",
+    "userWithEstablishment": "{{user}} - {{establishment}}",
+    "you": "Tu",
+    "systemMessage": "Messaggio di sistema",
+    "unknownUser": "Utente sconosciuto"
+  },
+  "placeholders": {
+    "writeMessage": "Scrivi il tuo messaggio..."
+  },
+  "booking": {
+    "title": "Prenotazione",
+    "number": "Prenotazione #{{id}}",
+    "dates": "Date",
+    "price": "Prezzo",
+    "pets": "Animali",
+    "clickToView": "Clicca per vedere la discussione"
+  }
+}

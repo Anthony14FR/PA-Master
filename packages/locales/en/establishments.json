@@ -1,0 +1,21 @@
+{
+  "title": "Establishments",
+  "description": "Pet boarding facility",
+  "findBest": "Find the best establishment for your pet",
+  "findPerfect": "Find the perfect establishment for your pet",
+  "viewAll": "View establishments",
+  "backToList": "Back to establishments",
+  "contactThis": "Contact this establishment",
+  "loading": "Loading...",
+  "labels": {
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "website": "Website"
+  },
+  "buttons": {
+    "contact": "Contact",
+    "viewDetails": "View details",
+    "loadMore": "Load more"
+  }
+}
