@@ -40,3 +40,11 @@ export function useTranslation(namespace = null, subNamespace = null) {
 export function useCommonTranslation() {
     return useTranslation();
 }
+
+export function useEstablishmentsTranslation() {
+    return useTranslation('establishments');
+}
+
+export function useConversationsTranslation() {
+    return useTranslation('conversations');
+}

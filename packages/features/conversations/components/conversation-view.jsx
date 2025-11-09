@@ -14,8 +14,10 @@ import { websocketService } from '@kennelo/services/websocket.service';
 import { useAuth } from '@kennelo/hooks/use-auth';
 import { authService } from '@kennelo/services/api/auth.service';
 import { useConversation } from '../hooks/use-conversation';
+import { useConversationsTranslation } from '@kennelo/hooks/use-translation';
 
 export function ConversationView({ conversationId, onBack }) {
+  const { T, t } = useConversationsTranslation();
   const { user } = useAuth();
   const { conversations, markAsRead: contextMarkAsRead } = useConversation();
   const [messages, setMessages] = useState([]);
@@ -115,17 +117,35 @@ export function ConversationView({ conversationId, onBack }) {
     e.preventDefault();
     if (!content.trim() || sending || !conversationId) return;
 
+    const messageContent = content.trim();
+    const tempId = `temp-${Date.now()}`;
+
+    // Optimistic update
+    const optimisticMessage = {
+      id: tempId,
+      content: messageContent,
+      sender_id: user?.id,
+      sender: user,
+      created_at: new Date().toISOString(),
+      sending: true,
+    };
+
+    setMessages(prev => [...prev, optimisticMessage]);
+    setContent('');
+    setSending(true);
+
     try {
-      setSending(true);
-      const message = await conversationService.sendMessage(conversationId, content.trim());
+      const message = await conversationService.sendMessage(conversationId, messageContent);
+      // Replace temp message with real one, remove duplicates
       setMessages(prev => {
-        const exists = prev.some(m => m.id === message.id);
-        if (exists) return prev;
-        return [...prev, message];
+        const filtered = prev.filter(m => m.id !== tempId && m.id !== message.id);
+        return [...filtered, { ...message, sending: false }];
       });
-      setContent('');
     } catch (error) {
       console.error('Error sending message:', error);
+      // Rollback optimistic update
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      setContent(messageContent);
     } finally {
       setSending(false);
     }
@@ -135,17 +155,35 @@ export function ConversationView({ conversationId, onBack }) {
     e.preventDefault();
     if (!content.trim() || sending || !activeBooking) return;
 
+    const messageContent = content.trim();
+    const tempId = `temp-${Date.now()}`;
+
+    // Optimistic update
+    const optimisticMessage = {
+      id: tempId,
+      content: messageContent,
+      sender_id: user?.id,
+      sender: user,
+      created_at: new Date().toISOString(),
+      sending: true,
+    };
+
+    setThreadMessages(prev => [...prev, optimisticMessage]);
+    setContent('');
+    setSending(true);
+
     try {
-      setSending(true);
-      const message = await bookingService.sendThreadMessage(activeBooking.id, content.trim());
+      const message = await bookingService.sendThreadMessage(activeBooking.id, messageContent);
+      // Replace temp message with real one, remove duplicates
       setThreadMessages(prev => {
-        const exists = prev.some(m => m.id === message.id);
-        if (exists) return prev;
-        return [...prev, message];
+        const filtered = prev.filter(m => m.id !== tempId && m.id !== message.id);
+        return [...filtered, { ...message, sending: false }];
       });
-      setContent('');
     } catch (error) {
       console.error('Error sending thread message:', error);
+      // Rollback optimistic update
+      setThreadMessages(prev => prev.filter(m => m.id !== tempId));
+      setContent(messageContent);
     } finally {
       setSending(false);
     }
@@ -182,17 +220,17 @@ export function ConversationView({ conversationId, onBack }) {
   const getDisplayInfo = () => {
     if (isUserConversation) {
       return {
-        name: conversation.establishment?.name || 'Établissement',
+        name: conversation.establishment?.name || t('labels.establishment'),
         avatar: conversation.establishment?.logo
       };
     }
 
     const clientUser = conversation.user;
-    const establishmentName = conversation.establishment?.name || 'Établissement';
+    const establishmentName = conversation.establishment?.name || t('labels.establishment');
 
     if (!clientUser) {
       return {
-        name: `Client #${conversation.user_id || 'inconnu'} (${establishmentName})`,
+        name: t('labels.unknownClient', { id: conversation.user_id || t('labels.unknown'), establishment: establishmentName }),
         avatar: null
       };
     }
@@ -200,15 +238,15 @@ export function ConversationView({ conversationId, onBack }) {
     const fullName = `${clientUser.first_name || ''} ${clientUser.last_name || ''}`.trim();
 
     if (!fullName || fullName.toLowerCase().includes('account')) {
-      const clientName = clientUser.email?.split('@')[0] || 'Client';
+      const clientName = clientUser.email?.split('@')[0] || t('labels.client');
       return {
-        name: `${clientName} (${establishmentName})`,
+        name: t('labels.clientWithEstablishment', { client: clientName, establishment: establishmentName }),
         avatar: clientUser.avatar_url
       };
     }
 
     return {
-      name: `${fullName} (${establishmentName})`,
+      name: t('labels.clientWithEstablishment', { client: fullName, establishment: establishmentName }),
       avatar: clientUser.avatar_url
     };
   };
@@ -228,13 +266,13 @@ export function ConversationView({ conversationId, onBack }) {
 
   const headerTitle = () => {
     if (view === 'thread') {
-      return `Réservation #${activeBooking?.id}`;
+      return t('booking.number', { id: activeBooking?.id });
     }
 
     if (isUserConversation) {
-      return `${userFullName} - ${displayName}`;
+      return t('labels.userWithEstablishment', { user: userFullName, establishment: displayName });
     } else {
-      return `${userFullName} (${displayName})`;
+      return t('labels.clientWithEstablishment', { client: userFullName, establishment: displayName });
     }
   };
 
@@ -293,9 +331,9 @@ export function ConversationView({ conversationId, onBack }) {
             {activeBooking && (
               <Card className="p-4 mb-4 bg-muted/50">
                 <div className="text-sm space-y-1">
-                  <div><strong>Dates:</strong> {new Date(activeBooking.check_in_date).toLocaleDateString()} - {new Date(activeBooking.check_out_date).toLocaleDateString()}</div>
-                  <div><strong>Prix:</strong> {activeBooking.total_price}€</div>
-                  <div><strong>Animaux:</strong> {activeBooking.pets?.length || 0}</div>
+                  <div><strong>{t('booking.dates')}:</strong> {new Date(activeBooking.check_in_date).toLocaleDateString()} - {new Date(activeBooking.check_out_date).toLocaleDateString()}</div>
+                  <div><strong>{t('booking.price')}:</strong> {activeBooking.total_price}€</div>
+                  <div><strong>{t('booking.pets')}:</strong> {activeBooking.pets?.length || 0}</div>
                 </div>
               </Card>
             )}
@@ -316,7 +354,7 @@ export function ConversationView({ conversationId, onBack }) {
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Écrivez votre message..."
+            placeholder={t('placeholders.writeMessage')}
             className="resize-none flex-1 min-h-[44px] max-h-[120px]"
             rows={1}
             onKeyDown={(e) => {

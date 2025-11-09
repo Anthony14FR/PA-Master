@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { establishmentService } from '@kennelo/services/api/establishment.service';
 import { useConversation } from '@kennelo/features/conversations/hooks/use-conversation';
 import { useAuth } from '@kennelo/hooks/use-auth';
+import { useEstablishmentsTranslation } from '@kennelo/hooks/use-translation';
 import { Button } from '@kennelo/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kennelo/ui/card';
 import { MapPin, Phone, Mail, Globe, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
@@ -13,6 +14,8 @@ import { AUTH_NAMESPACE } from '@kennelo/config/access-control.config';
 
 export default function EstablishmentDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const { T } = useEstablishmentsTranslation();
   const { isAuthenticated } = useAuth();
   const { getOrCreateConversation } = useConversation();
   const [establishment, setEstablishment] = useState(null);
@@ -29,7 +32,7 @@ export default function EstablishmentDetailPage() {
       setEstablishment(data);
     } catch (error) {
       console.error('Error loading establishment:', error);
-      window.location.href = '/establishments';
+      router.push('/establishments');
     } finally {
       setLoading(false);
     }
@@ -37,14 +40,14 @@ export default function EstablishmentDetailPage() {
 
   const handleContact = async () => {
     if (!isAuthenticated) {
-      const returnUrl = encodeURIComponent(window.location.href);
-      window.location.href = `/s/${AUTH_NAMESPACE}/login?returnUrl=${returnUrl}`;
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      router.push(`/s/${AUTH_NAMESPACE}/login?returnUrl=${returnUrl}`);
       return;
     }
 
     try {
       const conversation = await getOrCreateConversation(establishment.id);
-      window.location.href = `/s/my/conversations/${conversation.id}`;
+      router.push(`/s/my/conversations/${conversation.id}`);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -67,7 +70,7 @@ export default function EstablishmentDetailPage() {
       <KLink href="/establishments">
         <Button variant="ghost" className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour aux établissements
+          <T tKey="backToList" skeletonWidth={180} />
         </Button>
       </KLink>
 
@@ -96,7 +99,9 @@ export default function EstablishmentDetailPage() {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 mt-0.5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">Adresse</p>
+                  <p className="font-medium">
+                    <T tKey="labels.address" skeletonWidth={60} />
+                  </p>
                   <p className="text-muted-foreground">
                     {establishment.address.street && `${establishment.address.street}, `}
                     {establishment.address.city}, {establishment.address.postal_code}
@@ -110,7 +115,9 @@ export default function EstablishmentDetailPage() {
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">Téléphone</p>
+                  <p className="font-medium">
+                    <T tKey="labels.phone" skeletonWidth={70} />
+                  </p>
                   <p className="text-muted-foreground">{establishment.phone}</p>
                 </div>
               </div>
@@ -120,7 +127,9 @@ export default function EstablishmentDetailPage() {
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">Email</p>
+                  <p className="font-medium">
+                    <T tKey="labels.email" skeletonWidth={50} />
+                  </p>
                   <p className="text-muted-foreground">{establishment.email}</p>
                 </div>
               </div>
@@ -130,7 +139,9 @@ export default function EstablishmentDetailPage() {
               <div className="flex items-center gap-3">
                 <Globe className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">Site web</p>
+                  <p className="font-medium">
+                    <T tKey="labels.website" skeletonWidth={70} />
+                  </p>
                   <a
                     href={establishment.website}
                     target="_blank"
@@ -147,7 +158,7 @@ export default function EstablishmentDetailPage() {
           <div className="pt-4">
             <Button onClick={handleContact} size="lg" className="w-full sm:w-auto">
               <MessageCircle className="w-4 h-4 mr-2" />
-              Contacter cet établissement
+              <T tKey="contactThis" skeletonWidth={180} />
             </Button>
           </div>
         </CardContent>

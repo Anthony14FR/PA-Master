@@ -6,11 +6,13 @@ import { Avatar } from '@kennelo/ui/avatar';
 import { Loader2, MessageCircle } from 'lucide-react';
 import { useConversation } from '../hooks/use-conversation';
 import { useAuth } from '@kennelo/hooks/use-auth';
+import { useConversationsTranslation } from '@kennelo/hooks/use-translation';
 import { cn } from '@kennelo/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 export function ConversationList({ onSelectConversation }) {
+  const { T, t } = useConversationsTranslation();
   const { conversations = [], loading, activeConversation } = useConversation();
   const { user } = useAuth();
 
@@ -26,9 +28,9 @@ export function ConversationList({ onSelectConversation }) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <MessageCircle className="w-12 h-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Aucune conversation</h3>
+        <h3 className="text-lg font-semibold mb-2"><T tKey="empty.title" /></h3>
         <p className="text-sm text-muted-foreground">
-          Commencez une conversation avec un établissement
+          <T tKey="empty.description" />
         </p>
       </div>
     );
@@ -43,7 +45,7 @@ export function ConversationList({ onSelectConversation }) {
         const getDisplayInfo = () => {
           if (isUserConversation) {
             return {
-              name: conversation.establishment?.name || 'Établissement',
+              name: conversation.establishment?.name || t('labels.establishment'),
               avatar: conversation.establishment?.logo
             };
           }
@@ -52,7 +54,7 @@ export function ConversationList({ onSelectConversation }) {
 
           if (!clientUser) {
             return {
-              name: `Client #${conversation.user_id || 'inconnu'}`,
+              name: t('labels.clientNumber', { id: conversation.user_id || t('labels.unknown') }),
               avatar: null
             };
           }
@@ -60,7 +62,7 @@ export function ConversationList({ onSelectConversation }) {
           const fullName = `${clientUser.first_name || ''} ${clientUser.last_name || ''}`.trim();
 
           if (!fullName || fullName.toLowerCase().includes('account')) {
-            const clientName = clientUser.email?.split('@')[0] || `Client #${conversation.user_id}`;
+            const clientName = clientUser.email?.split('@')[0] || t('labels.clientNumber', { id: conversation.user_id });
             return {
               name: clientName,
               avatar: clientUser.avatar_url

@@ -13,10 +13,6 @@ class WebSocketService {
     this.listeners = new Map();
   }
 
-  /**
-   * Connect to the WebSocket server
-   * @param {string} token - JWT token for authentication
-   */
   connect(token) {
     if (typeof window === 'undefined') {
       return null;
@@ -54,6 +50,10 @@ class WebSocketService {
    */
   disconnect() {
     if (this.echo) {
+      this.channels.forEach((_, channelName) => {
+        this.echo.leave(channelName);
+      });
+
       this.echo.disconnect();
       this.echo = null;
       this.isConnected = false;
@@ -62,19 +62,6 @@ class WebSocketService {
     }
   }
 
-  /**
-   * Subscribe to a private channel
-   * @param {string} channelName - Channel name (e.g., 'conversation.123', 'notifications.456')
-   * @param {Object} events - Object mapping event names to callback functions
-   * @param {string} listenerId - Unique identifier for this listener
-   * @returns {Object|null} The channel object or null
-   *
-   * @example
-   * websocketService.subscribe('conversation.123', {
-   *   'message.sent': (event) => console.log(event),
-   *   'booking.created': (event) => console.log(event)
-   * }, 'my-listener');
-   */
   subscribe(channelName, events = {}, listenerId = 'default') {
     if (!this.echo) {
       return null;
@@ -132,11 +119,6 @@ class WebSocketService {
     return this.channels.get(channelName);
   }
 
-  /**
-   * Unsubscribe from a private channel
-   * @param {string} channelName - Channel name
-   * @param {string} listenerId - Listener identifier
-   */
   unsubscribe(channelName, listenerId = 'default') {
     if (!this.echo) return;
 
@@ -146,6 +128,10 @@ class WebSocketService {
       channelListeners.delete(listenerId);
 
       if (channelListeners.size === 0) {
+        const channel = this.channels.get(channelName);
+        if (channel) {
+          channel.stopListening();
+        }
         this.echo.leave(channelName);
         this.channels.delete(channelName);
         this.listeners.delete(channelName);
@@ -153,24 +139,10 @@ class WebSocketService {
     }
   }
 
-  /**
-   * Get the connection state
-   * @returns {boolean}
-   */
   getConnectionState() {
     return this.isConnected;
   }
 
-  // ============================================
-  // Convenience methods for specific channels
-  // ============================================
-
-  /**
-   * Subscribe to conversation events
-   * @param {string} conversationId - Conversation ID
-   * @param {Object} callbacks - Event callbacks
-   * @param {string} listenerId - Listener ID
-   */
   joinConversation(conversationId, callbacks = {}, listenerId = 'default') {
     const events = {};
     if (callbacks.onMessageSent) events['message.sent'] = callbacks.onMessageSent;
@@ -180,11 +152,6 @@ class WebSocketService {
     return this.subscribe(`conversation.${conversationId}`, events, listenerId);
   }
 
-  /**
-   * Unsubscribe from conversation events
-   * @param {string} conversationId - Conversation ID
-   * @param {string} listenerId - Listener ID
-   */
   leaveConversation(conversationId, listenerId = 'default') {
     return this.unsubscribe(`conversation.${conversationId}`, listenerId);
   }

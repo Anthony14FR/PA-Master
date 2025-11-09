@@ -4,35 +4,36 @@ import { cn } from '@kennelo/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Avatar } from '@kennelo/ui/avatar';
+import { useConversationsTranslation } from '@kennelo/hooks/use-translation';
 
 export function MessageBubble({ message, isOwn }) {
+  const { T, t } = useConversationsTranslation();
   const isSystem = message.sender_type === 'system';
 
   if (isSystem) {
     return (
       <div className="flex justify-center my-4">
         <div className="bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground">
-          Message système
+          <T tKey="labels.systemMessage" />
         </div>
       </div>
     );
   }
 
   const getSenderName = () => {
-    if (!message.sender) return 'Utilisateur inconnu';
+    if (!message.sender) return t('labels.unknownUser');
 
     const fullName = `${message.sender.first_name || ''} ${message.sender.last_name || ''}`.trim();
 
-    // Si le nom est vide ou contient "account"
     if (!fullName || fullName.toLowerCase().includes('account')) {
-      return message.sender.email?.split('@')[0] || 'Utilisateur';
+      return message.sender.email?.split('@')[0] || t('labels.client');
     }
 
     return fullName;
   };
 
   const senderName = getSenderName();
-  const displayLabel = isOwn ? 'Vous' : senderName;
+  const displayLabel = isOwn ? t('labels.you') : senderName;
 
   return (
     <div className={cn(
@@ -55,7 +56,7 @@ export function MessageBubble({ message, isOwn }) {
       )}>
         <div className="text-xs font-semibold">
           {isOwn ? (
-            <span className="text-primary-foreground/80">Vous</span>
+            <span className="text-primary-foreground/80">{t('labels.you')}</span>
           ) : (
             <span className="text-foreground/80">{senderName}</span>
           )}

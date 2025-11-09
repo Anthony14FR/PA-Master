@@ -5,8 +5,10 @@ import { EstablishmentCard } from './establishment-card';
 import { establishmentService } from '@kennelo/services/api/establishment.service';
 import { Button } from '@kennelo/ui/button';
 import { Loader2 } from 'lucide-react';
+import { useEstablishmentsTranslation } from '@kennelo/hooks/use-translation';
 
 export function EstablishmentList({ onContact }) {
+  const { T, t } = useEstablishmentsTranslation();
   const [establishments, setEstablishments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -65,10 +67,10 @@ export function EstablishmentList({ onContact }) {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Chargement...
+                <T tKey="loading" />
               </>
             ) : (
-              'Charger plus'
+              <T tKey="buttons.loadMore" />
             )}
           </Button>
         </div>

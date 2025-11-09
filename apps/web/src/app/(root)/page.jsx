@@ -4,13 +4,15 @@ import KLink from "@kennelo/components/k-link";
 import { Button } from "@kennelo/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@kennelo/ui/card";
 import { LanguageSwitcher } from "@kennelo/components/language-switcher";
-import { useCommonTranslation } from "@kennelo/hooks/use-translation";
+import { useCommonTranslation, useEstablishmentsTranslation, useConversationsTranslation } from "@kennelo/hooks/use-translation";
 import { useAuth } from "@kennelo/hooks/use-auth";
 import { UnreadBadge } from "@kennelo/features/conversations/components/unread-badge";
 import { LogOut } from "lucide-react";
 
 export default function Page() {
   const { T, t } = useCommonTranslation();
+  const { T: TE } = useEstablishmentsTranslation();
+  const { T: TC } = useConversationsTranslation();
   const { user, logout } = useAuth();
 
   return (
@@ -28,15 +30,17 @@ export default function Page() {
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="text-center hover:shadow-lg transition-shadow justify-between">
               <CardHeader>
-                <CardTitle>Établissements</CardTitle>
+                <CardTitle>
+                  <TE tKey="title" skeletonWidth={150} />
+                </CardTitle>
                 <CardDescription>
-                  Trouvez le meilleur établissement pour votre animal
+                  <TE tKey="findBest" skeletonWidth={220} />
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button asChild className="w-full">
                   <KLink href="/establishments">
-                    Voir les établissements
+                    <TE tKey="viewAll" skeletonWidth={180} />
                   </KLink>
                 </Button>
               </CardContent>
@@ -46,17 +50,17 @@ export default function Page() {
               <Card className="text-center hover:shadow-lg transition-shadow justify-between">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-center">
-                    Mes Conversations
+                    <TC tKey="myConversations" skeletonWidth={150} />
                     <UnreadBadge />
                   </CardTitle>
                   <CardDescription>
-                    Gérez vos conversations avec les établissements
+                    <TC tKey="manage" skeletonWidth={220} />
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild variant="outline" className="w-full">
                     <KLink context="my" href="/conversations">
-                      Voir mes conversations
+                      <TC tKey="viewAll" skeletonWidth={180} />
                     </KLink>
                   </Button>
                 </CardContent>
@@ -111,12 +115,12 @@ export default function Page() {
                 <>
                   <Button asChild variant='default' size='sm'>
                     <KLink context="app" href="/overview">
-                      Tableau de bord
+                      <T tKey="nav.dashboard" skeletonWidth={120} />
                     </KLink>
                   </Button>
                   <Button variant='destructive' size='sm' onClick={logout}>
                     <LogOut />
-                    {t("dashboard.logout")}
+                    <T tKey="dashboard.logout" skeletonWidth={100} />
                   </Button>
                 </>
               )}

@@ -1,0 +1,21 @@
+{
+  "title": "Strutture",
+  "description": "Pensione per animali",
+  "findBest": "Trova la struttura migliore per il tuo animale",
+  "findPerfect": "Trova la struttura perfetta per il tuo animale domestico",
+  "viewAll": "Vedi strutture",
+  "backToList": "Torna alle strutture",
+  "contactThis": "Contatta questa struttura",
+  "loading": "Caricamento...",
+  "labels": {
+    "address": "Indirizzo",
+    "phone": "Telefono",
+    "email": "Email",
+    "website": "Sito web"
+  },
+  "buttons": {
+    "contact": "Contatta",
+    "viewDetails": "Vedi dettagli",
+    "loadMore": "Carica altro"
+  }
+}

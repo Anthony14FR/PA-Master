@@ -1,0 +1,33 @@
+{
+  "title": "Unterhaltungen",
+  "myConversations": "Meine Unterhaltungen",
+  "manage": "Verwalten Sie Ihre Unterhaltungen mit Einrichtungen",
+  "viewAll": "Alle Unterhaltungen anzeigen",
+  "empty": {
+    "title": "Keine Unterhaltungen",
+    "description": "Beginnen Sie eine Unterhaltung mit einer Einrichtung"
+  },
+  "labels": {
+    "establishment": "Einrichtung",
+    "client": "Kunde",
+    "clientNumber": "Kunde #{{id}}",
+    "unknown": "Unbekannt",
+    "unknownClient": "Kunde #{{id}} ({{establishment}})",
+    "clientWithEstablishment": "{{client}} ({{establishment}})",
+    "userWithEstablishment": "{{user}} - {{establishment}}",
+    "you": "Sie",
+    "systemMessage": "Systemnachricht",
+    "unknownUser": "Unbekannter Benutzer"
+  },
+  "placeholders": {
+    "writeMessage": "Schreiben Sie Ihre Nachricht..."
+  },
+  "booking": {
+    "title": "Buchung",
+    "number": "Buchung #{{id}}",
+    "dates": "Termine",
+    "price": "Preis",
+    "pets": "Tiere",
+    "clickToView": "Klicken Sie, um die Diskussion anzuzeigen"
+  }
+}
