@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { SPACES_PROTECTIONS } from '@kennelo/config/access-control.config';
+import { SPACES_PROTECTIONS } from '@kennelo/core/auth/configs/access-control.config';
 
 /**
  * Dynamic robots.txt generation - Domain-aware

@@ -1,7 +1,5 @@
-'use client';
-
-import { useAuth } from '@kennelo/hooks/use-auth';
-import { useCommonTranslation } from '@kennelo/hooks/use-translation';
+import { useAuth } from '@kennelo/core/auth/hooks/use-auth';
+import { useCommonTranslation } from '@kennelo/i18n/hooks/use-translation';
 
 export default function Page() {
   const { user, logout, loading } = useAuth();

@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { Login } from '@kennelo/features/auth/pages/login';
+import { Login } from '@kennelo/features/auth/views/account/login';
 
 export default function Page() {
     return (

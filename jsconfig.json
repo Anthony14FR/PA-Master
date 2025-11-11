@@ -2,17 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@kennelo/config/*": ["packages/config/*"],
-      "@kennelo/features/*": ["packages/features/*"],
-      "@kennelo/locales/*": ["packages/locales/*"],
-      "@kennelo/ui/*": ["packages/shared/components/ui/*"],
-      "@kennelo/components/*": ["packages/shared/components/*"],
-      "@kennelo/contexts/*": ["packages/shared/contexts/*"],
-      "@kennelo/hooks/*": ["packages/shared/hooks/*"],
-      "@kennelo/lib/*": ["packages/shared/lib/*"],
-      "@kennelo/services/*": ["packages/shared/services/*"],
-      "@kennelo/utils/*": ["packages/shared/utils/*"],
-      "@kennelo/plugins/*": ["packages/plugins/*"]
+      "@kennelo/core/*": ["packages/core/src/*"],
+      "@kennelo/features/*": ["packages/features/src/*"],
+      "@kennelo/i18n/*": ["packages/i18n/src/*"],
+      "@kennelo/ui/*": ["packages/ui/src/*"]
     }
   },
   "exclude": ["node_modules", ".next", "dist", "build"]

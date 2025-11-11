@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getLocaleFromCountry } from '@kennelo/lib/i18n';
+import { getLocaleFromCountry } from '@kennelo/i18n/lib/i18n';
 import { getCountryFromIP } from '@/lib/geoip';
-import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '../../../packages/shared/utils/cookies.server';
-import { accessControlService } from '@kennelo/services/access-control.service';
-import { authenticationService } from '@kennelo/services/server/authentication.service';
-import { redirectService } from '@kennelo/services/server/redirect.service';
-import { domainService } from '@kennelo/services/server/domain.service';
-import { PAGES } from '@kennelo/config/access-control.config';
-import i18nConfig from '@kennelo/config/i18n.config.json';
+import { setAccessToken, deleteAuthTokens, getCookie, setCookie } from '@kennelo/core/storage/utils/cookies.server';
+import { accessControlService } from '@kennelo/core/auth/services/access-control.service';
+import { authenticationService } from '@kennelo/core/auth/services/authentication.service';
+import { redirectService } from '@kennelo/core/api/services/redirect.service';
+import { domainService } from '@kennelo/core/api/services/domain.service';
+import { PAGES } from '@kennelo/core/auth/configs/access-control.config';
+import i18nConfig from '@kennelo/i18n/configs/i18n.config.json';
 
 /**
  * Next.js Middleware - Handles authentication, authorization, and routing

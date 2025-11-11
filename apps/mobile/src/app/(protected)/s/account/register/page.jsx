@@ -1,4 +1,4 @@
-import { Register } from '@kennelo/features/auth/pages/register';
+import { Register } from '@kennelo/features/auth/views/account/register';
 
 export const metadata = {
     title: 'Inscription',

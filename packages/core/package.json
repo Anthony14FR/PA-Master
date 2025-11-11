@@ -1,0 +1,20 @@
+{
+  "name": "@kennelo/core",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Core business logic, API services, authentication, and storage management",
+  "type": "module",
+  "exports": {
+    "./api/*": "./src/api/*",
+    "./auth/*": "./src/auth/*",
+    "./storage/*": "./src/storage/*"
+  },
+  "scripts": {},
+  "dependencies": {
+    "jose": "^6.1.0"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "react": ">=19.0.0"
+  }
+}

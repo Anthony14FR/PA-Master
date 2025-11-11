@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
-import { getHreflangUrls, getHreflangCode } from '@kennelo/lib/i18n';
-import { SITEMAP_ROUTES } from '@kennelo/config/sitemap.config';
+import { getHreflangUrls, getHreflangCode } from '@kennelo/i18n/lib/i18n';
+import { SITEMAP_ROUTES } from '@/configs/sitemap.config';
 
 /**
  * Dynamic sitemap generation - Domain-aware

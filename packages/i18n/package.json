@@ -1,0 +1,19 @@
+{
+  "name": "@kennelo/i18n",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Internationalization library with translation context, hooks, and locale management",
+  "type": "module",
+  "exports": {
+    "./configs/*": "./src/configs/*",
+    "./contexts/*": "./src/contexts/*",
+    "./hooks/*": "./src/hooks/*",
+    "./lib/*": "./src/lib/*",
+    "./locales/*": "./src/locales/*"
+  },
+  "scripts": {},
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "react": ">=19.0.0"
+  }
+}

@@ -1,11 +1,9 @@
-"use client";
-
-import KLink from "@kennelo/components/k-link";
-import { Button } from "@kennelo/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@kennelo/ui/card";
-import { LanguageSwitcher } from "@kennelo/components/language-switcher";
-import { useCommonTranslation } from "@kennelo/hooks/use-translation";
-import { useAuth } from "@kennelo/hooks/use-auth";
+import KLink from "@kennelo/ui/components/composed/k-link";
+import { Button } from "@kennelo/ui/components/shadcn/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@kennelo/ui/components/shadcn/card";
+import { LanguageSwitcher } from "@kennelo/ui/components/composed/language-switcher";
+import { useCommonTranslation } from "@kennelo/i18n/hooks/use-translation";
+import { useAuth } from "@kennelo/core/auth/hooks/use-auth";
 import { LogOut } from "lucide-react";
 
 export default function Page() {

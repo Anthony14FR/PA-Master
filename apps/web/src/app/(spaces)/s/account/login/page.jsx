@@ -1,4 +1,4 @@
-import { Login } from '@kennelo/features/auth/pages/login';
+import { Login } from '@kennelo/features/auth/views/account/login';
 
 export const metadata = {
     title: 'Connexion',
