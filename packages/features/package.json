@@ -1,0 +1,24 @@
+{
+  "name": "@kennelo/features",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Feature modules and page components (auth, dashboard, etc.)",
+  "type": "module",
+  "exports": {
+    "./auth/*": "./src/auth/*",
+    "./dashboard/*": "./src/dashboard/*"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "react-hook-form": "^7.66.0",
+    "zod": "^4.1.12"
+  },
+  "peerDependencies": {
+    "@kennelo/core": "workspace:*",
+    "@kennelo/i18n": "workspace:*",
+    "@kennelo/ui": "workspace:*",
+    "next": ">=15.0.0",
+    "react": ">=19.0.0"
+  }
+}

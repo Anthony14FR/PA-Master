@@ -1,10 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from 'next/headers';
 import { InitStorage } from '@/lib/init-storage';
-import { AuthProvider } from "@kennelo/contexts/auth-context";
-import { TranslationProvider } from "@kennelo/contexts/translation-context";
-import { OrganizationStructuredData, WebSiteStructuredData } from "@kennelo/components/structured-data";
-import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, getHreflangUrls, t } from "@kennelo/lib/i18n";
+import { AuthProvider } from "@kennelo/core/auth/contexts/auth-context";
+import { TranslationProvider } from "@kennelo/i18n/contexts/translation-context";
+import { OrganizationStructuredData, WebSiteStructuredData } from "@kennelo/ui/components/composed/structured-data";
+import { getLocaleFromDomain, getDomainForLocale, getMessages, getHreflangCode, getGoogleSiteVerification, getHreflangUrls, t } from "@kennelo/i18n/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({

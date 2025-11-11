@@ -31,9 +31,23 @@
     "@capacitor/keyboard": "^6.0.2",
     "@capacitor/preferences": "^6.0.2",
     "@capacitor/status-bar": "^6.0.1",
-    "@capacitor/splash-screen": "^6.0.2"
+    "@capacitor/splash-screen": "^6.0.2",
+    "next": "15.5.3",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "@kennelo/core": "workspace:*",
+    "@kennelo/features": "workspace:*",
+    "@kennelo/i18n": "workspace:*",
+    "@kennelo/ui": "workspace:*"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.0"
+    "@capacitor/cli": "^6.2.0",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.3.8",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^62.0.0"
   }
 }

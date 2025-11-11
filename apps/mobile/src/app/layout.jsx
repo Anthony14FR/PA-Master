@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { InitStorage } from '../lib/init-storage';
-import { AuthProvider } from "@kennelo/contexts/auth-context";
-import { TranslationProvider } from "@kennelo/contexts/translation-context";
-import { getMessages, DEFAULT_LOCALE } from "@kennelo/lib/i18n";
-import { CapacitorProvider } from "../lib/capacitor-provider";
+import { InitStorage } from '@/lib/init-storage';
+import { AuthProvider } from "@kennelo/core/auth/contexts/auth-context";
+import { TranslationProvider } from "@kennelo/i18n/contexts/translation-context";
+import { getMessages, DEFAULT_LOCALE } from "@kennelo/i18n/lib/i18n";
+import { CapacitorProvider } from "@/lib/capacitor-provider";
 import "./globals.css";
 
 const geistSans = Geist({

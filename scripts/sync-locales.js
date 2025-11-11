@@ -7,7 +7,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
  * Manage traductions manifest in packages/locales
  */
 function generateLocalesManifest() {
-    const LOCALES_DIR = path.join(ROOT_DIR, 'packages', 'locales');
+    const LOCALES_DIR = path.join(ROOT_DIR, 'packages', 'i18n', 'src', 'locales');
     const MANIFEST_PATH = path.join(LOCALES_DIR, 'manifest.json');
     const manifest = {};
 

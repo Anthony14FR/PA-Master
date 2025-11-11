@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from "next/navigation";
-import { authService } from '@kennelo/services/api/auth.service';
+import { authService } from '@kennelo/core/auth/services/auth.service';
 
 /**
  * Page de logout pour le domaine par défaut (account.kennelo.com)

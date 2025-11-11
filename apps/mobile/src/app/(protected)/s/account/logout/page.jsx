@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from "next/navigation";
-import { authService } from '@kennelo/services/api/auth.service';
+import { authService } from '@kennelo/core/auth/services/auth.service';
 
 function LogoutContent() {
     const router = useRouter();

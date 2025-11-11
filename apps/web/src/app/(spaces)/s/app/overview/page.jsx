@@ -1,5 +1,5 @@
-import KLink from '@kennelo/components/k-link';
-import { Button } from '@kennelo/ui/button';
+import KLink from '@kennelo/ui/components/composed/k-link';
+import { Button } from '@kennelo/ui/components/shadcn/button';
 
 export default function Page() {
     return (
