@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@kennelo/infrastructure",
+  "description": "Infrastructure for Kennelo",
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@kennelo/application",
+  "description": "Application for Kennelo",
+  "version": "0.1.0",
+  "devDependencies": {
+    "@types/node": "^24.7.0"
+  }
+}
