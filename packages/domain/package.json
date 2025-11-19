@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@kennelo/domain",
+  "description": "Domain for Kennelo",
+  "version": "0.1.0"
+}

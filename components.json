@@ -5,18 +5,18 @@
   "tsx": false,
   "tailwind": {
     "config": "",
-    "css": "packages/shared/styles/globals.css",
+    "css": "packages/presentation/shared/styles/globals.css",
     "baseColor": "slate",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@kennelo/components",
-    "utils": "@kennelo/lib/utils",
-    "ui": "@kennelo/components/ui",
-    "lib": "@kennelo/lib",
-    "hooks": "@kennelo/hooks"
+    "components": "@kennelo/presentation/shared/components",
+    "utils": "@kennelo/presentation/shared/lib/utils",
+    "ui": "@kennelo/presentation/shared/components/ui",
+    "lib": "@kennelo/presentation/shared/lib",
+    "hooks": "@kennelo/presentation/shared/hooks"
   },
   "registries": {}
 }

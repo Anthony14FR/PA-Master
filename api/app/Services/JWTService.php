@@ -180,6 +180,7 @@ class JWTService
         ];
 
         if (! $isRefreshToken) {
+            $payload['uuid'] = $user->id;
             $payload['email'] = $user->email;
             $payload['roles'] = $user->roles->pluck('name')->toArray();
             $payload['locale'] = $user->locale ?? config('app.locale', 'en');

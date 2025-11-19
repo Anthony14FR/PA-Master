@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "name": "@kennelo/infrastructure",
+  "description": "Infrastructure for Kennelo",
+  "version": "0.1.0",
+  "dependencies": {
+    "@kennelo/application": "workspace:*",
+    "@kennelo/domain": "workspace:*"
+  }
+}

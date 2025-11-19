@@ -1,10 +1,5 @@
-import { Register } from '@kennelo/features/auth/pages/register';
-
-export const metadata = {
-    title: 'Inscription',
-    description: 'Créez votre compte',
-};
+import RegisterView from "@kennelo/presentation/features/auth/react/views/register.view"
 
 export default function Page() {
-    return <Register />;
+  return (<RegisterView />)
 }

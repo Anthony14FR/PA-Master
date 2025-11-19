@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "shared/styles/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@kennelo/presentation/shared/components",
+    "utils": "@kennelo/presentation/shared/lib/utils",
+    "ui": "@kennelo/presentation/shared/components/ui",
+    "lib": "@kennelo/presentation/shared/lib",
+    "hooks": "@kennelo/presentation/shared/hooks"
+  },
+  "registries": {}
+}

@@ -1,14 +1,16 @@
-import KLink from '@kennelo/components/k-link';
-import { Button } from '@kennelo/ui/button';
+"use client";
+
+import { Button } from "@kennelo/presentation/shared/components/ui/button";
+import { AppLink } from "@kennelo/presentation/shared/components/app-link";
 
 export default function Page() {
     return (
         <>
             <p>App page</p>
             <Button asChild variant="outline">
-                <KLink context="app" href="/overview">
+                <AppLink href="/s/app/overview">
                     App's Overview
-                </KLink>
+                </AppLink>
             </Button>
         </>
     );
